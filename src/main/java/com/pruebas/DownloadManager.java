@@ -6,32 +6,64 @@ import java.io.InputStreamReader;
 
 public class DownloadManager {
 
-    public void download(String url) {
-        ProcessBuilder processBuilder = new ProcessBuilder("yt-dlp", "-x", "--audio-format", "mp3", url);
-        Process process;
+    private ProcessBuilder processBuilder;
+    private Process process;
+    private BufferedReader reader;
+    private boolean finish = false;
+    private long porcentaje;
+
+    public boolean download(String url) {
+
+        processBuilder = new ProcessBuilder("yt-dlp", "-x", "--audio-format", "mp3", url);
         try {
             process = processBuilder.start();
 
-            // Leer la salida del comando ejecutado
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-            // Imprimir la salida del proceso línea por línea
+            String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+
+                try {
+                    // System.out.println(line);
+                    porcentaje = Long.parseLong(line.substring(12, 16));
+
+                } catch (NumberFormatException e) {
+
+                } catch (StringIndexOutOfBoundsException e) {
+
+                }
+
             }
 
-            // Esperar a que el proceso termine
             int exitCode = process.waitFor();
+            finish = true;
             System.out.println("El proceso terminó con el código de salida: " + exitCode);
 
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (InterruptedException e) {
+        }
+
+        return true;
+    }
+
+    public void start() {
+        try {
+            process = processBuilder.start();
+        } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+    }
+
+    public BufferedReader getReader() {
+        return reader;
+    }
+
+    public long getPorcentaje() {
+        return porcentaje;
     }
 
 }

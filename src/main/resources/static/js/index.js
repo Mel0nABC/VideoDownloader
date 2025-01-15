@@ -116,12 +116,19 @@ function updateBarProgress(id, estado, porcentaje) {
     const progressBar = document.getElementById("progressBar" + id);
     const porcenShell = document.getElementById("porcenShell" + id);
     const downloadRow = document.getElementById("row" + id);
-    if (estado = true) {
+    // if (estado = true) {
+    //     progressBar.style.width = 100 + '%';
+    //     porcenShell.innerHTML = 100 + '%';
+    //     // downloadRow.style.backgroundColor = "green";
+    // }
+    console.log("PORCENTAJE -----> " + porcentaje)
+    porcenShell.innerHTML = porcentaje;
+    if (porcentaje == "Recoding") {
+        console.log("RECODDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
         progressBar.style.width = 100 + '%';
-        porcenShell.innerHTML = 100 + '%';
-        // downloadRow.style.backgroundColor = "green";
+    } else {
+        progressBar.style.width = porcentaje + '%';
     }
-    progressBar.style.width = porcentaje + '%';
-    porcenShell.innerHTML = porcentaje + '%';
+
 }
 
