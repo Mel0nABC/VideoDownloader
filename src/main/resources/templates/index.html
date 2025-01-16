@@ -14,7 +14,20 @@
         <h1>YouTube Downloader</h1>
         <label for="url">Youtube URL:</label>
         <input type="text" id="url" name="url">
-        <button id="btnDownload">Descargar</button>
+        <button id="btnDownload">Descargar</button></br>
+        <li id="optionList">
+            <ol>
+                <input type="checkbox" id="soloAudio" name="soloAudio" value="soloAudio">
+                <label for="soloAudio">Sólo audio.</label><br>
+            </ol>
+            <ol>
+                <input type="checkbox" id="audioFormatMp3" name="audioFormatMp3" value="audioFormatMp3">
+                <label for="audioFormatMp3">Guardar en Mp3.</label><br>
+            </ol>
+        </li>
+
+
+
 
         <table id="mediaTable">
             <thead>
@@ -22,6 +35,7 @@
                     <th>ID</th>
                     <th>URL</th>
                     <th>%</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody id="tbodyContent">

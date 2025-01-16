@@ -6,4 +6,6 @@ public interface MediaRepository extends JpaRepository<MediaFile, Long> {
 
     MediaFile findByUrl(String url);
 
+
+
 }

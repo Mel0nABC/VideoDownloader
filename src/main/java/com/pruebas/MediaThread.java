@@ -8,23 +8,36 @@ import java.util.regex.Pattern;
 
 public class MediaThread extends Thread {
     private Double segundos = 0.0;
-    private String porcentaje;
+    private String status;
+    private Boolean soloAudio, audioFormatMp3;
     private MediaFile mediaFile;
     private ProcessBuilder processBuilder;
     private Process process;
     private BufferedReader reader;
+    private int exitCode;
 
     private MediaRepository mediaRepository;
 
-    public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository) {
+    public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
+            Boolean audioFormatMp3) {
         super(threadGroup, mediaFile.getUrl());
+
         this.mediaFile = mediaFile;
         this.mediaRepository = mediaRepository;
+        this.soloAudio = soloAudio;
+        this.audioFormatMp3 = audioFormatMp3;
     }
 
     @Override
     public void run() {
-        processBuilder = new ProcessBuilder("yt-dlp", "-x", "--audio-format", "mp3", mediaFile.getUrl());
+        processBuilder = new ProcessBuilder("yt-dlp", mediaFile.getUrl());
+
+        if (soloAudio == true) {
+            processBuilder = new ProcessBuilder("yt-dlp", "-x", mediaFile.getUrl());
+            if (audioFormatMp3)
+                processBuilder = new ProcessBuilder("yt-dlp", "-x", "--audio-format", "mp3", mediaFile.getUrl());
+        }
+
         try {
             process = processBuilder.start();
             System.out.println("START");
@@ -43,13 +56,16 @@ public class MediaThread extends Thread {
                         try {
                             if (line.length() > 16) {
 
-                                porcentaje = line.substring(11, 14).strip() + "%";
+                                status = line.substring(11, 14).strip() + "%";
 
-                                if (porcentaje.isBlank() | porcentaje.isEmpty())
-                                    porcentaje = "1%";
+                                if (status.isBlank() | status.isEmpty())
+                                    status = "1%";
 
-                                if (porcentaje.equals("100%"))
-                                    porcentaje = "Recoding";
+                                if (status.equals("100%"))
+                                    status = "Recoding";
+
+
+                                    System.out.println("ESTATUS -> "+status);
                             }
 
                         } catch (Exception e) {
@@ -58,8 +74,8 @@ public class MediaThread extends Thread {
                     }
                 }
             }
-            int exitCode = process.waitFor();
-            System.out.println("El proceso terminó con el código de salida: " + exitCode);
+            exitCode = process.waitFor();
+
 
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -69,8 +85,16 @@ public class MediaThread extends Thread {
         }
 
         mediaFile.setDownloaded(true);
-        mediaRepository.delete(mediaFile);
-        System.out.println("TAMAÑO DE BBDD --> " + mediaRepository.findAll().size());
+        mediaFile.setExitCode("ok");
+        status = "FINISH";
+
+        if (exitCode == 1) {
+            mediaFile.setDownloaded(false);
+            mediaFile.setExitCode("error en la descarga");
+            status = "ERROR";
+        }
+        System.out.println("El proceso terminó con el código de salida: " + exitCode);
+        mediaRepository.save(mediaFile);
 
     }
 
@@ -82,8 +106,8 @@ public class MediaThread extends Thread {
         return mediaFile;
     }
 
-    public String getPorcentaje() {
-        return porcentaje;
+    public String getStatus() {
+        return status;
     }
 
     public void setMediaFile(MediaFile mediaFile) {

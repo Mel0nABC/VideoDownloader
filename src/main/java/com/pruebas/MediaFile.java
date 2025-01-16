@@ -20,45 +20,50 @@ public class MediaFile {
     private double size;
     private LocalTime duration;
     private boolean downloaded;
+    private String exitCode;
 
     @ConstructorBinding
-    public MediaFile(long id, String url, String tittle, double size, LocalTime duration) {
+    public MediaFile(long id, String url, String tittle, double size, LocalTime duration, Boolean Downloaded) {
         this.id = id;
         this.url = url;
         this.tittle = tittle;
         this.size = size;
         this.duration = duration;
-        this.downloaded = false;
+        this.downloaded = Downloaded;
     }
 
-    public MediaFile(long id, String url, String tittle, double size) {
+    public MediaFile(long id, String url, String tittle, double size, Boolean Downloaded) {
         this.id = id;
         this.url = url;
         this.tittle = tittle;
         this.size = size;
-        this.downloaded = false;
+        this.downloaded = Downloaded;
     }
 
-    public MediaFile(long id, String url, String tittle) {
+    public MediaFile(long id, String url, String tittle, Boolean Downloaded) {
         this.id = id;
         this.url = url;
         this.tittle = tittle;
-        this.downloaded = false;
+        this.downloaded = Downloaded;
     }
 
-    public MediaFile(long id, String url) {
+    public MediaFile(long id, String url, Boolean Downloaded) {
         this.id = id;
         this.url = url;
-        this.downloaded = false;
+        this.downloaded = Downloaded;
     }
 
-    public MediaFile(String url) {
+    public MediaFile(String url, Boolean Downloaded) {
         this.url = url;
-        this.downloaded = false;
+        this.downloaded = Downloaded;
+    }
+
+    public MediaFile(Boolean Downloaded) {
+        this.downloaded = Downloaded;
     }
 
     public MediaFile() {
-        this.downloaded = false;
+
     }
 
     public long getId() {
@@ -101,12 +106,20 @@ public class MediaFile {
         this.duration = duration;
     }
 
-    public boolean isDownloaded() {
+    public boolean getDownloaded() {
         return downloaded;
     }
 
     public void setDownloaded(boolean downloaded) {
         this.downloaded = downloaded;
+    }
+
+    public String getExitCode() {
+        return exitCode;
+    }
+
+    public void setExitCode(String exitCode) {
+        this.exitCode = exitCode;
     }
 
     @Override
