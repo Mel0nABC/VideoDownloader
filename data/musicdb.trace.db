@@ -1,3 +1,0 @@
-2025-01-17 20:23:19.784210+01:00 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "MEDIA_FILE" not found (this database is empty); SQL statement:
-select mf1_0.id,mf1_0.downloaded,mf1_0.duration,mf1_0.exit_code,mf1_0.size,mf1_0.tittle,mf1_0.url from media_file mf1_0 where mf1_0.id=? [42104-232]
