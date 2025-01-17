@@ -1,4 +1,4 @@
-package com.pruebas;
+package com.video;
 
 import java.time.LocalTime;
 
@@ -20,7 +20,7 @@ public class MediaFile {
     private double size;
     private LocalTime duration;
     private boolean downloaded;
-    private String exitCode;
+    private int exitCode;
 
     @ConstructorBinding
     public MediaFile(long id, String url, String tittle, double size, LocalTime duration, Boolean Downloaded) {
@@ -53,9 +53,10 @@ public class MediaFile {
         this.downloaded = Downloaded;
     }
 
-    public MediaFile(String url, Boolean Downloaded) {
+    public MediaFile(String url, Boolean Downloaded, int exitCode) {
         this.url = url;
         this.downloaded = Downloaded;
+        this.exitCode = exitCode;
     }
 
     public MediaFile(Boolean Downloaded) {
@@ -114,11 +115,11 @@ public class MediaFile {
         this.downloaded = downloaded;
     }
 
-    public String getExitCode() {
+    public int getExitCode() {
         return exitCode;
     }
 
-    public void setExitCode(String exitCode) {
+    public void setExitCode(int exitCode) {
         this.exitCode = exitCode;
     }
 
