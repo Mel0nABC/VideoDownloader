@@ -17,12 +17,9 @@ public class MediaController {
     private MediaRepository mediaRepository;
 
     private ThreadGroup threadGroup = new ThreadGroup("ThreadGroup");
-    private MediaThread[] threads;
     private ArrayList<MediaThread> mediaThreadList = new ArrayList<>();
 
     private final int EXIT_CODE_OK = 0;
-    private final int EXIT_CODE_ERROR = 1;
-    private final int EXIT_CODE_WAITING = 2;
 
     public MediaController(MediaRepository mediaRepository) {
         this.mediaRepository = mediaRepository;
@@ -79,7 +76,6 @@ public class MediaController {
         MediaFile mfToDelete = mediaRepository.findByUrl(url);
 
         if (mfToDelete != null) {
-            // deleteMediaThread(mfToDelete);
             mediaRepository.deleteById(mfToDelete.getId());
             return ResponseEntity.ok("true");
         }
@@ -112,7 +108,6 @@ public class MediaController {
                 try {
                     tr.join();
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 if (!tr.isAlive())
