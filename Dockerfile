@@ -4,16 +4,16 @@ WORKDIR /app
 
 COPY . .
 
-RUN ./mvnw clean package -DskipTests
+# RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:23-jre
 
 WORKDIR /app
 
-COPY --from=builder /app/target/*.jar app.jar
-
+COPY --from=builder /app/target/video-1.0-SNAPSHOT.jar video.jar
+COPY --from=builder /app//src/main/resources/yt-dlt_binarie/yt-dlp yt-dlp
 
 EXPOSE 8080
 
 
-ENTRYPOINT [ "java","-jar", "app.jar" ]
+ENTRYPOINT [ "java","-jar", "video.jar" ]

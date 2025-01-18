@@ -21,6 +21,7 @@ public class MediaThread extends Thread {
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
+    private final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
             Boolean audioFormatMp3) {
@@ -34,13 +35,16 @@ public class MediaThread extends Thread {
     @Override
     public void run() {
         status = "WAIT";
-        processBuilder = new ProcessBuilder("yt-dlp", "-o", "./DownloadedFiles//%(title)s.%(ext)s", mediaFile.getUrl());
+        processBuilder = new ProcessBuilder(YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s",
+                mediaFile.getUrl());
 
         if (soloAudio == true) {
-            processBuilder = new ProcessBuilder("yt-dlp", "-o", "./DownloadedFiles//%(title)s.%(ext)s", "-x",
+            processBuilder = new ProcessBuilder(YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s",
+                    "-x",
                     mediaFile.getUrl());
             if (audioFormatMp3)
-                processBuilder = new ProcessBuilder("yt-dlp", "-o", "./DownloadedFiles//%(title)s.%(ext)s", "-x",
+                processBuilder = new ProcessBuilder(YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s",
+                        "-x",
                         "--audio-format", "mp3", mediaFile.getUrl());
         }
 
