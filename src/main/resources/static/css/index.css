@@ -11,6 +11,10 @@ table {
     margin: 20px auto;
 }
 
+#mediaTable{
+    margin-top: 50px;
+}
+
 th,
 td {
     padding: 10px;
@@ -74,6 +78,6 @@ th {
 
   footer{
     text-align: center;
-    margin-top: 25%;
+    margin-top: 50px;
     font-size: 15px;
   }
