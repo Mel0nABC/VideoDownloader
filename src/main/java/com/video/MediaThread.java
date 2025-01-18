@@ -6,11 +6,8 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class MediaThread extends Thread {
 
-    @Autowired
     private MediaRepository mediaRepository;
 
     private Double segundos = 0.0;
@@ -32,7 +29,6 @@ public class MediaThread extends Thread {
         this.mediaRepository = mediaRepository;
         this.soloAudio = soloAudio;
         this.audioFormatMp3 = audioFormatMp3;
-
     }
 
     @Override
@@ -54,7 +50,7 @@ public class MediaThread extends Thread {
             String line;
             try {
                 while ((line = reader.readLine()) != null) {
-
+                    System.out.println(line);
                     String regex = "\\[(.*?)]";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(line);

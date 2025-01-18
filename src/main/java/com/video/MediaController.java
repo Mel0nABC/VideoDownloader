@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class MediaController {
 
-    @Autowired
     private MediaRepository mediaRepository;
 
     private ThreadGroup threadGroup = new ThreadGroup("ThreadGroup");
@@ -25,6 +23,10 @@ public class MediaController {
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_WAITING = 2;
+
+    public MediaController(MediaRepository mediaRepository) {
+        this.mediaRepository = mediaRepository;
+    }
 
     @GetMapping("/")
     public String inicio() {
