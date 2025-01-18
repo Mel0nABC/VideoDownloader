@@ -71,3 +71,9 @@ th {
       opacity: 0;
     }
   }
+
+  footer{
+    text-align: center;
+    margin-top: 25%;
+    font-size: 15px;
+  }
