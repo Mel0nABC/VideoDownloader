@@ -13,7 +13,8 @@ COPY . .
 # COPY --from=builder /app/target/video-1.0-SNAPSHOT.jar video.jar
 
 COPY /target/video-1.0-SNAPSHOT.jar video.jar
-
+RUN ["apt","update"]
+RUN ["apt","-y","install","ffmpeg"]
 RUN ["wget","https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"]
 RUN ["mv","yt-dlp_linux","yt-dlp"]
 RUN ["chmod","u+x","yt-dlp"]
