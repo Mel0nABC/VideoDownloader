@@ -150,4 +150,10 @@ public class MediaController {
         return false;
     }
 
+    @PostMapping("/checkYtUpdate")
+    public String checkYtUpdate() {
+
+        return "up to date";
+    }
+
 }

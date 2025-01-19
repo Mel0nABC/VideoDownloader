@@ -14,17 +14,11 @@ public class MediaThread extends Thread {
     private String status;
     private Boolean soloAudio, audioFormatMp3;
     private MediaFile mediaFile;
-    private ProcessBuilder processBuilder;
-    private Process process;
     private BufferedReader reader;
     private int exitCode;
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
-    // private final String YT_DLP_BIN = System.getProperty("user.dir") + "/src/main/resources/yt-dlt_binarie/yt-dlp";
-    
-    // dockerfile
-    private final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
             Boolean audioFormatMp3) {
@@ -38,21 +32,10 @@ public class MediaThread extends Thread {
     @Override
     public void run() {
         status = "WAIT";
-        processBuilder = new ProcessBuilder(YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s",
-                mediaFile.getUrl());
-
-        if (soloAudio == true) {
-            processBuilder = new ProcessBuilder(YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s",
-                    "-x",
-                    mediaFile.getUrl());
-            if (audioFormatMp3)
-                processBuilder = new ProcessBuilder(YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s",
-                        "-x",
-                        "--audio-format", "mp3", mediaFile.getUrl());
-        }
-
         try {
-            process = processBuilder.start();
+            ProcesYtdlp procesYtdlp = new ProcesYtdlp();
+            Process process = procesYtdlp.getDownloadProces(soloAudio, audioFormatMp3, mediaFile);
+
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = "";
             try {
@@ -98,9 +81,6 @@ public class MediaThread extends Thread {
 
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-
         } finally {
 
             try {
