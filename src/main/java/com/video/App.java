@@ -1,9 +1,5 @@
 package com.video;
 
-import java.io.File;
-
-import javax.print.attribute.standard.Media;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -21,15 +17,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class App {
 
     public static void main(String[] args) {
-        createDownloadDir();
+        CheckFolderFiles.CheckOrCreateDownloadDir();
+        CheckFolderFiles.checkOrDownloadYtdlp();
         SpringApplication.run(App.class, args);
     }
-
-    public static void createDownloadDir() {
-        File downDir = new File("./DownloadedFiles");
-
-        if (!downDir.exists())
-            downDir.mkdirs();
-    }
-
 }

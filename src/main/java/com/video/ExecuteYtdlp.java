@@ -3,14 +3,13 @@ package com.video;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.channels.Pipe.SourceChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ExecuteYtdlp {
 
     // dockerfile
-    private final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
+    private final String YT_DLP_BIN = CheckFolderFiles.YT_DLP_BIN;
     private ProcessBuilder processBuilder;
     private Process process;
     private YtdlpUpdateInfo ytstatus = new YtdlpUpdateInfo();
