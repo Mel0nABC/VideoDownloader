@@ -1,8 +1,8 @@
-# FROM eclipse-temurin:23-jdk AS builder
+FROM eclipse-temurin:23-jdk AS builder
 
-# WORKDIR /app
+WORKDIR /app
 
-# COPY . .
+COPY . .
 
 # RUN ./mvnw clean package -DskipTests
 
@@ -12,11 +12,8 @@ COPY . .
 
 WORKDIR /app
 
-COPY /target/video-1.0-SNAPSHOT.jar video.jar
-COPY /src/main/resources/yt-dlt_binarie/yt-dlp yt-dlp
-
-# COPY --from=builder /app/target/video-1.0-SNAPSHOT.jar video.jar
-# COPY --from=builder /app//src/main/resources/yt-dlt_binarie/yt-dlp yt-dlp
+COPY --from=builder /app/target/video-1.0-SNAPSHOT.jar video.jar
+COPY --from=builder /app//src/main/resources/yt-dlt_binarie/yt-dlp yt-dlp
 
 EXPOSE 8080
 

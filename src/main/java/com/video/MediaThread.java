@@ -21,10 +21,10 @@ public class MediaThread extends Thread {
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
-    private final String YT_DLP_BIN = System.getProperty("user.dir") + "/src/main/resources/yt-dlt_binarie/yt-dlp";
+    // private final String YT_DLP_BIN = System.getProperty("user.dir") + "/src/main/resources/yt-dlt_binarie/yt-dlp";
     
     // dockerfile
-    // private final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
+    private final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
             Boolean audioFormatMp3) {
