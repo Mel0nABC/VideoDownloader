@@ -21,7 +21,10 @@ public class MediaThread extends Thread {
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
-    private final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
+    private final String YT_DLP_BIN = System.getProperty("user.dir") + "/src/main/resources/yt-dlt_binarie/yt-dlp";
+    
+    // dockerfile
+    // private final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
             Boolean audioFormatMp3) {
@@ -51,9 +54,11 @@ public class MediaThread extends Thread {
         try {
             process = processBuilder.start();
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
+            String line = "";
             try {
-                while ((line = reader.readLine()) != null) {
+                boolean finish = false;
+                while ((line = reader.readLine()) != null && !finish) {
+
                     System.out.println(line);
                     String regex = "\\[(.*?)]";
                     Pattern pattern = Pattern.compile(regex);
@@ -63,9 +68,7 @@ public class MediaThread extends Thread {
                         if (statusString.equals("download")) {
                             try {
                                 if (line.length() > 16) {
-
                                     status = line.substring(11, 14).strip() + "%";
-
                                     if (status.isBlank() | status.isEmpty())
                                         status = "1%";
 
@@ -80,10 +83,13 @@ public class MediaThread extends Thread {
                     }
 
                     if (this.isInterrupted()) {
+                        finish = true;
                         process.destroy();
                         exitCode = EXIT_CODE_CANCEL;
                     }
+
                 }
+                reader.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -91,11 +97,18 @@ public class MediaThread extends Thread {
             exitCode = process.waitFor();
 
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+
         } finally {
+
+            try {
+                reader.close();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
             mediaFile.setDownloaded(true);
             mediaFile.setExitCode(EXIT_CODE_OK);
             status = "FINISH";
@@ -114,6 +127,7 @@ public class MediaThread extends Thread {
 
             if (exitCode != EXIT_CODE_CANCEL)
                 mediaRepository.save(mediaFile);
+
             System.out.println("El proceso terminó con el código de salida: " + exitCode);
         }
     }

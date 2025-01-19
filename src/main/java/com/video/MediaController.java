@@ -65,56 +65,89 @@ public class MediaController {
         return ResponseEntity.ok(contenido);
     }
 
+    /**
+     * Devuelve lista actualizada
+     * 
+     * @return lista mediaThreadList
+     */
     @PostMapping("/getInfo")
     public ResponseEntity<ArrayList<MediaThread>> getList() {
         return ResponseEntity.ok(mediaThreadList);
     }
 
+    /**
+     * Elimina de bbdd y mediaThreadList un MediaThread.
+     * 
+     * @param url url del MediaFile dentro de MediaThread
+     * @return true cuando lo ha eliminado, false si ha ocurrido otra cosa.
+     */
     @PostMapping("/delByUrl")
-    public ResponseEntity<String> delByUrl(@RequestParam("url") String url) {
-
-        MediaFile mfToDelete = mediaRepository.findByUrl(url);
-
-        if (mfToDelete != null) {
-            mediaRepository.deleteById(mfToDelete.getId());
+    public ResponseEntity<String> delByUrlWeb(@RequestParam("url") String url) {
+        if (delByUrlFromListAndBBDD(url))
             return ResponseEntity.ok("true");
-        }
 
         return ResponseEntity.ok("false");
     }
 
-    public void deleteMediaThread(MediaFile mfToDelete) {
+    public boolean delByUrlFromListAndBBDD(String url) {
+        MediaFile mfToDelete = mediaRepository.findByUrl(url);
+        if (mfToDelete != null) {
 
-        Thread toDelete = null;
-
-        for (MediaThread mt : mediaThreadList)
-            if (mt.getMediaFile().getUrl().equals(mfToDelete.getUrl())) {
-                toDelete = mt;
+            for (MediaThread mt : mediaThreadList) {
+                if (mt.getMediaFile().getUrl().equals(url)) {
+                    mediaThreadList.remove(mt);
+                    mediaRepository.deleteById(mfToDelete.getId());
+                    return true;
+                }
             }
+        }
+        return false;
+    }
 
-        mediaThreadList.remove(toDelete);
-
+    public boolean delThreadFromList(MediaFile mfToDel) {
+        for (MediaThread mt : mediaThreadList) {
+            if (mt.getMediaFile().getUrl().equals(mfToDel.getUrl())) {
+                mediaThreadList.remove(mt);
+                return true;
+            }
+        }
+        return false;
     }
 
     @PostMapping("/stopThread")
-    public ResponseEntity<String> stopThread(@RequestParam("url") String url) {
-        threadGroup.activeCount();
-        Thread[] lista = new Thread[threadGroup.activeCount()];
+    public ResponseEntity<String> stopThreadWeb(@RequestParam("url") String url) {
+
+        if (!stopThread(url))
+            return ResponseEntity.ok("false");
+
+        if (!delByUrlFromListAndBBDD(url))
+            return ResponseEntity.ok("false");
+
+        return ResponseEntity.ok("true");
+    }
+
+    public boolean stopThread(String url) {
+        MediaThread[] lista = new MediaThread[threadGroup.activeCount()];
         threadGroup.enumerate(lista);
 
-        for (Thread tr : lista) {
+        for (MediaThread tr : lista) {
             if (tr != null) {
-                tr.interrupt();
-                try {
-                    tr.join();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (tr.getMediaFile().getUrl().equals(url)) {
+                    tr.interrupt();
+                    try {
+                        tr.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    if (!tr.isAlive()) {
+                        System.out.println("MUERTO!");
+                        return true;
+                    }
+
                 }
-                if (!tr.isAlive())
-                    mediaThreadList.remove(tr);
             }
         }
-        return ResponseEntity.ok("true");
+        return false;
     }
 
 }

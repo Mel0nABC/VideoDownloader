@@ -8,15 +8,14 @@ window.onload = function () {
     const btnDown = document.getElementById("btnDownload");
 
     btnDown.addEventListener("click", function () {
-
-
-        const url = document.getElementById("url").value;
+        const url = document.getElementById("url");
         const soloAudio = document.getElementById("soloAudio").checked;
         const audioFormatMp3 = document.getElementById("audioFormatMp3").checked;
         const formData = new FormData();
         formData.append("soloAudio", soloAudio);
         formData.append("audioFormatMp3", audioFormatMp3);
-        formData.append("url", url);
+        formData.append("url", url.value);
+        url.value = "";
 
         let options = {
             method: "POST",
@@ -58,6 +57,7 @@ function firstLoad() {
         })
 }
 
+
 async function updateTable() {
     updateData = true;
 
@@ -86,12 +86,12 @@ async function updateTable() {
                 });
 
             })
-        await new Promise(resolve => setTimeout(resolve, 100));
-
+        await new Promise(resolve => setTimeout(resolve, 300));
     }
 };
 
 function updateBarProgress(id, estado, status) {
+    console.log("ID -> " + id + " - " + estado + " - " + status)
     const progressBar = document.getElementById("progressBar" + id);
     const porcenShell = document.getElementById("porcenShell" + id);
     const downloadRow = document.getElementById("row" + id);
@@ -202,20 +202,18 @@ function addBtnCancel(id) {
             method: "POST",
             body: formData
         }
-        updateData = false;
+
         fetch("/stopThread", options)
             .then(res => res.json())
             .then(response => {
                 if (response == true) {
-                    delByUrl(id);
-                    updateTable();
+                    delRow(id, response)
                 } else {
                     alert("Ha ocurrido algún problema inesperado para cancelar la descarga.")
                 }
-
             })
-
     });
+
 }
 
 function checkCancelBtnAndDel(id) {
@@ -255,14 +253,17 @@ function delByUrl(id) {
     fetch(`/delByUrl`, options)
         .then(res => res.json())
         .then(response => {
-
-            const rowToDel = document.getElementById("row" + id);
-            if (response == true) {
-                rowToDel.remove();
-            } else {
-                rowToDel.style.backgroundColor = RED_STATUS;
-            }
+            delRow(id, response);
         })
+}
+
+function delRow(id, response) {
+    const rowToDel = document.getElementById("row" + id);
+    if (response == true) {
+        rowToDel.remove();
+    } else {
+        rowToDel.style.backgroundColor = RED_STATUS;
+    }
 }
 
 
