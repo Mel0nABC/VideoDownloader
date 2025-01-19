@@ -41,7 +41,6 @@ public class MediaThread extends Thread {
             try {
                 boolean finish = false;
                 while ((line = reader.readLine()) != null && !finish) {
-
                     System.out.println(line);
                     String regex = "\\[(.*?)]";
                     Pattern pattern = Pattern.compile(regex);

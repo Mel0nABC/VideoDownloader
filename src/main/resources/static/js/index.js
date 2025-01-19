@@ -302,29 +302,29 @@ function checkUpdate() {
             updated = response.updated;
             error = response.error;
 
-            if (error = true) {
-                var errorText = "Error";
-                actualVersionText.textContent = "  " + errorText
-                lastVersionText.textContent = "  " + errorText;
-                updatedVersionText.textContent = "  " + errorText;
-            } else{
-                if (updated == true) {
-                    actualVersionText.textContent = "  " + latestVersion;
-                } else {
-                    actualVersionText.textContent = "  " + actualVersion;
-                }
-
-                lastVersionText.textContent = "  " + latestVersion;
-                updatedVersionText.textContent = "  " + formattedDate;
-
-            }
-
-
             console.log(actualVersion)
             console.log(latestVersion)
             console.log(upToDate)
             console.log(updated)
             console.log(error)
+
+            if (error == true) {
+                var errorText = "Error";
+                actualVersionText.textContent = "  " + errorText
+                lastVersionText.textContent = "  " + errorText;
+                updatedVersionText.textContent = "  " + errorText;
+                return;
+            }
+
+
+            if (updated == true) {
+                actualVersionText.textContent = "  " + latestVersion;
+            } else {
+                actualVersionText.textContent = "  " + actualVersion;
+            }
+
+            lastVersionText.textContent = "  " + latestVersion;
+            updatedVersionText.textContent = "  " + formattedDate;
         })
 
 

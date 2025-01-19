@@ -151,10 +151,7 @@ public class MediaController {
 
     @PostMapping("/checkYtUpdate")
     public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
-        YtdlpUpdateInfo y = new ExecuteYtdlp().getRelease();
-        System.out.println(y);
-        // return ResponseEntity.ok(new ProcesYtdlp().getRelease());
-        return ResponseEntity.ok(y);
+        return ResponseEntity.ok(new ExecuteYtdlp().getRelease());
     }
 
 }

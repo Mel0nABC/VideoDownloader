@@ -33,8 +33,6 @@ public class CheckFolderFiles {
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                 }
-
-                System.out.println("Archivo descargado en: " + outputPath);
             } catch (Exception e) {
                 e.printStackTrace();
             }

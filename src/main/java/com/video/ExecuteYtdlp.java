@@ -51,9 +51,7 @@ public class ExecuteYtdlp {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
-            System.out.println("READER");
             readProcessResult(reader);
-            System.out.println("READER ERROR");
             readProcessResult(readerError);
 
         } catch (IOException e) {
@@ -68,22 +66,17 @@ public class ExecuteYtdlp {
         try {
             while ((line = reader.readLine()) != null) {
 
-                System.out.println("LINEA -> " + line);
-
                 if (line.contains("ERROR")) {
                     ytstatus.setError(true);
-                    System.out.println("ERROR");
                 }
 
                 if (!ytstatus.isError()) {
                     if (line.contains("Latest version:")) {
                         ytstatus.setLatestVersion(getDates(line));
-                        System.out.println(ytstatus.getLatestVersion());
                     }
-                    // || line.contains("Current version")
+
                     if (line.contains("yt-dlp is up to date") || line.contains("Current version:")) {
                         ytstatus.setActualVersion(getDates(line));
-                        System.out.println(ytstatus.getActualVersion());
                     }
 
                     if (line.contains("Updated"))
@@ -97,20 +90,15 @@ public class ExecuteYtdlp {
                     ytstatus.setUpToDate(true);
 
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            System.out.println("ERROR EN ExecuteYtdlp.readProcessResult()");
         }
     }
 
     public String getDates(String line) {
         Pattern pattern = Pattern.compile("(\\w+@\\d{4}\\.\\d{2}\\.\\d{2})");
         Matcher matcher = pattern.matcher(line);
-        while (matcher.find()) {
-            String localizado = matcher.group();
-            System.out.println(localizado);
-            return localizado;
-        }
-
+        while (matcher.find())
+            return matcher.group();
         return "";
     }
 
