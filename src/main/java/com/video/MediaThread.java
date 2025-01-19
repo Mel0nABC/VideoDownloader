@@ -33,7 +33,7 @@ public class MediaThread extends Thread {
     public void run() {
         status = "WAIT";
         try {
-            ProcesYtdlp procesYtdlp = new ProcesYtdlp();
+            ExecuteYtdlp procesYtdlp = new ExecuteYtdlp();
             Process process = procesYtdlp.getDownloadProces(soloAudio, audioFormatMp3, mediaFile);
 
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));

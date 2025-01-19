@@ -5,6 +5,7 @@ const GREEN_STATUS = "rgb(198, 239, 206)";
 window.onload = function () {
 
     firstLoad();
+    checkUpdate();
     const btnDown = document.getElementById("btnDownload");
 
     btnDown.addEventListener("click", function () {
@@ -267,3 +268,64 @@ function delRow(id, response) {
 }
 
 
+function checkUpdate() {
+
+    let actualVersion;
+    let latestVersion;
+    let upToDate;
+    let updated;
+    let error;
+
+    var actualVersionText = document.getElementById("actualVersion")
+    var lastVersionText = document.getElementById("lastVersion")
+    var updatedVersionText = document.getElementById("updatedVersion")
+
+    // Obtener la fecha actual
+    const now = new Date(Date.now());
+
+    // Extraer los componentes de la fecha
+    const year = now.getFullYear(); // Año en formato YYYY
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Mes (0-11) ajustado a 2 dígitos
+    const day = String(now.getDate()).padStart(2, '0'); // Día ajustado a 2 dígitos
+
+    // Formatear en yyyy.mm.dd
+    const formattedDate = `${year}.${month}.${day}`;
+
+    console.log(formattedDate); // Ejemplo: 2025.01.19
+
+    fetch('/checkYtUpdate', { method: 'POST' })
+        .then(res => res.json())
+        .then(response => {
+            actualVersion = response.actualVersion;
+            latestVersion = response.latestVersion;
+            upToDate = response.upToDate;
+            updated = response.updated;
+            error = response.error;
+
+            if (error = true) {
+                var errorText = "Error";
+                actualVersionText.textContent = "  " + errorText
+                lastVersionText.textContent = "  " + errorText;
+                updatedVersionText.textContent = "  " + errorText;
+            } else{
+                if (updated == true) {
+                    actualVersionText.textContent = "  " + latestVersion;
+                } else {
+                    actualVersionText.textContent = "  " + actualVersion;
+                }
+
+                lastVersionText.textContent = "  " + latestVersion;
+                updatedVersionText.textContent = "  " + formattedDate;
+
+            }
+
+
+            console.log(actualVersion)
+            console.log(latestVersion)
+            console.log(upToDate)
+            console.log(updated)
+            console.log(error)
+        })
+
+
+}

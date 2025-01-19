@@ -140,7 +140,6 @@ public class MediaController {
                         e.printStackTrace();
                     }
                     if (!tr.isAlive()) {
-                        System.out.println("MUERTO!");
                         return true;
                     }
 
@@ -151,9 +150,11 @@ public class MediaController {
     }
 
     @PostMapping("/checkYtUpdate")
-    public String checkYtUpdate() {
-
-        return "up to date";
+    public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
+        YtdlpUpdateInfo y = new ExecuteYtdlp().getRelease();
+        System.out.println(y);
+        // return ResponseEntity.ok(new ProcesYtdlp().getRelease());
+        return ResponseEntity.ok(y);
     }
 
 }

@@ -15,16 +15,29 @@
         <label for="url">Video Link:</label>
         <input type="text" id="url" name="url" required placeholder="Indica el link del video a descargar">
         <button id="btnDownload">Descargar</button></br>
-        <li id="optionList">
-            <ol>
-                <input type="checkbox" id="soloAudio" name="soloAudio" value="soloAudio">
-                <label for="soloAudio">Sólo audio.</label><br>
-            </ol>
-            <ol>
-                <input type="checkbox" id="audioFormatMp3" name="audioFormatMp3" value="audioFormatMp3">
-                <label for="audioFormatMp3">Guardar en Mp3.</label><br>
-            </ol>
-        </li>
+
+        <div class="container">
+            <div class="box">
+                <li id="optionList">
+                    <ol>
+                        <input type="checkbox" id="soloAudio" name="soloAudio" value="soloAudio">
+                        <label for="soloAudio">Sólo audio.</label><br>
+                    </ol>
+                    <ol>
+                        <input type="checkbox" id="audioFormatMp3" name="audioFormatMp3" value="audioFormatMp3">
+                        <label for="audioFormatMp3">Guardar en Mp3.</label><br>
+                    </ol>
+                </li>
+            </div>
+            <div class="box info-box">
+                <li>
+                    <ol><label>Versión actual:</label><text id="actualVersion"></text></ol>
+                    <ol><label>Última versión:</label><text id="lastVersion"></text></ol>
+                    <ol><label>Actualizado:</label><text id="updatedVersion"></text></ol>
+                </li>
+            </div>
+
+        </div>
         <table id="mediaTable">
             <thead>
                 <tr>
