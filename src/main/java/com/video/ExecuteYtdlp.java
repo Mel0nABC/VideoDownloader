@@ -60,9 +60,11 @@ public class ExecuteYtdlp {
             BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+
                 if (line.contains("[youtube]") == false && line.contains("------------") == false
-                        && line.contains("[info]") == false || line.contains("[generic]") != false) {
+                        && line.contains("[info]") == false && line.contains("[generic]") == false
+                        && line.contains("ID") == false) {
+                    System.out.println(line);
                     listRows.add(line);
                 }
 
