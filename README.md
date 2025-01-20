@@ -3,7 +3,8 @@ User interface for yt-dlt, only three options.
 For all skills, go to https://github.com/yt-dlp/yt-dlp
 
 
-![imagen](https://github.com/user-attachments/assets/07f63411-1f65-478c-8c1d-60fa3ad461d9)
+![imagen](https://github.com/user-attachments/assets/d3ae5fa6-7cce-4fe2-840c-2e541af34a52)
+
 
 Select the quality and format to download.
 
