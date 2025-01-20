@@ -39,7 +39,21 @@ public class MediaController {
     @PostMapping("/download")
     public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url,
             @RequestParam("soloAudio") Boolean soloAudio,
-            @RequestParam("audioFormatMp3") Boolean audioFormatMp3) {
+            @RequestParam("audioFormatMp3") Boolean audioFormatMp3,
+            @RequestParam("idDownload") String idDownload) {
+
+
+
+        List<String> aditionalParamList = new ArrayList<>();
+
+        if (idDownload != "null") {
+            String idDownloadFiltered = idDownload;
+            // if (idDownload.contains(" "))
+                idDownloadFiltered = idDownload.split(" ")[0];
+
+            aditionalParamList.add("-f");
+            aditionalParamList.add(idDownloadFiltered);
+        }
 
         Map<String, Object> contenido = new HashMap<>();
         MediaFile mfBBDD = mediaRepository.findByUrl(url);
@@ -55,7 +69,7 @@ public class MediaController {
         mfBBDD = mediaRepository.findByUrl(mfBBDD.getUrl());
 
         MediaThread mfThread = new MediaThread(threadGroup, mfBBDD,
-                mediaRepository, soloAudio, audioFormatMp3);
+                mediaRepository, soloAudio, audioFormatMp3, aditionalParamList);
 
         mediaThreadList.add(mfThread);
         mfThread.start();
@@ -152,6 +166,11 @@ public class MediaController {
     @PostMapping("/checkYtUpdate")
     public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
         return ResponseEntity.ok(new ExecuteYtdlp().getRelease());
+    }
+
+    @PostMapping("/getVideoFormats")
+    public ResponseEntity<ArrayList<String>> getVideoFromats(@RequestParam("url") String url) {
+        return ResponseEntity.ok(new ExecuteYtdlp().getVideoFromats(url));
     }
 
 }

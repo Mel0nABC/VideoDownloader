@@ -3,6 +3,9 @@ package com.video;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,38 +17,73 @@ public class ExecuteYtdlp {
     private Process process;
     private YtdlpUpdateInfo ytstatus = new YtdlpUpdateInfo();
 
-    public Process getDownloadProces(Boolean soloAudio, Boolean audioFormatMp3, MediaFile mediaFile) {
+    public Process getDownloadProces(Boolean soloAudio, Boolean audioFormatMp3, MediaFile mediaFile,
+            List<String> aditionalParamList) {
 
-        executeProcess(new String[] { YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s", mediaFile.getUrl() });
+        List<String> totalProces = new ArrayList<>();
+        totalProces.add(YT_DLP_BIN);
+        totalProces.add("-o");
+        totalProces.add("./DownloadedFiles//%(title)s.%(ext)s");
 
         if (soloAudio == true) {
-
-            executeProcess(new String[] { YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s", "-x",
-                    mediaFile.getUrl() });
-
-            if (audioFormatMp3)
-
-                executeProcess(new String[] { YT_DLP_BIN, "-o", "./DownloadedFiles//%(title)s.%(ext)s", "-x",
-                        "--audio-format", "mp3", mediaFile.getUrl() });
+            totalProces.add("-x");
+            if (audioFormatMp3) {
+                totalProces.add("--audio-format");
+                totalProces.add("mp3");
+            }
         }
+
+        if (!aditionalParamList.contains("null"))
+            totalProces.addAll(aditionalParamList);
+
+        totalProces.add(mediaFile.getUrl());
+
+        executeProcess(totalProces);
 
         try {
             process = processBuilder.start();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
         return process;
     }
 
-    public void executeProcess(String[] parameters) {
-        processBuilder = new ProcessBuilder(parameters);
+    public ArrayList<String> getVideoFromats(String url) {
+        executeProcess(Arrays.asList(YT_DLP_BIN, "-F", url));
+        ArrayList<String> listRows = new ArrayList<>();
+        String line;
 
+        try {
+            process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                if (line.contains("[youtube]") == false && line.contains("------------") == false
+                        && line.contains("[info]") == false || line.contains("[generic]") != false) {
+                    listRows.add(line);
+                }
+
+                if (line.contains("[generic]"))
+                    listRows.add("ERROR, no se ha logrado obtener la información.");
+
+            }
+
+        } catch (IOException e) {
+            System.out.println("ERROR");
+            return null;
+        }
+        return listRows;
+    }
+
+    public void executeProcess(List<String> parameters) {
+        processBuilder = new ProcessBuilder(parameters);
     }
 
     public YtdlpUpdateInfo getRelease() {
-        executeProcess(new String[] { YT_DLP_BIN, "-U" });
+        executeProcess(Arrays.asList(YT_DLP_BIN, "-U"));
         try {
             process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -65,6 +103,7 @@ public class ExecuteYtdlp {
         String line;
         try {
             while ((line = reader.readLine()) != null) {
+                System.out.println(line);
 
                 if (line.contains("ERROR")) {
                     ytstatus.setError(true);
@@ -85,9 +124,14 @@ public class ExecuteYtdlp {
                 }
 
             }
+
+            String actualVersion = ytstatus.getActualVersion();
+            String latestVersion = ytstatus.getLatestVersion();
+
             if (!ytstatus.isError())
-                if (ytstatus.getActualVersion().equals(ytstatus.getLatestVersion()))
-                    ytstatus.setUpToDate(true);
+                if (actualVersion != null && latestVersion != null)
+                    if (actualVersion.equals(latestVersion))
+                        ytstatus.setUpToDate(true);
 
         } catch (IOException e) {
             System.out.println("ERROR EN ExecuteYtdlp.readProcessResult()");

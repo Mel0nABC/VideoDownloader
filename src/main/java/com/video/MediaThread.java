@@ -3,6 +3,7 @@ package com.video;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,17 +17,19 @@ public class MediaThread extends Thread {
     private MediaFile mediaFile;
     private BufferedReader reader;
     private int exitCode;
+    private List<String> aditionalParamList;
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
-            Boolean audioFormatMp3) {
+            Boolean audioFormatMp3, List<String> aditionalParamList) {
         super(threadGroup, "threadgroup");
         this.mediaFile = mediaFile;
         this.mediaRepository = mediaRepository;
         this.soloAudio = soloAudio;
         this.audioFormatMp3 = audioFormatMp3;
+        this.aditionalParamList = aditionalParamList;
     }
 
     @Override
@@ -34,7 +37,7 @@ public class MediaThread extends Thread {
         status = "WAIT";
         try {
             ExecuteYtdlp procesYtdlp = new ExecuteYtdlp();
-            Process process = procesYtdlp.getDownloadProces(soloAudio, audioFormatMp3, mediaFile);
+            Process process = procesYtdlp.getDownloadProces(soloAudio, audioFormatMp3, mediaFile,aditionalParamList);
 
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = "";

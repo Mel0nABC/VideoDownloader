@@ -10,12 +10,16 @@
 </head>
 
 <body>
-    <section>
+    <div id="titleContainer">
         <h1>Video Downloader</h1>
-        <label for="url">Video Link:</label>
-        <input type="text" id="url" name="url" required placeholder="Indica el link del video a descargar">
-        <button id="btnDownload">Descargar</button></br>
+    </div>
+    <section>
 
+        <input type="text" id="url" name="url" required placeholder="Indica el link del video a descargar">
+        <div>
+            <button id="btnDownloadMaxQuality">Descarga Máxima Calidad</button>
+            <button id="btnDownloadOptions">Seleccion de calidad</button>
+        </div>
         <div class="container">
             <div class="box">
                 <li id="optionList">

@@ -20,5 +20,8 @@ public class App {
         CheckFolderFiles.CheckOrCreateDownloadDir();
         CheckFolderFiles.checkOrDownloadYtdlp();
         SpringApplication.run(App.class, args);
+
+        // ExecuteYtdlp executeYtdlp = new ExecuteYtdlp();
+        // executeYtdlp.getVideoFromats("https://www.youtube.com/watch?v=V8KruVKM7vw");
     }
 }

@@ -19,11 +19,10 @@ th,
 td {
     padding: 10px;
     border: 1px solid #ccc;
-    text-align: left;
 }
 
 th {
-    background-color: #f4f4f4;
+    background-color: #267abe;
 }
 
 .progress-container {
@@ -111,12 +110,53 @@ footer {
 }
 
 
-.container{
+.container {
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.box{
+.box {
     margin: 20px;
+}
+
+#infoTable {
+    /* background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1; */
+
+    position: absolute;
+    /* O 'fixed' si deseas que se quede en su lugar al hacer scroll */
+    top: 50px;
+    /* Distancia desde la parte superior */
+    left: 50%;
+    /* Centrado horizontal */
+    transform: translateX(-50%);
+    /* Centrado exacto */
+    border-collapse: collapse;
+    background-color: rgba(255, 255, 255, 0.8);
+    /* Fondo semi-transparente */
+    z-index: 2;
+    border: solid 2px black;
+}
+
+#infoTable thead {
+    text-align: center;
+}
+
+#infoTable tbody tr {
+    background-color: white;
+    cursor: pointer;
+}
+
+#btnCloseDownloadOptions {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    background-color: transparent;
+    font-weight: bold;
+    font-size: medium;
+    border: none;
 }

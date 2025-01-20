@@ -6,35 +6,65 @@ window.onload = function () {
 
     firstLoad();
     checkUpdate();
-    const btnDown = document.getElementById("btnDownload");
 
-    btnDown.addEventListener("click", function () {
+    const btnDownMaxQuality = document.getElementById("btnDownloadMaxQuality");
+    const btnDownloadOptions = document.getElementById("btnDownloadOptions");
+
+    btnDownMaxQuality.addEventListener("click", function () {
         const url = document.getElementById("url");
-        const soloAudio = document.getElementById("soloAudio").checked;
-        const audioFormatMp3 = document.getElementById("audioFormatMp3").checked;
-        const formData = new FormData();
-        formData.append("soloAudio", soloAudio);
-        formData.append("audioFormatMp3", audioFormatMp3);
-        formData.append("url", url.value);
-        url.value = "";
-
-        let options = {
-            method: "POST",
-            body: formData
+        if (isblack(url.value)) {
+            alert("Debe introducir alguna dirección web.")
+            return;
         }
+        download("null");
+    });
 
-        fetch(`/download`, options)
-            .then(res => res.json())
-            .then(response => {
-                let mediaFile = response.mediaFile;
-
-                if (checkRow(mediaFile.id) === true)
-                    return;
-
-                addRow(mediaFile.id, mediaFile.url);
-            })
+    btnDownloadOptions.addEventListener("click", function () {
+        const url = document.getElementById("url");
+        if (isblack(url.value)) {
+            alert("Debe introducir alguna dirección web.")
+            return;
+        }
+        console.log(url)
+        getVideoFromats(url);
     });
 };
+
+function isblack(url) {
+    return !url.trim();
+}
+
+
+function download(idDownload) {
+    const url = document.getElementById("url");
+    const soloAudio = document.getElementById("soloAudio").checked;
+    const audioFormatMp3 = document.getElementById("audioFormatMp3").checked;
+    const formData = new FormData();
+    formData.append("soloAudio", soloAudio);
+    formData.append("audioFormatMp3", audioFormatMp3);
+    formData.append("url", url.value);
+    url.value = "";
+    formData.append("idDownload", idDownload);
+
+
+
+    let options = {
+        method: "POST",
+        body: formData
+    }
+
+    fetch(`/download`, options)
+        .then(res => res.json())
+        .then(response => {
+            let mediaFile = response.mediaFile;
+
+            if (checkRow(mediaFile.id) === true)
+                return;
+
+            addRow(mediaFile.id, mediaFile.url);
+        })
+}
+
 
 function firstLoad() {
     const url = document.getElementById("url").value;
@@ -280,18 +310,13 @@ function checkUpdate() {
     var lastVersionText = document.getElementById("lastVersion")
     var updatedVersionText = document.getElementById("updatedVersion")
 
-    // Obtener la fecha actual
     const now = new Date(Date.now());
 
-    // Extraer los componentes de la fecha
-    const year = now.getFullYear(); // Año en formato YYYY
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Mes (0-11) ajustado a 2 dígitos
-    const day = String(now.getDate()).padStart(2, '0'); // Día ajustado a 2 dígitos
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
 
-    // Formatear en yyyy.mm.dd
     const formattedDate = `${year}.${month}.${day}`;
-
-    console.log(formattedDate); // Ejemplo: 2025.01.19
 
     fetch('/checkYtUpdate', { method: 'POST' })
         .then(res => res.json())
@@ -301,13 +326,6 @@ function checkUpdate() {
             upToDate = response.upToDate;
             updated = response.updated;
             error = response.error;
-
-            console.log(actualVersion)
-            console.log(latestVersion)
-            console.log(upToDate)
-            console.log(updated)
-            console.log(error)
-
             if (error == true) {
                 var errorText = "Error";
                 actualVersionText.textContent = "  " + errorText
@@ -326,6 +344,95 @@ function checkUpdate() {
             lastVersionText.textContent = "  " + latestVersion;
             updatedVersionText.textContent = "  " + formattedDate;
         })
+}
+
+function getVideoFromats(url) {
 
 
+    const infoTable = document.getElementById("infoTable");
+
+    if (infoTable != null)
+        infoTable.remove();
+
+
+    const formData = new FormData();
+    formData.append("url", url.value)
+    var btnSelectedId = "";
+    let options = {
+        method: "POST",
+        body: formData
+    }
+
+    fetch('/getVideoFormats', options)
+        .then(res => res.json())
+        .then(response => {
+
+            const table = document.createElement("table");
+            const thead = document.createElement("thead");
+
+            const headerRow = document.createElement("tr");
+            const headerRow2 = document.createElement("tr");
+            const th = document.createElement("th");
+            const th2 = document.createElement("th");
+
+            table.id = "infoTable";
+            th.textContent = "OPCIONES DE DESCARGA, ELIJA UNA";
+            th2.textContent = "ID EXT RESOLUTION FPS CH | FILESIZE TBR PROTO | VCODEC VBR ACODEC ABR ASR MORE INFO";
+            const btnClose = document.createElement("button");
+            btnClose.id = "btnCloseDownloadOptions"
+            btnClose.textContent = "X";
+
+
+            headerRow.appendChild(th);
+            th.appendChild(btnClose);
+            headerRow2.appendChild(th2);
+            thead.appendChild(headerRow);
+            thead.appendChild(headerRow2);
+            table.appendChild(thead);
+
+            // Crear el cuerpo de la tabla
+            const tbody = document.createElement("tbody");
+
+            // Agregar las líneas al cuerpo de la tabla
+            response.forEach((line, index) => {
+                const row = document.createElement("tr");
+                const id = line.substring(0, 7);
+                row.id = id;
+                row.className = "btnFormat";
+
+                // Columna de número de línea
+                const lineNumberCell = document.createElement("td");
+                lineNumberCell.textContent = line;
+
+                row.appendChild(lineNumberCell);
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(tbody);
+
+            const titleContainer = document.getElementById("titleContainer");
+            titleContainer.appendChild(table);
+
+            const rowBotons = document.getElementsByClassName("btnFormat");
+            for (const btn of rowBotons) {
+                btn.addEventListener("click", e => {
+                    if (btnSelectedId != "")
+                        document.getElementById(btnSelectedId).style.backgroundColor = "white";
+
+                    btn.style.backgroundColor = "#cce5ff";
+                    btnSelectedId = btn.id;
+                })
+
+                btn.addEventListener("dblclick", e => {
+                    download(btn.id);
+                    table.remove();
+                    btnSelectedId = "";
+                })
+            };
+
+            btnClose.addEventListener("click", e => {
+                table.remove();
+                btnSelectedId = "";
+            })
+        })
 }
