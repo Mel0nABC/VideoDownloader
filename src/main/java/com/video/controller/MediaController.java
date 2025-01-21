@@ -1,4 +1,7 @@
-package com.video;
+package com.video.controller;
+
+import com.video.model.entity.*;
+import com.video.model.service.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.video.model.service.MediaRepository;
 
 @Controller
 public class MediaController {
@@ -42,14 +47,12 @@ public class MediaController {
             @RequestParam("audioFormatMp3") Boolean audioFormatMp3,
             @RequestParam("idDownload") String idDownload) {
 
-
-
         List<String> aditionalParamList = new ArrayList<>();
 
         if (idDownload != "null") {
             String idDownloadFiltered = idDownload;
             // if (idDownload.contains(" "))
-                idDownloadFiltered = idDownload.split(" ")[0];
+            idDownloadFiltered = idDownload.split(" ")[0];
 
             aditionalParamList.add("-f");
             aditionalParamList.add(idDownloadFiltered);
@@ -97,6 +100,7 @@ public class MediaController {
      */
     @PostMapping("/delByUrl")
     public ResponseEntity<String> delByUrlWeb(@RequestParam("url") String url) {
+        System.out.println("URL -> "+url);
         if (delByUrlFromListAndBBDD(url))
             return ResponseEntity.ok("true");
 

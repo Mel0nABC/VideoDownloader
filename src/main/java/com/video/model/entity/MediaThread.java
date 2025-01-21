@@ -1,4 +1,6 @@
-package com.video;
+package com.video.model.entity;
+
+import com.video.model.service.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,7 +39,7 @@ public class MediaThread extends Thread {
         status = "WAIT";
         try {
             ExecuteYtdlp procesYtdlp = new ExecuteYtdlp();
-            Process process = procesYtdlp.getDownloadProces(soloAudio, audioFormatMp3, mediaFile,aditionalParamList);
+            Process process = procesYtdlp.getDownloadProces(soloAudio, audioFormatMp3, mediaFile, aditionalParamList);
 
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = "";

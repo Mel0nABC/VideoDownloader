@@ -3,6 +3,8 @@ body {
     display: block;
     text-align: center;
     /* Opcional, si quieres centrar el contenido del section */
+    background-color: #212529;
+    color: white;
 }
 
 table {
@@ -118,6 +120,7 @@ footer {
 
 .box {
     margin: 20px;
+    background-color: #212529;
 }
 
 #infoTable {

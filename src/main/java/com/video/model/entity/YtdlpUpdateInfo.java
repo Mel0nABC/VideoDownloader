@@ -1,4 +1,4 @@
-package com.video;
+package com.video.model.entity;
 
 public class YtdlpUpdateInfo {
 

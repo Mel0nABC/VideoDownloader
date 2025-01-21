@@ -1,4 +1,4 @@
-package com.video;
+package com.video.model.service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.video.model.entity.MediaFile;
+import com.video.model.entity.YtdlpUpdateInfo;
 
 public class ExecuteYtdlp {
 
