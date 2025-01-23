@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "com.video.App",
+            "projectName": "video"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-App<VideoDownloader>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.video.App",
+            "projectName": "VideoDownloader",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}

@@ -5,28 +5,41 @@ const GREEN_STATUS = "rgb(198, 239, 206)";
 window.onload = function () {
 
     firstLoad();
-    checkUpdate();
+    // checkUpdate();
 
-    const btnDownMaxQuality = document.getElementById("btnDownloadMaxQuality");
-    const btnDownloadOptions = document.getElementById("btnDownloadOptions");
 
-    btnDownMaxQuality.addEventListener("click", function () {
-        const url = document.getElementById("url");
+    const btnAddDownload = document.getElementById("btnAddDownload");
+
+    btnAddDownload.addEventListener("click", function () {
+
         if (isblack(url.value)) {
             alert("Debe introducir alguna dirección web.")
             return;
         }
-        download("null");
-    });
 
-    btnDownloadOptions.addEventListener("click", function () {
-        const url = document.getElementById("url");
-        if (isblack(url.value)) {
-            alert("Debe introducir alguna dirección web.")
-            return;
-        }
-        console.log(url)
-        getVideoFromats(url);
+        (async () => {
+
+            if (await checkUrlExist(url.value)) {
+                console.log("Ya existe");
+                return;
+            }
+            console.log("palante")
+            const jsonData = await getVideoMetada(url);
+            if (jsonData.respuesta == "error") {
+                console.log("HA OCURRIDO ALGUN ERROR.")
+                return;
+            }
+
+            addDownload(jsonData);
+
+            const downloadExist = document.getElementById(jsonData.id);
+
+            if (downloadExist == null)
+                console.log("ha habido un error");
+
+            addUrlBBDD(url, JSON.stringify(jsonData));
+        })();
+
     });
 };
 
@@ -34,35 +47,128 @@ function isblack(url) {
     return !url.trim();
 }
 
-
-function download(idDownload) {
-    const url = document.getElementById("url");
-    const soloAudio = document.getElementById("soloAudio").checked;
-    const audioFormatMp3 = document.getElementById("audioFormatMp3").checked;
+async function checkUrlExist(url) {
     const formData = new FormData();
-    formData.append("soloAudio", soloAudio);
-    formData.append("audioFormatMp3", audioFormatMp3);
-    formData.append("url", url.value);
-    url.value = "";
-    formData.append("idDownload", idDownload);
-
-
+    formData.append("url", url)
 
     let options = {
         method: "POST",
         body: formData
     }
 
-    fetch(`/download`, options)
-        .then(res => res.json())
-        .then(response => {
-            let mediaFile = response.mediaFile;
+    const resposne = await fetch("/addUrlBBDD", options);
+    const data = await resposne.json();
+    const res = await fetch(`/getUrl`, options);
+    return await res.json();
+}
 
-            if (checkRow(mediaFile.id) === true)
-                return;
 
-            addRow(mediaFile.id, mediaFile.url);
-        })
+function addDownload(jsonData) {
+    // const array = datos.formats;
+    // console.log(array)
+    // array.forEach(dato => {
+    //     console.log("DATOS -> " + dato[1])
+    // });
+
+
+    const texto = `<article id="${jsonData.id}" class="down-box-info">
+
+        <div class="video-down-info">
+            <h3 id="fulltitle" class="articleTittle">${jsonData.fulltitle}</h3>
+            <img id="thumbnail" src="${jsonData.thumbnail}" class="articleImg">
+        </div>
+    
+        <div class="video-down-options">
+            <label for="selectQuality">Calidad de imagen:</label>
+            <select id="selectQuality" class="video-down-quality">
+                <option value="selecciona">Selecciona una opción</option>
+                <option value="opcion1">640x480</option>
+                <option value="opcion2">1024x840</option>
+                <option value="opcion3">1280x1024</option>
+                <option value="opcion3">1440x1280</option>
+            </select>
+    
+    
+    
+            <div class="wrapper_2">
+                <div class="progress_2"></div>
+            </div>
+    
+    
+    
+        </div>
+    
+        <div class="video-down-actions">
+            <button>Descargar</button>
+            <button>Cancelar</button>
+            <button>Eliminar</button>
+        </div>
+    </article>`
+
+    const section = document.getElementById("section");
+    section.innerHTML += texto;
+
+
+}
+
+async function getVideoMetada(url) {
+    const formData = new FormData();
+    formData.append("url", url.value)
+    const options = {
+        method: "POST",
+        body: formData
+    };
+    const resposne = await fetch("/getVideoMetada", options);
+    const data = await resposne.json();
+
+    return data;
+}
+
+async function addUrlBBDD(url, jsonData) {
+
+    const formData = new FormData();
+    formData.append("url", url.value);
+    formData.append("jsonData", jsonData);
+    let options = {
+        method: "POST",
+        body: formData
+    }
+    const resposne = await fetch("/addUrlBBDD", options);
+    const data = await resposne.json();
+
+    return data.mediaFile.downloaded;
+}
+
+
+function download(idDownload) {
+    // const url = document.getElementById("url");
+    // const soloAudio = document.getElementById("soloAudio").checked;
+    // const audioFormatMp3 = document.getElementById("audioFormatMp3").checked;
+    // const formData = new FormData();
+    // formData.append("soloAudio", soloAudio);
+    // formData.append("audioFormatMp3", audioFormatMp3);
+    // formData.append("url", url.value);
+    // url.value = "";
+    // formData.append("idDownload", idDownload);
+
+
+
+    // let options = {
+    //     method: "POST",
+    //     body: formData
+    // }
+
+    // fetch(`/download`, options)
+    //     .then(res => res.json())
+    //     .then(response => {
+    //         let mediaFile = response.mediaFile;
+
+    //         if (checkRow(mediaFile.id) === true)
+    //             return;
+
+    //         addRow(mediaFile.id, mediaFile.url);
+    //     })
+    addRow("", "");
 }
 
 
@@ -76,15 +182,18 @@ function firstLoad() {
         body: formData
     }
 
-    fetch(`/firstLoad`, options)
+    fetch(`/getAllURL`, options)
         .then(res => res.json())
         .then(response => {
             response.forEach(element => {
-                const mediaFile = element;
-                addRow(mediaFile.id, mediaFile.url, 0);
-                checkStatusRow(mediaFile.id, mediaFile.downloaded, mediaFile.status);
+                // console.log(element)
+                // console.log(element.jsonData)
+                const jsonData = element.jsonData;
+                const jsonDataBBDD = JSON.parse(jsonData);
+                addDownload(jsonDataBBDD)
+                // checkStatusRow(mediaFile.id, mediaFile.downloaded, mediaFile.status);
             });
-            updateTable();
+            // updateTable();
         })
 }
 
@@ -182,35 +291,7 @@ function checkRow(id) {
     return false;
 }
 
-// Función para añadir una fila a la tabla
-function addRow(id, url, status) {
 
-    // Obtener la tabla
-    const table = document.getElementById('mediaTable').getElementsByTagName('tbody')[0];
-
-    // Crear una nueva fila
-    const newRow = table.insertRow();
-    newRow.id = "row" + id;
-
-    // Crear celdas en la nueva fila
-    const cell1 = newRow.insertCell(0); // Columna ID
-    const cell2 = newRow.insertCell(1); // Columna URL
-    const cell3 = newRow.insertCell(2); // Columna %
-    const cell4 = newRow.insertCell(3); // Columna Acciones
-
-    // Asignar los valores a las celdas
-    cell1.textContent = id; // ID auto incremental
-    cell2.innerHTML = `
-                <div class="progress-container">
-                    <div class="progress-bar" id="progressBar${id}"></div>
-                </div>
-                <div id="url${id}" class="url-text">${url}</div>
-            `;
-    cell3.id = "porcenShell" + id;
-    cell3.textContent = 'WAIT'; // status aleatorio
-    cell4.id = "actionShell" + id;
-    addBtnCancel(id);
-}
 
 function addBtnCancel(id) {
     const checkBtnExist = document.getElementById("deleteBtn" + id);
@@ -348,8 +429,9 @@ function checkUpdate() {
 
 function getVideoFromats(url) {
 
-
+    console.log("TEST")
     const infoTable = document.getElementById("infoTable");
+    // infoTable.visibility = visible;
 
     if (infoTable != null)
         infoTable.remove();
@@ -379,7 +461,8 @@ function getVideoFromats(url) {
             th.textContent = "OPCIONES DE DESCARGA, ELIJA UNA";
             th2.textContent = "ID EXT RESOLUTION FPS CH | FILESIZE TBR PROTO | VCODEC VBR ACODEC ABR ASR MORE INFO";
             const btnClose = document.createElement("button");
-            btnClose.id = "btnCloseDownloadOptions"
+            btnClose.id = "btnCloseDownloadOptions";
+            btnClose.className = "close-window-button";
             btnClose.textContent = "X";
 
 
@@ -410,8 +493,22 @@ function getVideoFromats(url) {
 
             table.appendChild(tbody);
 
-            const titleContainer = document.getElementById("titleContainer");
+            const popup = document.createElement("div");
+            popup.className = "pop-up-window";
+
+            const contentpopup = document.createElement("div");
+            contentpopup.className = "content-pop-up-window";
+
+            const titleContainer = document.createElement("titleContainer");
+            titleContainer.id = "titleContainer";
             titleContainer.appendChild(table);
+
+            contentpopup.appendChild(titleContainer);
+            popup.appendChild(contentpopup);
+
+            document.getElementsByTagName("body")[0].appendChild(popup);
+
+
 
             const rowBotons = document.getElementsByClassName("btnFormat");
             for (const btn of rowBotons) {
@@ -431,8 +528,10 @@ function getVideoFromats(url) {
             };
 
             btnClose.addEventListener("click", e => {
-                table.remove();
+                popup.remove();
                 btnSelectedId = "";
             })
         })
 }
+
+

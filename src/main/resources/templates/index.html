@@ -3,63 +3,93 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Video Downloader</title>
     <link rel="stylesheet" href="/css/index.css">
     <script src="/js/index.js"></script>
+    <style>
+
+    </style>
 </head>
 
 <body>
-    <div id="titleContainer">
-        <h1>Video Downloader</h1>
-    </div>
-    <section>
-
-        <input type="text" id="url" name="url" required placeholder="Indica el link del video a descargar">
+    <header>
         <div>
-            <button id="btnDownloadMaxQuality">Descarga Máxima Calidad</button>
-            <button id="btnDownloadOptions">Seleccion de calidad</button>
+            <h1>Video Downloader</h1>
         </div>
+    </header>
+    <main>
         <div class="container">
-            <div class="box">
-                <li id="optionList">
-                    <ol>
+            <input id="url" name="url" class="input" placeholder="Indica el link del video a descargar" required=""
+                type="text">
+        </div>
+
+
+
+        <div class="container">
+            <button id="btnAddDownload">Añadir descarga</button>
+        </div>
+        <div class="container paralel-div-container">
+            <div class="container">
+                <ol id="optionList">
+                    <li>
                         <input type="checkbox" id="soloAudio" name="soloAudio" value="soloAudio">
                         <label for="soloAudio">Sólo audio.</label><br>
-                    </ol>
-                    <ol>
+                    </li>
+                    <li>
                         <input type="checkbox" id="audioFormatMp3" name="audioFormatMp3" value="audioFormatMp3">
                         <label for="audioFormatMp3">Guardar en Mp3.</label><br>
-                    </ol>
-                </li>
+                    </li>
+                </ol>
             </div>
-            <div class="box info-box">
-                <li>
-                    <ol><label>Versión actual:</label><text id="actualVersion"></text></ol>
-                    <ol><label>Última versión:</label><text id="lastVersion"></text></ol>
-                    <ol><label>Actualizado:</label><text id="updatedVersion"></text></ol>
-                </li>
-            </div>
+            <div class="container">
+                <ol>
+                    <li><label>Versión actual:</label><text id="actualVersion"> ostele:2015.01.19</text></li>
+                    <li><label>Última versión:</label><text id="lastVersion"> ostele:2015.01.19</text></li>
+                    <li><label>Actualizado:</label><text id="updatedVersion"> ostele:2015.01.19</text></li>
+                </ol>
 
+            </div>
         </div>
-        <table id="mediaTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>URL</th>
-                    <th>%</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tbodyContent">
-            </tbody>
-        </table>
-    </section>
+        <section id="section"></section>
+    </main>
+    <!-- 
     <footer>Esto es sólo una UI para utilizar alguna funcionalidad de yt-dlt.<br>
         Para poder utilizar todo, usen el original de terminal.<br>
         https://github.com/yt-dlp/yt-dlp
 
+    </footer> -->
+
+    <footer>
+        <div class="footer">
+            <!-- <div class="row">
+                <a href="#"><i class="fa fa-facebook"></i></a>
+                <a href="#"><i class="fa fa-instagram"></i></a>
+                <a href="#"><i class="fa fa-youtube"></i></a>
+                <a href="#"><i class="fa fa-twitter"></i></a>
+            </div>
+
+            <div class="row">
+                <ul>
+                    <li><a href="#">Contact us</a></li>
+                    <li><a href="#">Our Services</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Career</a></li>
+                </ul>
+            </div> -->
+
+            <div class="row">
+                WebUI for YT-DLP, MeL0nABC develovpen.
+                https://github.com/Mel0nABC
+                https://github.com/yt-dlp/yt-dlp
+                <!-- Designed By: Mahesh -->
+            </div>
+        </div>
     </footer>
+
+
+
 </body>
 
 </html>

@@ -1,5 +1,9 @@
 package com.video.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.video.model.entity.*;
 import com.video.model.service.*;
 
@@ -13,8 +17,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import com.video.model.service.MediaRepository;
 
 @Controller
 public class MediaController {
@@ -35,10 +37,44 @@ public class MediaController {
         return "index";
     }
 
-    @PostMapping("/firstLoad")
+    @PostMapping("/getUrl")
+    public ResponseEntity<Boolean> getUrl(@RequestParam("url") String url) {
+        MediaFile mediaFile = mediaRepository.findByUrl(url);
+
+        if (mediaFile == null)
+            return ResponseEntity.ok(false);
+        return ResponseEntity.ok(true);
+    }
+
+    @PostMapping("/getAllURL")
     public ResponseEntity<List<MediaFile>> firstLoad() {
         List<MediaFile> listaMF = mediaRepository.findAll();
         return ResponseEntity.ok(listaMF);
+    }
+
+    @PostMapping("/getVideoMetada")
+    public ResponseEntity<String> getVideoMetadata(@RequestParam("url") String url) {
+        return ResponseEntity.ok(new ExecuteYtdlp().getVideoMetadata(url));
+    }
+
+    @PostMapping("/addUrlBBDD")
+    public ResponseEntity<Map<String, Object>> addUrlBBDD(@RequestParam("url") String url,
+            @RequestParam("jsonData") String jsonData) {
+
+        Map<String, Object> contenido = new HashMap<>();
+        MediaFile mfBBDD = mediaRepository.findByUrl(url);
+        if (mfBBDD != null) {
+            mfBBDD.setExitCode(EXIT_CODE_OK);
+            mfBBDD.setDownloaded(true);
+            contenido.put("mediaFile", mfBBDD);
+            return ResponseEntity.ok(contenido);
+        }
+
+        mfBBDD = new MediaFile(url, false, EXIT_CODE_OK, jsonData);
+        mediaRepository.save(mfBBDD);
+        mfBBDD = mediaRepository.findByUrl(mfBBDD.getUrl());
+        contenido.put("mediaFile", mfBBDD);
+        return ResponseEntity.ok(contenido);
     }
 
     @PostMapping("/download")
@@ -100,7 +136,6 @@ public class MediaController {
      */
     @PostMapping("/delByUrl")
     public ResponseEntity<String> delByUrlWeb(@RequestParam("url") String url) {
-        System.out.println("URL -> "+url);
         if (delByUrlFromListAndBBDD(url))
             return ResponseEntity.ok("true");
 
@@ -176,5 +211,4 @@ public class MediaController {
     public ResponseEntity<ArrayList<String>> getVideoFromats(@RequestParam("url") String url) {
         return ResponseEntity.ok(new ExecuteYtdlp().getVideoFromats(url));
     }
-
 }

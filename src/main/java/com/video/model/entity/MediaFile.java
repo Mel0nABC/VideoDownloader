@@ -1,9 +1,9 @@
 package com.video.model.entity;
 
-import java.time.LocalTime;
 
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,51 +16,32 @@ public class MediaFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String url;
-    private String tittle;
-    private double size;
-    private LocalTime duration;
     private boolean downloaded;
     private int exitCode;
+    @Column(columnDefinition = "CLOB")
+    private String jsonData;
 
     @ConstructorBinding
-    public MediaFile(long id, String url, String tittle, double size, LocalTime duration, Boolean Downloaded) {
+    public MediaFile(long id, String url, boolean downloaded, int exitCode) {
         this.id = id;
         this.url = url;
-        this.tittle = tittle;
-        this.size = size;
-        this.duration = duration;
-        this.downloaded = Downloaded;
-    }
-
-    public MediaFile(long id, String url, String tittle, double size, Boolean Downloaded) {
-        this.id = id;
-        this.url = url;
-        this.tittle = tittle;
-        this.size = size;
-        this.downloaded = Downloaded;
-    }
-
-    public MediaFile(long id, String url, String tittle, Boolean Downloaded) {
-        this.id = id;
-        this.url = url;
-        this.tittle = tittle;
-        this.downloaded = Downloaded;
-    }
-
-    public MediaFile(long id, String url, Boolean Downloaded) {
-        this.id = id;
-        this.url = url;
-        this.downloaded = Downloaded;
-    }
-
-    public MediaFile(String url, Boolean Downloaded, int exitCode) {
-        this.url = url;
-        this.downloaded = Downloaded;
+        this.downloaded = downloaded;
         this.exitCode = exitCode;
     }
 
-    public MediaFile(Boolean Downloaded) {
-        this.downloaded = Downloaded;
+    public MediaFile(String url, boolean downloaded, int exitCode, String jsonData) {
+        this.url = url;
+        this.downloaded = downloaded;
+        this.exitCode = exitCode;
+        this.jsonData = jsonData;
+
+        System.out.println(toString());
+    }
+
+    public MediaFile(String url, boolean downloaded, int exitCode) {
+        this.url = url;
+        this.downloaded = downloaded;
+        this.exitCode = exitCode;
     }
 
     public MediaFile() {
@@ -83,30 +64,6 @@ public class MediaFile {
         this.url = url;
     }
 
-    public String getTittle() {
-        return tittle;
-    }
-
-    public void setTittle(String tittle) {
-        this.tittle = tittle;
-    }
-
-    public double getSize() {
-        return size;
-    }
-
-    public void setSize(double size) {
-        this.size = size;
-    }
-
-    public LocalTime getDuration() {
-        return duration;
-    }
-
-    public void setDuration(LocalTime duration) {
-        this.duration = duration;
-    }
-
     public boolean getDownloaded() {
         return downloaded;
     }
@@ -123,15 +80,18 @@ public class MediaFile {
         this.exitCode = exitCode;
     }
 
+    public String getJsonData() {
+        return jsonData;
+    }
+
+    public void setJsonData(String jsonData) {
+        this.jsonData = jsonData;
+    }
+
     @Override
     public String toString() {
-        return "Video{" +
-                "id=" + id +
-                ", url='" + url + '\'' +
-                ", tittle='" + tittle + '\'' +
-                ", size=" + size +
-                ", duration=" + duration +
-                '}';
+        return "MediaFile [id=" + id + ", url=" + url + ", downloaded=" + downloaded + ", exitCode=" + exitCode
+                + ", jsonData=" + jsonData + "]";
     }
 
 }

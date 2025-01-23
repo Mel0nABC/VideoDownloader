@@ -87,6 +87,49 @@ public class ExecuteYtdlp {
         processBuilder = new ProcessBuilder(parameters);
     }
 
+    public String getVideoMetadata(String url) {
+        executeProcess(Arrays.asList(YT_DLP_BIN, "-j", url));
+        int exitCode = 100;
+        String jsonResult = "";
+        String line = "";
+        try {
+
+            process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            while ((line = reader.readLine()) != null) {
+                jsonResult = line;
+                System.out.println("line -> " + line);
+
+            }
+            while ((line = readerError.readLine()) != null) {
+                System.out.println("line -> " + line);
+
+            }
+
+            exitCode = process.waitFor();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            System.out.println("EXIT CODE -> " + exitCode);
+        }
+
+        if (exitCode == 1) {
+            jsonResult = "{\"respuesta\": \"error\"}";
+
+        }
+
+        System.out.println(url);
+
+        return jsonResult;
+
+    }
+
     public YtdlpUpdateInfo getRelease() {
         executeProcess(Arrays.asList(YT_DLP_BIN, "-U"));
         try {
@@ -109,7 +152,6 @@ public class ExecuteYtdlp {
         try {
             while ((line = reader.readLine()) != null) {
                 System.out.println(line);
-
                 if (line.contains("ERROR")) {
                     ytstatus.setError(true);
                 }
