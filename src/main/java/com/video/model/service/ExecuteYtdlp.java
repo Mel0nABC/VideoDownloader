@@ -23,25 +23,26 @@ public class ExecuteYtdlp {
     public Process getDownloadProces(Boolean soloAudio, Boolean audioFormatMp3, MediaFile mediaFile,
             List<String> aditionalParamList) {
 
-        List<String> totalProces = new ArrayList<>();
-        totalProces.add(YT_DLP_BIN);
-        totalProces.add("-o");
-        totalProces.add("./DownloadedFiles//%(title)s.%(ext)s");
+        List<String> totalParams = new ArrayList<>();
+        totalParams.add(YT_DLP_BIN);
+        totalParams.add("-o");
+        totalParams.add("./DownloadedFiles/%(title)s.%(ext)s");
 
-        if (soloAudio == true) {
-            totalProces.add("-x");
-            if (audioFormatMp3) {
-                totalProces.add("--audio-format");
-                totalProces.add("mp3");
-            }
-        }
+        // if (soloAudio == true) {
+        // totalParams.add("-x");
+        // if (audioFormatMp3) {
+        // totalParams.add("--audio-format");
+        // totalParams.add("mp3");
+        // }
+        // }
 
-        if (!aditionalParamList.contains("null"))
-            totalProces.addAll(aditionalParamList);
+        // if (!aditionalParamList.contains("null"))
+        // totalParams.addAll(aditionalParamList);
 
-        totalProces.add(mediaFile.getUrl());
+        totalParams.add(mediaFile.getUrl());
 
-        executeProcess(totalProces);
+
+        executeProcess(totalParams);
 
         try {
             process = processBuilder.start();
@@ -67,7 +68,6 @@ public class ExecuteYtdlp {
                 if (line.contains("[youtube]") == false && line.contains("------------") == false
                         && line.contains("[info]") == false && line.contains("[generic]") == false
                         && line.contains("ID") == false) {
-                    System.out.println(line);
                     listRows.add(line);
                 }
 
@@ -100,11 +100,10 @@ public class ExecuteYtdlp {
 
             while ((line = reader.readLine()) != null) {
                 jsonResult = line;
-                System.out.println("line -> " + line);
 
             }
             while ((line = readerError.readLine()) != null) {
-                System.out.println("line -> " + line);
+
 
             }
 
@@ -124,7 +123,6 @@ public class ExecuteYtdlp {
 
         }
 
-        System.out.println(url);
 
         return jsonResult;
 
@@ -151,7 +149,6 @@ public class ExecuteYtdlp {
         String line;
         try {
             while ((line = reader.readLine()) != null) {
-                System.out.println(line);
                 if (line.contains("ERROR")) {
                     ytstatus.setError(true);
                 }

@@ -5,26 +5,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Video Downloader</title>
-    <link rel="stylesheet" href="/css/index.css">
-    <script src="/js/index.js"></script>
-    <style>
 
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 
 <body>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/lettering.js/0.6.1/jquery.lettering.min.js'></script>
+    <script src="/js/index.js"></script>
+    <script src="/js/loading.js"></script>
+
     <header>
         <div>
             <h1>Video Downloader</h1>
         </div>
+
     </header>
     <main>
+
+
         <div class="container">
             <input id="url" name="url" class="input" placeholder="Indica el link del video a descargar" required=""
                 type="text">
         </div>
-
-
 
         <div class="container">
             <button id="btnAddDownload">Añadir descarga</button>
@@ -44,9 +49,9 @@
             </div>
             <div class="container">
                 <ol>
-                    <li><label>Versión actual:</label><text id="actualVersion"> ostele:2015.01.19</text></li>
-                    <li><label>Última versión:</label><text id="lastVersion"> ostele:2015.01.19</text></li>
-                    <li><label>Actualizado:</label><text id="updatedVersion"> ostele:2015.01.19</text></li>
+                    <li><label>Versión actual:</label><text id="actualVersion">Loading ..</text></li>
+                    <li><label>Última versión:</label><text id="lastVersion">Loading ..</text></li>
+                    <li><label>Actualizado a:</label><text id="updatedVersion">Loading ..</text></li>
                 </ol>
 
             </div>

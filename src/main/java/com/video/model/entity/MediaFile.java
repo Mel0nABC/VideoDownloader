@@ -1,6 +1,5 @@
 package com.video.model.entity;
 
-
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
 import jakarta.persistence.Column;
@@ -18,8 +17,14 @@ public class MediaFile {
     private String url;
     private boolean downloaded;
     private int exitCode;
+    private String progressDownload;
+    private String fileName;
     @Column(columnDefinition = "CLOB")
     private String jsonData;
+
+    {
+        progressDownload = "0";
+    }
 
     @ConstructorBinding
     public MediaFile(long id, String url, boolean downloaded, int exitCode) {
@@ -34,8 +39,6 @@ public class MediaFile {
         this.downloaded = downloaded;
         this.exitCode = exitCode;
         this.jsonData = jsonData;
-
-        System.out.println(toString());
     }
 
     public MediaFile(String url, boolean downloaded, int exitCode) {
@@ -88,10 +91,26 @@ public class MediaFile {
         this.jsonData = jsonData;
     }
 
+    public String getProgressDownload() {
+        return progressDownload;
+    }
+
+    public void setProgressDownload(String progressDownload) {
+        this.progressDownload = progressDownload;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
     @Override
     public String toString() {
         return "MediaFile [id=" + id + ", url=" + url + ", downloaded=" + downloaded + ", exitCode=" + exitCode
-                + ", jsonData=" + jsonData + "]";
+                + ", progressDownload=" + progressDownload + ", fileName=" + fileName + "]";
     }
 
 }

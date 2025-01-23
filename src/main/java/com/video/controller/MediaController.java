@@ -1,12 +1,14 @@
 package com.video.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.video.model.entity.*;
 import com.video.model.service.*;
 
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.channels.Pipe.SourceChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,13 +34,20 @@ public class MediaController {
         this.mediaRepository = mediaRepository;
     }
 
+    @GetMapping("/favicon.ico")
+    public void handleFavicon(HttpServletResponse response) {
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204 No Content
+    }
+
     @GetMapping("/")
     public String inicio() {
+        printAllURLS();
         return "index";
     }
 
-    @PostMapping("/getUrl")
-    public ResponseEntity<Boolean> getUrl(@RequestParam("url") String url) {
+    @PostMapping("/checkUrlExist")
+    public ResponseEntity<Boolean> checkUrlExist(@RequestParam("url") String url) {
+        System.out.println("/checkUrlExist --> " + url);
         MediaFile mediaFile = mediaRepository.findByUrl(url);
 
         if (mediaFile == null)
@@ -54,13 +63,14 @@ public class MediaController {
 
     @PostMapping("/getVideoMetada")
     public ResponseEntity<String> getVideoMetadata(@RequestParam("url") String url) {
+        System.out.println("/getVideoMetada --> " + url);
         return ResponseEntity.ok(new ExecuteYtdlp().getVideoMetadata(url));
     }
 
     @PostMapping("/addUrlBBDD")
     public ResponseEntity<Map<String, Object>> addUrlBBDD(@RequestParam("url") String url,
             @RequestParam("jsonData") String jsonData) {
-
+        System.out.println("/addUrlBBDD --> " + url);
         Map<String, Object> contenido = new HashMap<>();
         MediaFile mfBBDD = mediaRepository.findByUrl(url);
         if (mfBBDD != null) {
@@ -78,37 +88,26 @@ public class MediaController {
     }
 
     @PostMapping("/download")
-    public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url,
-            @RequestParam("soloAudio") Boolean soloAudio,
-            @RequestParam("audioFormatMp3") Boolean audioFormatMp3,
-            @RequestParam("idDownload") String idDownload) {
-
+    public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url) {
         List<String> aditionalParamList = new ArrayList<>();
 
-        if (idDownload != "null") {
-            String idDownloadFiltered = idDownload;
-            // if (idDownload.contains(" "))
-            idDownloadFiltered = idDownload.split(" ")[0];
+        // if (idDownload != "null") {
+        // String idDownloadFiltered = idDownload;
+        // // if (idDownload.contains(" "))
+        // idDownloadFiltered = idDownload.split(" ")[0];
 
-            aditionalParamList.add("-f");
-            aditionalParamList.add(idDownloadFiltered);
-        }
+        // aditionalParamList.add("-f");
+        // aditionalParamList.add(idDownloadFiltered);
+        // }
 
         Map<String, Object> contenido = new HashMap<>();
         MediaFile mfBBDD = mediaRepository.findByUrl(url);
-        if (mfBBDD != null) {
-            mfBBDD.setExitCode(EXIT_CODE_OK);
-            mfBBDD.setDownloaded(true);
-            contenido.put("mediaFile", mfBBDD);
-            return ResponseEntity.ok(contenido);
-        }
+        mfBBDD.setExitCode(EXIT_CODE_OK);
 
-        mfBBDD = new MediaFile(url, false, EXIT_CODE_OK);
-        mediaRepository.save(mfBBDD);
-        mfBBDD = mediaRepository.findByUrl(mfBBDD.getUrl());
+        contenido.put("mediaFile", mfBBDD);
 
         MediaThread mfThread = new MediaThread(threadGroup, mfBBDD,
-                mediaRepository, soloAudio, audioFormatMp3, aditionalParamList);
+                mediaRepository, null, null, aditionalParamList);
 
         mediaThreadList.add(mfThread);
         mfThread.start();
@@ -136,20 +135,23 @@ public class MediaController {
      */
     @PostMapping("/delByUrl")
     public ResponseEntity<String> delByUrlWeb(@RequestParam("url") String url) {
-        if (delByUrlFromListAndBBDD(url))
-            return ResponseEntity.ok("true");
 
+        MediaFile mfToDelete = mediaRepository.findByUrl(url);
+
+        if (mfToDelete != null) {
+            mediaRepository.delete(mfToDelete);
+            return ResponseEntity.ok("true");
+        }
         return ResponseEntity.ok("false");
     }
 
-    public boolean delByUrlFromListAndBBDD(String url) {
+    public boolean delByUrlFromThreadList(String url) {
         MediaFile mfToDelete = mediaRepository.findByUrl(url);
         if (mfToDelete != null) {
 
             for (MediaThread mt : mediaThreadList) {
                 if (mt.getMediaFile().getUrl().equals(url)) {
                     mediaThreadList.remove(mt);
-                    mediaRepository.deleteById(mfToDelete.getId());
                     return true;
                 }
             }
@@ -173,7 +175,7 @@ public class MediaController {
         if (!stopThread(url))
             return ResponseEntity.ok("false");
 
-        if (!delByUrlFromListAndBBDD(url))
+        if (!delByUrlFromThreadList(url))
             return ResponseEntity.ok("false");
 
         return ResponseEntity.ok("true");
@@ -207,8 +209,11 @@ public class MediaController {
         return ResponseEntity.ok(new ExecuteYtdlp().getRelease());
     }
 
-    @PostMapping("/getVideoFormats")
-    public ResponseEntity<ArrayList<String>> getVideoFromats(@RequestParam("url") String url) {
-        return ResponseEntity.ok(new ExecuteYtdlp().getVideoFromats(url));
+    public void printAllURLS() {
+        System.out.println("################ URLS AÑADIDOS ################");
+        for (MediaFile mf : mediaRepository.findAll()) {
+            System.out.println(mf.getId() + " - " + mf.getUrl());
+        }
+        System.out.println("################################################");
     }
 }

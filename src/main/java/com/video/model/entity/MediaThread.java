@@ -46,7 +46,6 @@ public class MediaThread extends Thread {
             try {
                 boolean finish = false;
                 while ((line = reader.readLine()) != null && !finish) {
-                    System.out.println(line);
                     String regex = "\\[(.*?)]";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(line);
@@ -54,8 +53,15 @@ public class MediaThread extends Thread {
                         String statusString = matcher.group(1);
                         if (statusString.equals("download")) {
                             try {
+                                System.out.println(line);
+                                if (line.contains("Destination")) {
+                                    String[] downDesti = line.split("/");
+                                    mediaFile.setFileName(downDesti[downDesti.length - 1]);
+                                }
+
                                 if (line.length() > 16) {
                                     status = line.substring(11, 14).strip() + "%";
+                                    mediaFile.setProgressDownload(status);
                                     if (status.isBlank() | status.isEmpty())
                                         status = "1%";
 
@@ -78,17 +84,18 @@ public class MediaThread extends Thread {
                 }
                 reader.close();
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println("Se ha detenido el thread de la url -> " + mediaFile.getUrl());
             }
 
             exitCode = process.waitFor();
 
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println("Se ha detenido el thread de la url -> " + mediaFile.getUrl());
         } finally {
 
             try {
-                reader.close();
+                if (reader != null)
+                    reader.close();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
@@ -109,8 +116,7 @@ public class MediaThread extends Thread {
                 status = "CANCEL";
             }
 
-            if (exitCode != EXIT_CODE_CANCEL)
-                mediaRepository.save(mediaFile);
+            mediaRepository.save(mediaFile);
 
             System.out.println("El proceso terminó con el código de salida: " + exitCode);
         }

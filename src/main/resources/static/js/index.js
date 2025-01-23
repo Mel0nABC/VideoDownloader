@@ -2,52 +2,74 @@ let updateData = false;
 const YELLOW_STATUS = "rgb(255, 235, 156)";
 const RED_STATUS = "rgb(255, 199, 206)";
 const GREEN_STATUS = "rgb(198, 239, 206)";
+
 window.onload = function () {
 
     firstLoad();
+    updateTable();
     // checkUpdate();
 
 
     const btnAddDownload = document.getElementById("btnAddDownload");
-
+    var urlValue;
     btnAddDownload.addEventListener("click", function () {
+        const urlElement = document.getElementById("url");
+        urlValue = removeAfterAmpersand(urlElement.value);
 
-        if (isblack(url.value)) {
+        if (isblack(urlValue)) {
             alert("Debe introducir alguna dirección web.")
             return;
         }
 
         (async () => {
+            try {
 
-            if (await checkUrlExist(url.value)) {
-                console.log("Ya existe");
-                return;
+                loadingStart();
+
+
+                const exit = await checkUrlExist(urlValue);
+                if (exit) {
+                    console.log("Ya existe");
+                    return;
+                }
+
+                const jsonData = await getVideoMetada(urlValue);
+                if (jsonData.respuesta == "error") {
+                    console.log("HA OCURRIDO ALGUN ERROR.")
+                    return;
+                }
+
+                addDownload(jsonData);
+
+                const downloadExist = document.getElementById(jsonData.id);
+
+                if (downloadExist === null)
+                    console.log("ha habido un error");
+
+
+                addUrlBBDD(urlValue, JSON.stringify(jsonData));
+
+            } catch (error) {
+                console.log(error);
+            } finally {
+                loadingStop();
             }
-            console.log("palante")
-            const jsonData = await getVideoMetada(url);
-            if (jsonData.respuesta == "error") {
-                console.log("HA OCURRIDO ALGUN ERROR.")
-                return;
-            }
 
-            addDownload(jsonData);
 
-            const downloadExist = document.getElementById(jsonData.id);
-
-            if (downloadExist == null)
-                console.log("ha habido un error");
-
-            addUrlBBDD(url, JSON.stringify(jsonData));
+            urlElement.value = "";
         })();
-
     });
+
 };
+
 
 function isblack(url) {
     return !url.trim();
 }
 
 async function checkUrlExist(url) {
+
+
     const formData = new FormData();
     formData.append("url", url)
 
@@ -55,23 +77,18 @@ async function checkUrlExist(url) {
         method: "POST",
         body: formData
     }
+    const res = await fetch(`/checkUrlExist`, options);
+    return res.json();
+}
 
-    const resposne = await fetch("/addUrlBBDD", options);
-    const data = await resposne.json();
-    const res = await fetch(`/getUrl`, options);
-    return await res.json();
+function removeAfterAmpersand(url) {
+    return url.split('&')[0];
 }
 
 
 function addDownload(jsonData) {
-    // const array = datos.formats;
-    // console.log(array)
-    // array.forEach(dato => {
-    //     console.log("DATOS -> " + dato[1])
-    // });
 
-
-    const texto = `<article id="${jsonData.id}" class="down-box-info">
+    const texto = `<article id="${jsonData.webpage_url}" class="down-box-info">
 
         <div class="video-down-info">
             <h3 id="fulltitle" class="articleTittle">${jsonData.fulltitle}</h3>
@@ -80,7 +97,7 @@ function addDownload(jsonData) {
     
         <div class="video-down-options">
             <label for="selectQuality">Calidad de imagen:</label>
-            <select id="selectQuality" class="video-down-quality">
+            <select id="selectQuality" class="selectQuality">
                 <option value="selecciona">Selecciona una opción</option>
                 <option value="opcion1">640x480</option>
                 <option value="opcion2">1024x840</option>
@@ -91,7 +108,7 @@ function addDownload(jsonData) {
     
     
             <div class="wrapper_2">
-                <div class="progress_2"></div>
+                <div id="progressBar${jsonData.webpage_url}" class="progress_2"></div>
             </div>
     
     
@@ -99,21 +116,88 @@ function addDownload(jsonData) {
         </div>
     
         <div class="video-down-actions">
-            <button>Descargar</button>
-            <button>Cancelar</button>
-            <button>Eliminar</button>
+            <button id="${jsonData.webpage_url}" name="btnDownload">Descargar</button>
+            <button id="${jsonData.webpage_url}" name="btnDelete">Eliminar</button>
         </div>
     </article>`
+
 
     const section = document.getElementById("section");
     section.innerHTML += texto;
 
+    const btnDownloadList = document.getElementsByName("btnDownload");
+    const btnDeleteList = document.getElementsByName("btnDelete");
+
+
+    btnDownloadList.forEach(btnDown => {
+        btnDown.addEventListener("click", e => {
+            console.log("BTN DOWNLOAD")
+            const btn = e.target;
+            const url = btn.id;
+            delBtnDelAddCancelBtn(btn);
+            download(url);
+        });
+    });
+
+
+    btnDeleteList.forEach(btn => {
+        btn.addEventListener("click", e => {
+            const url = e.target.id;
+            console.log(url)
+            delByUrl(url);
+        });
+    });
 
 }
 
+function delBtnDelAddCancelBtn(btnDown) {
+    btnDown.disabled = true;
+    document.getElementsByName("btnDelete").forEach(btnDel => {
+
+        if (btnDown.id === btnDel.id)
+            btnDel.remove();
+    })
+
+    const newCancelBtn = document.createElement("button");
+    newCancelBtn.textContent = "Cancelar";
+    newCancelBtn.name = "btnCancel";
+    newCancelBtn.id = btnDown.id;
+    const locationAdd = btnDown.parentElement;
+    locationAdd.appendChild(newCancelBtn);
+    const btnCancelList = document.getElementsByName("btnCancel");
+    btnCancelList.forEach(btnCancel => {
+        btnCancel.addEventListener("click", e => {
+            const url = e.target.id;
+            cancelDownload(url);
+            delBtnCancelAddDelBtn(btnCancel);
+            btnDown.disabled = false;
+        });
+    });
+}
+
+function delBtnCancelAddDelBtn(btnCancel) {
+    const locationAdd = btnCancel.parentElement;
+    btnCancel.remove();
+    const newDelBtn = document.createElement("button");
+    newDelBtn.textContent = "Eliminar";
+    newDelBtn.name = "btnDelete";
+    newDelBtn.id = btnCancel.id;
+
+    locationAdd.appendChild(newDelBtn);
+    const btnDellList = document.getElementsByName("btnDelete");
+    btnDellList.forEach(btnDel => {
+        btnDel.addEventListener("click", e => {
+            const url = e.target.id;
+            delByUrl(url);
+        });
+    });
+
+}
+
+
 async function getVideoMetada(url) {
     const formData = new FormData();
-    formData.append("url", url.value)
+    formData.append("url", url)
     const options = {
         method: "POST",
         body: formData
@@ -127,7 +211,7 @@ async function getVideoMetada(url) {
 async function addUrlBBDD(url, jsonData) {
 
     const formData = new FormData();
-    formData.append("url", url.value);
+    formData.append("url", url);
     formData.append("jsonData", jsonData);
     let options = {
         method: "POST",
@@ -140,35 +224,40 @@ async function addUrlBBDD(url, jsonData) {
 }
 
 
-function download(idDownload) {
-    // const url = document.getElementById("url");
-    // const soloAudio = document.getElementById("soloAudio").checked;
-    // const audioFormatMp3 = document.getElementById("audioFormatMp3").checked;
-    // const formData = new FormData();
-    // formData.append("soloAudio", soloAudio);
-    // formData.append("audioFormatMp3", audioFormatMp3);
-    // formData.append("url", url.value);
-    // url.value = "";
-    // formData.append("idDownload", idDownload);
+function download(url) {
+    const formData = new FormData();
+    formData.append("url", url);
+    let options = {
+        method: "POST",
+        body: formData
+    }
+
+    fetch(`/download`, options)
+        .then(res => res.json())
+        .then(response => {
+            updateTable();
+        })
+
+}
 
 
 
-    // let options = {
-    //     method: "POST",
-    //     body: formData
-    // }
+function cancelDownload(url) {
+    const formData = new FormData();
+    formData.append("url", url);
 
-    // fetch(`/download`, options)
-    //     .then(res => res.json())
-    //     .then(response => {
-    //         let mediaFile = response.mediaFile;
+    let options = {
+        method: "POST",
+        body: formData
+    }
 
-    //         if (checkRow(mediaFile.id) === true)
-    //             return;
-
-    //         addRow(mediaFile.id, mediaFile.url);
-    //     })
-    addRow("", "");
+    fetch("/stopThread", options)
+        .then(res => res.json())
+        .then(response => {
+            if (response == false) {
+                alert("Ha ocurrido algún problema inesperado para cancelar la descarga.")
+            }
+        })
 }
 
 
@@ -186,21 +275,18 @@ function firstLoad() {
         .then(res => res.json())
         .then(response => {
             response.forEach(element => {
-                // console.log(element)
-                // console.log(element.jsonData)
                 const jsonData = element.jsonData;
                 const jsonDataBBDD = JSON.parse(jsonData);
                 addDownload(jsonDataBBDD)
-                // checkStatusRow(mediaFile.id, mediaFile.downloaded, mediaFile.status);
+                const mediaFile = element;
+                checkStatusRow(mediaFile.url, mediaFile.downloaded, mediaFile.status, mediaFile.progressDownload);
             });
-            // updateTable();
         })
 }
 
 
 async function updateTable() {
     updateData = true;
-
     while (updateData) {
         let options = {
             method: "POST",
@@ -212,16 +298,41 @@ async function updateTable() {
             .then(res => res.json())
             .then(response => {
 
+
+                //Paramos el bucle si no hay articles.
+                if (document.getElementsByTagName("article").length === 0)
+                    updateData = false;
+
                 response.forEach(element => {
-                    id = element.mediaFile.id;
-                    downloaded = element.mediaFile.downloaded;
-                    status = element.status
                     const mediaFile = element.mediaFile;
-                    updateBarProgress(id, downloaded, status)
+                    url = mediaFile.url;
+                    downloaded = mediaFile.downloaded;
+                    status = element.status
+                    updateBarProgress(url, downloaded, status)
                     if (downloaded == true) {
-                        checkStatusRow(id, downloaded, "FINISH");
+                        checkStatusRow(url, downloaded, "FINISH");
+                        const downBtnList = document.getElementsByName("btnDownload")
+                        downBtnList.forEach(btn => {
+                            if (url === btn.id)
+                                if (btn.disabled === true) {
+
+                                    const cancelBtnList = document.getElementsByName("btnCancel")
+                                    cancelBtnList.forEach(btn => {
+                                        if (url === btn.id)
+                                            delBtnCancelAddDelBtn(btn);
+                                    })
+
+                                }
+                        })
                     } else {
-                        checkStatusRow(id, downloaded, status);
+                        checkStatusRow(url, downloaded, status);
+                        const downBtnList = document.getElementsByName("btnDownload")
+                        downBtnList.forEach(btn => {
+                            if (url === btn.id)
+                                if (btn.disabled === false) {
+                                    delBtnDelAddCancelBtn(btn);
+                                }
+                        })
                     }
                 });
 
@@ -230,42 +341,34 @@ async function updateTable() {
     }
 };
 
-function updateBarProgress(id, estado, status) {
-    console.log("ID -> " + id + " - " + estado + " - " + status)
-    const progressBar = document.getElementById("progressBar" + id);
-    const porcenShell = document.getElementById("porcenShell" + id);
-    const downloadRow = document.getElementById("row" + id);
 
+function updateBarProgress(url, estado, status) {
+    const progressBar = document.getElementById("progressBar" + url);
+
+    if (progressBar === null)
+        return;
     if (status == "Recoding") {
         progressBar.style.width = 100 + '%';
     } else {
         progressBar.style.width = status;
     }
-    porcenShell.innerHTML = status;
-
 }
 
-function checkStatusRow(id, downloaded, status) {
-    const downloadRow = document.getElementById("row" + id);
-    const progressBar = document.getElementById("progressBar" + id);
-    const porcenShell = document.getElementById("porcenShell" + id);
-
-    if (downloadRow == null)
+function checkStatusRow(url, downloaded, status, progressDownload) {
+    const progressBar = document.getElementById("progressBar" + url);
+    if (progressBar === null)
         return;
-
     if (downloaded == true) {
-        downloadRow.style.backgroundColor = GREEN_STATUS;
         progressBar.style.width = 100 + '%';
-        addBtnEliminar(id);
     } else {
+
+        if (progressBar != null)
+            progressBar.style.width = progressDownload;
+
         if (status == "ERROR") {
-            downloadRow.style.backgroundColor = RED_STATUS;
-            addBtnEliminar(id);
+            // console.log(status)
         }
-
     }
-
-
 }
 
 
@@ -292,70 +395,10 @@ function checkRow(id) {
 }
 
 
-
-function addBtnCancel(id) {
-    const checkBtnExist = document.getElementById("deleteBtn" + id);
-
-    if (checkBtnExist != null) {
-        return;
-    }
-    const cell4 = document.getElementById("actionShell" + id);
-    const actionBtnCancel = document.createElement("button");
-    actionBtnCancel.id = "cancel" + id;
-    actionBtnCancel.textContent = "Cancelar"
-    cell4.appendChild(actionBtnCancel);
-
-    actionBtnCancel.addEventListener("click", e => {
-        const formData = new FormData();
-        const url = document.getElementById("url" + id);
-        formData.append("url", url.textContent);
-
-        let options = {
-            method: "POST",
-            body: formData
-        }
-
-        fetch("/stopThread", options)
-            .then(res => res.json())
-            .then(response => {
-                if (response == true) {
-                    delRow(id, response)
-                } else {
-                    alert("Ha ocurrido algún problema inesperado para cancelar la descarga.")
-                }
-            })
-    });
-
-}
-
-function checkCancelBtnAndDel(id) {
-    const cancelBtn = document.getElementById("cancel" + id);
-    if (cancelBtn == null)
-        return;
-    cancelBtn.remove();
-}
-
-function addBtnEliminar(id) {
-    const checkBtnExist = document.getElementById("deleteBtn" + id);
-    if (checkBtnExist != null)
-        return;
-
-    checkCancelBtnAndDel(id);
-    const cell4 = document.getElementById("actionShell" + id);
-    const actionBtn = document.createElement("button");
-    actionBtn.id = "deleteBtn" + id;
-    actionBtn.textContent = "Eliminar"
-    cell4.appendChild(actionBtn);
-
-    actionBtn.addEventListener("click", e => {
-        delByUrl(id);
-    });
-}
-
-function delByUrl(id) {
+function delByUrl(url) {
+    console.log("DELE -> " + url)
     const formData = new FormData();
-    const url = document.getElementById("url" + id);
-    formData.append("url", url.textContent);
+    formData.append("url", url);
 
     let options = {
         method: "POST",
@@ -365,17 +408,19 @@ function delByUrl(id) {
     fetch(`/delByUrl`, options)
         .then(res => res.json())
         .then(response => {
-            delRow(id, response);
+            if (response == true) {
+                delArticle(url);
+                return true;
+            }
+
+            return false;
+
         })
 }
 
-function delRow(id, response) {
-    const rowToDel = document.getElementById("row" + id);
-    if (response == true) {
-        rowToDel.remove();
-    } else {
-        rowToDel.style.backgroundColor = RED_STATUS;
-    }
+function delArticle(url) {
+    const articleToDel = document.getElementById(url);
+    articleToDel.remove();
 }
 
 
@@ -427,111 +472,5 @@ function checkUpdate() {
         })
 }
 
-function getVideoFromats(url) {
-
-    console.log("TEST")
-    const infoTable = document.getElementById("infoTable");
-    // infoTable.visibility = visible;
-
-    if (infoTable != null)
-        infoTable.remove();
-
-
-    const formData = new FormData();
-    formData.append("url", url.value)
-    var btnSelectedId = "";
-    let options = {
-        method: "POST",
-        body: formData
-    }
-
-    fetch('/getVideoFormats', options)
-        .then(res => res.json())
-        .then(response => {
-
-            const table = document.createElement("table");
-            const thead = document.createElement("thead");
-
-            const headerRow = document.createElement("tr");
-            const headerRow2 = document.createElement("tr");
-            const th = document.createElement("th");
-            const th2 = document.createElement("th");
-
-            table.id = "infoTable";
-            th.textContent = "OPCIONES DE DESCARGA, ELIJA UNA";
-            th2.textContent = "ID EXT RESOLUTION FPS CH | FILESIZE TBR PROTO | VCODEC VBR ACODEC ABR ASR MORE INFO";
-            const btnClose = document.createElement("button");
-            btnClose.id = "btnCloseDownloadOptions";
-            btnClose.className = "close-window-button";
-            btnClose.textContent = "X";
-
-
-            headerRow.appendChild(th);
-            th.appendChild(btnClose);
-            headerRow2.appendChild(th2);
-            thead.appendChild(headerRow);
-            thead.appendChild(headerRow2);
-            table.appendChild(thead);
-
-            // Crear el cuerpo de la tabla
-            const tbody = document.createElement("tbody");
-
-            // Agregar las líneas al cuerpo de la tabla
-            response.forEach((line, index) => {
-                const row = document.createElement("tr");
-                const id = line.substring(0, 7);
-                row.id = id;
-                row.className = "btnFormat";
-
-                // Columna de número de línea
-                const lineNumberCell = document.createElement("td");
-                lineNumberCell.textContent = line;
-
-                row.appendChild(lineNumberCell);
-                tbody.appendChild(row);
-            });
-
-            table.appendChild(tbody);
-
-            const popup = document.createElement("div");
-            popup.className = "pop-up-window";
-
-            const contentpopup = document.createElement("div");
-            contentpopup.className = "content-pop-up-window";
-
-            const titleContainer = document.createElement("titleContainer");
-            titleContainer.id = "titleContainer";
-            titleContainer.appendChild(table);
-
-            contentpopup.appendChild(titleContainer);
-            popup.appendChild(contentpopup);
-
-            document.getElementsByTagName("body")[0].appendChild(popup);
-
-
-
-            const rowBotons = document.getElementsByClassName("btnFormat");
-            for (const btn of rowBotons) {
-                btn.addEventListener("click", e => {
-                    if (btnSelectedId != "")
-                        document.getElementById(btnSelectedId).style.backgroundColor = "white";
-
-                    btn.style.backgroundColor = "#cce5ff";
-                    btnSelectedId = btn.id;
-                })
-
-                btn.addEventListener("dblclick", e => {
-                    download(btn.id);
-                    table.remove();
-                    btnSelectedId = "";
-                })
-            };
-
-            btnClose.addEventListener("click", e => {
-                popup.remove();
-                btnSelectedId = "";
-            })
-        })
-}
 
 

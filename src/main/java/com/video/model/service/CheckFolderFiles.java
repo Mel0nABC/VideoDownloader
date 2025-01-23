@@ -8,9 +8,10 @@ import java.net.URL;
 public class CheckFolderFiles {
 
     public static final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
+    public static final String PATH_TO_DOWNLOAD = "./DownloadedFiles".replaceAll("./", "");
 
     public static void CheckOrCreateDownloadDir() {
-        File downDir = new File("./DownloadedFiles");
+        File downDir = new File(PATH_TO_DOWNLOAD);
 
         if (!downDir.exists())
             downDir.mkdirs();
