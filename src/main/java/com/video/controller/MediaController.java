@@ -88,32 +88,30 @@ public class MediaController {
     public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url) {
         List<String> aditionalParamList = new ArrayList<>();
 
-        MediaFile mfBBDD = mediaRepository.findByUrl(url);
-        MediaThread mfThread = new MediaThread(threadGroup, mfBBDD,
-                mediaRepository, null, null, aditionalParamList);
-
-
         Map<String, Object> contenido = new HashMap<>();
+        MediaFile mfBBDD = mediaRepository.findByUrl(url);
 
         if (mfBBDD == null) {
             contenido.put("mediaFile", "error, url no existe");
             return ResponseEntity.ok(contenido);
         }
 
-        if(mfBBDD.getDownloaded() == true){
+        if (mfBBDD.getDownloaded() == true) {
             contenido.put("mediaFile", "error, contenido ya descargado");
             return ResponseEntity.ok(contenido);
         }
 
+        MediaThread mfThread = new MediaThread(threadGroup, mfBBDD,
+                mediaRepository, null, null, aditionalParamList, this);
+
         for (MediaThread mtCheck : mediaThreadList) {
             System.out.println("PRIMER CHECK!!");
-            if (mtCheck.getMediaFile().getUrl().equals(url)){
+            if (mtCheck.getMediaFile().getUrl().equals(url)) {
                 System.out.println("SEGUNDO CHECK!!");
                 contenido.put("mediaFile", "error, descarga ya iniciada.");
                 return ResponseEntity.ok(contenido);
             }
         }
-
 
         mfBBDD.setExitCode(EXIT_CODE_OK);
         mediaThreadList.add(mfThread);
@@ -131,6 +129,7 @@ public class MediaController {
      */
     @PostMapping("/getInfo")
     public ResponseEntity<ArrayList<MediaThread>> getList() {
+        System.out.println("URL ->>>>>>>>>>>>>>>>>>>>> " + mediaThreadList.size());
         return ResponseEntity.ok(mediaThreadList);
     }
 
@@ -152,20 +151,6 @@ public class MediaController {
         return ResponseEntity.ok("false");
     }
 
-    public boolean delByUrlFromThreadList(String url) {
-        MediaFile mfToDelete = mediaRepository.findByUrl(url);
-        if (mfToDelete != null) {
-
-            for (MediaThread mt : mediaThreadList) {
-                if (mt.getMediaFile().getUrl().equals(url)) {
-                    mediaThreadList.remove(mt);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public boolean delThreadFromList(MediaFile mfToDel) {
         for (MediaThread mt : mediaThreadList) {
             if (mt.getMediaFile().getUrl().equals(mfToDel.getUrl())) {
@@ -178,14 +163,33 @@ public class MediaController {
 
     @PostMapping("/stopThread")
     public ResponseEntity<String> stopThreadWeb(@RequestParam("url") String url) {
+        // System.out.println("PASO 1");
+        // if (!stopThread(url))
+        // return ResponseEntity.ok("false");
+        // System.out.println("PASO 2");
+        // if (!delByUrlFromThreadList(url))
+        // return ResponseEntity.ok("false");
+        // System.out.println("PASO 3");
+        // return ResponseEntity.ok("true");
 
-        if (!stopThread(url))
-            return ResponseEntity.ok("false");
+        return ResponseEntity.ok(stopThreadTotal(url));
+    }
 
-        if (!delByUrlFromThreadList(url))
-            return ResponseEntity.ok("false");
+    public String stopThreadTotal(String url) {
+        System.out.println("PASO 1");
+        if (!stopThread(url)) {
+            System.out.println("STOPTHREAD");
+            return "false";
+        }
 
-        return ResponseEntity.ok("true");
+        System.out.println("PASO 2");
+        if (!delByUrlFromThreadList(url)) {
+            System.out.println("DELBYURLFROMTHREADLIST");
+            return "false";
+        }
+
+        System.out.println("PASO 3");
+        return "true";
     }
 
     public boolean stopThread(String url) {
@@ -199,12 +203,29 @@ public class MediaController {
                     try {
                         tr.join();
                     } catch (InterruptedException e) {
+                        // Thread.currentThread().interrupt();
+                        // System.out.println("Hilo interrumpido. Limpiando recursos...");
                         e.printStackTrace();
                     }
                     if (!tr.isAlive()) {
                         return true;
                     }
 
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean delByUrlFromThreadList(String url) {
+        MediaFile mfToDelete = mediaRepository.findByUrl(url);
+        if (mfToDelete != null) {
+
+            for (MediaThread mt : mediaThreadList) {
+                if (mt.getMediaFile().getUrl().equals(url)) {
+                    System.out.println("BORRANDO DE LA LISTA DE THREADS");
+                    mediaThreadList.remove(mt);
+                    return true;
                 }
             }
         }

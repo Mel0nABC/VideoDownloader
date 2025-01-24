@@ -1,5 +1,6 @@
 package com.video.model.entity;
 
+import com.video.controller.MediaController;
 import com.video.model.service.*;
 
 import java.io.BufferedReader;
@@ -20,18 +21,21 @@ public class MediaThread extends Thread {
     private BufferedReader reader;
     private int exitCode;
     private List<String> aditionalParamList;
+    private boolean downloadInProgress;
+    private MediaController mediaController;
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
-            Boolean audioFormatMp3, List<String> aditionalParamList) {
+            Boolean audioFormatMp3, List<String> aditionalParamList, MediaController mediaController) {
         super(threadGroup, "threadgroup");
         this.mediaFile = mediaFile;
         this.mediaRepository = mediaRepository;
         this.soloAudio = soloAudio;
         this.audioFormatMp3 = audioFormatMp3;
         this.aditionalParamList = aditionalParamList;
+        this.mediaController = mediaController;
     }
 
     @Override
@@ -53,7 +57,7 @@ public class MediaThread extends Thread {
                         String statusString = matcher.group(1);
                         if (statusString.equals("download")) {
                             try {
-                                // System.out.println(line);
+                                System.out.println(line);
                                 if (line.contains("Destination")) {
                                     String[] downDesti = line.split("/");
                                     mediaFile.setFileName(downDesti[downDesti.length - 1]);
@@ -62,8 +66,10 @@ public class MediaThread extends Thread {
                                 if (line.length() > 16) {
                                     status = line.substring(11, 14).strip() + "%";
                                     mediaFile.setProgressDownload(status);
-                                    if (status.isBlank() | status.isEmpty())
+                                    downloadInProgress = true;
+                                    if (status.isBlank() | status.isEmpty()) {
                                         status = "1%";
+                                    }
 
                                     if (status.equals("100%"))
                                         status = "Recoding";
@@ -103,6 +109,7 @@ public class MediaThread extends Thread {
             mediaFile.setDownloaded(true);
             mediaFile.setExitCode(EXIT_CODE_OK);
             status = "FINISH";
+            downloadInProgress = false;
 
             if (exitCode == EXIT_CODE_ERROR) {
                 mediaFile.setDownloaded(false);
@@ -119,11 +126,15 @@ public class MediaThread extends Thread {
             mediaRepository.save(mediaFile);
 
             System.out.println("El proceso terminó con el código de salida: " + exitCode);
+
+            if (exitCode != EXIT_CODE_CANCEL)
+                mediaController.delByUrlFromThreadList(mediaFile.getUrl());
+
         }
     }
 
-    public Double getSegundos() {
-        return segundos;
+    public boolean isDownloadInProgress() {
+        return downloadInProgress;
     }
 
     public MediaFile getMediaFile() {
@@ -133,9 +144,4 @@ public class MediaThread extends Thread {
     public String getStatus() {
         return status;
     }
-
-    public void setMediaFile(MediaFile mediaFile) {
-        this.mediaFile = mediaFile;
-    }
-
 }
