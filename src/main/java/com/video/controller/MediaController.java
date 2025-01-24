@@ -5,10 +5,6 @@ import com.video.model.service.*;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.channels.Pipe.SourceChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,46 +41,47 @@ public class MediaController {
         return "index";
     }
 
-    @PostMapping("/checkUrlExist")
-    public ResponseEntity<Boolean> checkUrlExist(@RequestParam("url") String url) {
+    @PostMapping("/addDownload")
+    public ResponseEntity<Object> addDownload(@RequestParam("url") String url) {
+        System.out.println("URL -> " + url);
+
+        if (urlExist(url))
+            return ResponseEntity.ok("error");
+
+        String jsonData = getVideoMetadata(url);
+
+        if (jsonData.equals("false"))
+            return ResponseEntity.ok("error");
+
+        return ResponseEntity.ok(addUrlBBDD(url, jsonData));
+    }
+
+    public boolean urlExist(String url) {
         System.out.println("/checkUrlExist --> " + url);
         MediaFile mediaFile = mediaRepository.findByUrl(url);
 
         if (mediaFile == null)
-            return ResponseEntity.ok(false);
-        return ResponseEntity.ok(true);
+            return false;
+        return true;
+    }
+
+    public String getVideoMetadata(String url) {
+        System.out.println("/getVideoMetada --> " + url);
+        return new ExecuteYtdlp().getVideoMetadata(url);
+    }
+
+    public MediaFile addUrlBBDD(String url, String jsonData) {
+        System.out.println("/addUrlBBDD --> " + url);
+        MediaFile mfBBDD = new MediaFile(url, false, EXIT_CODE_OK, jsonData);
+        mediaRepository.save(mfBBDD);
+        mfBBDD = mediaRepository.findByUrl(mfBBDD.getUrl());
+        return mfBBDD;
     }
 
     @PostMapping("/getAllURL")
     public ResponseEntity<List<MediaFile>> firstLoad() {
         List<MediaFile> listaMF = mediaRepository.findAll();
         return ResponseEntity.ok(listaMF);
-    }
-
-    @PostMapping("/getVideoMetada")
-    public ResponseEntity<String> getVideoMetadata(@RequestParam("url") String url) {
-        System.out.println("/getVideoMetada --> " + url);
-        return ResponseEntity.ok(new ExecuteYtdlp().getVideoMetadata(url));
-    }
-
-    @PostMapping("/addUrlBBDD")
-    public ResponseEntity<Map<String, Object>> addUrlBBDD(@RequestParam("url") String url,
-            @RequestParam("jsonData") String jsonData) {
-        System.out.println("/addUrlBBDD --> " + url);
-        Map<String, Object> contenido = new HashMap<>();
-        MediaFile mfBBDD = mediaRepository.findByUrl(url);
-        if (mfBBDD != null) {
-            mfBBDD.setExitCode(EXIT_CODE_OK);
-            mfBBDD.setDownloaded(true);
-            contenido.put("mediaFile", mfBBDD);
-            return ResponseEntity.ok(contenido);
-        }
-
-        mfBBDD = new MediaFile(url, false, EXIT_CODE_OK, jsonData);
-        mediaRepository.save(mfBBDD);
-        mfBBDD = mediaRepository.findByUrl(mfBBDD.getUrl());
-        contenido.put("mediaFile", mfBBDD);
-        return ResponseEntity.ok(contenido);
     }
 
     @PostMapping("/download")

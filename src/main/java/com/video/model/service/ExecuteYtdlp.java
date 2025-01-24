@@ -14,11 +14,11 @@ import com.video.model.entity.YtdlpUpdateInfo;
 
 public class ExecuteYtdlp {
 
-    // dockerfile
     private final String YT_DLP_BIN = CheckFolderFiles.YT_DLP_BIN;
     private ProcessBuilder processBuilder;
     private Process process;
     private YtdlpUpdateInfo ytstatus = new YtdlpUpdateInfo();
+    private static final int EXIT_CODE_ERROR = 1;
 
     public Process getDownloadProces(Boolean soloAudio, Boolean audioFormatMp3, MediaFile mediaFile,
             List<String> aditionalParamList) {
@@ -28,19 +28,7 @@ public class ExecuteYtdlp {
         totalParams.add("-o");
         totalParams.add("./DownloadedFiles/%(title)s.%(ext)s");
 
-        // if (soloAudio == true) {
-        // totalParams.add("-x");
-        // if (audioFormatMp3) {
-        // totalParams.add("--audio-format");
-        // totalParams.add("mp3");
-        // }
-        // }
-
-        // if (!aditionalParamList.contains("null"))
-        // totalParams.addAll(aditionalParamList);
-
         totalParams.add(mediaFile.getUrl());
-
 
         executeProcess(totalParams);
 
@@ -61,6 +49,7 @@ public class ExecuteYtdlp {
         try {
             process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            @SuppressWarnings("unused")
             BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
             while ((line = reader.readLine()) != null) {
@@ -104,7 +93,6 @@ public class ExecuteYtdlp {
             }
             while ((line = readerError.readLine()) != null) {
 
-
             }
 
             exitCode = process.waitFor();
@@ -118,11 +106,10 @@ public class ExecuteYtdlp {
             System.out.println("EXIT CODE -> " + exitCode);
         }
 
-        if (exitCode == 1) {
-            jsonResult = "{\"respuesta\": \"error\"}";
+        if (exitCode == EXIT_CODE_ERROR) {
+            jsonResult = "false";
 
         }
-
 
         return jsonResult;
 

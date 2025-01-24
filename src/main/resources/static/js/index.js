@@ -7,7 +7,7 @@ window.onload = function () {
 
     firstLoad();
     updateTable();
-    // checkUpdate();
+    checkUpdate();
 
 
     const btnAddDownload = document.getElementById("btnAddDownload");
@@ -26,37 +26,33 @@ window.onload = function () {
 
                 loadingStart();
 
+                const formData = new FormData();
+                formData.append("url", urlValue);
 
-                const exit = await checkUrlExist(urlValue);
-                if (exit) {
-                    console.log("Ya existe");
+                const options = {
+                    method: "POST",
+                    body: formData
+                }
+
+                const consulta = await fetch("/addDownload", options);
+                const response = await consulta.text();
+
+                if (response === "error") {
+                    console.log(response)
                     return;
                 }
 
-                const jsonData = await getVideoMetada(urlValue);
-                if (jsonData.respuesta == "error") {
-                    console.log("HA OCURRIDO ALGUN ERROR.")
-                    return;
-                }
+                const mediaFile = JSON.parse(response);
+                const jsonData = JSON.parse(mediaFile.jsonData);
 
                 addDownload(jsonData);
-
-                const downloadExist = document.getElementById(jsonData.id);
-
-                if (downloadExist === null)
-                    console.log("ha habido un error");
-
-
-                addUrlBBDD(urlValue, JSON.stringify(jsonData));
 
             } catch (error) {
                 console.log(error);
             } finally {
                 loadingStop();
+                urlElement.value = "";
             }
-
-
-            urlElement.value = "";
         })();
     });
 
@@ -67,19 +63,6 @@ function isblack(url) {
     return !url.trim();
 }
 
-async function checkUrlExist(url) {
-
-
-    const formData = new FormData();
-    formData.append("url", url)
-
-    let options = {
-        method: "POST",
-        body: formData
-    }
-    const res = await fetch(`/checkUrlExist`, options);
-    return res.json();
-}
 
 function removeAfterAmpersand(url) {
     return url.split('&')[0];
@@ -195,35 +178,6 @@ function delBtnCancelAddDelBtn(btnCancel) {
 }
 
 
-async function getVideoMetada(url) {
-    const formData = new FormData();
-    formData.append("url", url)
-    const options = {
-        method: "POST",
-        body: formData
-    };
-    const resposne = await fetch("/getVideoMetada", options);
-    const data = await resposne.json();
-
-    return data;
-}
-
-async function addUrlBBDD(url, jsonData) {
-
-    const formData = new FormData();
-    formData.append("url", url);
-    formData.append("jsonData", jsonData);
-    let options = {
-        method: "POST",
-        body: formData
-    }
-    const resposne = await fetch("/addUrlBBDD", options);
-    const data = await resposne.json();
-
-    return data.mediaFile.downloaded;
-}
-
-
 function download(url) {
     const formData = new FormData();
     formData.append("url", url);
@@ -237,10 +191,7 @@ function download(url) {
         .then(response => {
             updateTable();
         })
-
 }
-
-
 
 function cancelDownload(url) {
     const formData = new FormData();
@@ -259,7 +210,6 @@ function cancelDownload(url) {
             }
         })
 }
-
 
 function firstLoad() {
     const url = document.getElementById("url").value;
@@ -372,27 +322,24 @@ function checkStatusRow(url, downloaded, status, progressDownload) {
 }
 
 
-// //Comprobamos si existe el archivo en la lista de descargas
-function checkRow(id) {
+// // //Comprobamos si existe el archivo en la lista de descargas, si existe, blinquea
+// function checkRow(id) {
 
-    const rowCheck = document.getElementById("row" + id);
-    if (rowCheck != null) {
+//     const rowCheck = document.getElementById("row" + id);
+//     if (rowCheck != null) {
+//         rowCheck.classList.add("blink");
 
-        // addBtnEliminar(id)
-
-        rowCheck.classList.add("blink");
-
-        // Eliminar la clase 'blink' después de 3 repeticiones (3 segundos)
-        rowCheck.addEventListener('animationiteration', (e) => {
-            const animationCount = parseInt(e.elapsedTime / 1); // Tiempo total de animación por ciclo
-            if (animationCount >= 3) {
-                rowCheck.classList.remove("blink"); // Elimina la clase cuando haya terminado
-            }
-        });
-        return true;
-    }
-    return false;
-}
+//         // Eliminar la clase 'blink' después de 3 repeticiones (3 segundos)
+//         rowCheck.addEventListener('animationiteration', (e) => {
+//             const animationCount = parseInt(e.elapsedTime / 1); // Tiempo total de animación por ciclo
+//             if (animationCount >= 3) {
+//                 rowCheck.classList.remove("blink"); // Elimina la clase cuando haya terminado
+//             }
+//         });
+//         return true;
+//     }
+//     return false;
+// }
 
 
 function delByUrl(url) {

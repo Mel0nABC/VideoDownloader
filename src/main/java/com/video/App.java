@@ -4,7 +4,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.video.model.service.CheckFolderFiles;
-import com.video.model.service.ExecuteYtdlp;
 
 /**
  * @author Mel0n
@@ -23,9 +22,5 @@ public class App {
         CheckFolderFiles.CheckOrCreateDownloadDir();
         CheckFolderFiles.checkOrDownloadYtdlp();
         SpringApplication.run(App.class, args);
-
-        // ExecuteYtdlp executeYtdlp = new ExecuteYtdlp();
-        // executeYtdlp.getVideoMetadata("https://www.youtube.com/watch?v=AWdU2gxIquo   ");
-
     }
 }
