@@ -3,13 +3,16 @@ User interface for yt-dlt, only three options.
 For all skills, go to https://github.com/yt-dlp/yt-dlp
 
 
-![imagen](https://github.com/user-attachments/assets/d3ae5fa6-7cce-4fe2-840c-2e541af34a52)
+Insert video URL:
+
+![image](https://github.com/user-attachments/assets/a17f252c-0662-4798-8858-12910b9ac78f)
 
 
-Select the quality and format to download.
+Actual download list:
 
-![imagen](https://github.com/user-attachments/assets/f472760d-db57-4df2-a790-a9693f978c7e)
+![image](https://github.com/user-attachments/assets/7a2f3657-24e9-4949-877c-15f967b2f23a)
 
 
+Finish downloads:
 
-https://hub.docker.com/repository/docker/mel0nabc/videodownloader/general
+![image](https://github.com/user-attachments/assets/1d03eeb1-1423-4a4e-b147-98747a1adee9)
