@@ -21,6 +21,12 @@ window.onload = function () {
             return;
         }
 
+
+        if (checkRow(urlValue)) {
+            return;
+        }
+
+
         (async () => {
             try {
                 loadingStart();
@@ -37,7 +43,6 @@ window.onload = function () {
                 const response = await consulta.text();
 
                 if (response === "error") {
-                    console.log(response)
                     return;
                 }
 
@@ -198,15 +203,9 @@ function cancelDownload(url) {
     fetch("/stopThread", options)
         .then(res => res.json())
         .then(response => {
-
-            console.log("RESPONSE /STOPTHREAD")
-            console.log(response)
-
             if (response == false) {
                 alert("Ha ocurrido algún problema inesperado para cancelar la descarga.")
             }
-
-
         })
 }
 
@@ -303,24 +302,21 @@ function checkStatusRow(url, downloaded, status, progressDownload) {
 }
 
 
-// // //Comprobamos si existe el archivo en la lista de descargas, si existe, blinquea
-// function checkRow(id) {
+function checkRow(url) {
+    const articleCheck = document.getElementById(url);
+    if (articleCheck != null) {
+        articleCheck.classList.add("blink");
 
-//     const rowCheck = document.getElementById("row" + id);
-//     if (rowCheck != null) {
-//         rowCheck.classList.add("blink");
-
-//         // Eliminar la clase 'blink' después de 3 repeticiones (3 segundos)
-//         rowCheck.addEventListener('animationiteration', (e) => {
-//             const animationCount = parseInt(e.elapsedTime / 1); // Tiempo total de animación por ciclo
-//             if (animationCount >= 3) {
-//                 rowCheck.classList.remove("blink"); // Elimina la clase cuando haya terminado
-//             }
-//         });
-//         return true;
-//     }
-//     return false;
-// }
+        articleCheck.addEventListener('animationiteration', (e) => {
+            const animationCount = parseInt(e.elapsedTime / 1);
+            if (animationCount >= 3) {
+                articleCheck.classList.remove("blink");
+            }
+        });
+        return true;
+    }
+    return false;
+}
 
 
 function delByUrl(url) {

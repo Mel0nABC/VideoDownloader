@@ -543,3 +543,20 @@ button:hover:before {
     display: grid;
     margin: 0 auto;
 }
+
+
+@keyframes blink-animation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.blink {
+    animation: blink-animation 1s linear infinite;
+}

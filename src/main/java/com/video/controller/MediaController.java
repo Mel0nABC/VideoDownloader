@@ -37,14 +37,11 @@ public class MediaController {
 
     @GetMapping("/")
     public String inicio() {
-        printAllURLS();
         return "index";
     }
 
     @PostMapping("/addDownload")
     public ResponseEntity<Object> addDownload(@RequestParam("url") String url) {
-        System.out.println("URL -> " + url);
-
         if (urlExist(url))
             return ResponseEntity.ok("error");
 
@@ -57,7 +54,6 @@ public class MediaController {
     }
 
     public boolean urlExist(String url) {
-        System.out.println("/checkUrlExist --> " + url);
         MediaFile mediaFile = mediaRepository.findByUrl(url);
 
         if (mediaFile == null)
@@ -66,12 +62,10 @@ public class MediaController {
     }
 
     public String getVideoMetadata(String url) {
-        System.out.println("/getVideoMetada --> " + url);
         return new ExecuteYtdlp().getVideoMetadata(url);
     }
 
     public MediaFile addUrlBBDD(String url, String jsonData) {
-        System.out.println("/addUrlBBDD --> " + url);
         MediaFile mfBBDD = new MediaFile(url, false, EXIT_CODE_OK, jsonData);
         mediaRepository.save(mfBBDD);
         mfBBDD = mediaRepository.findByUrl(mfBBDD.getUrl());
@@ -105,9 +99,7 @@ public class MediaController {
                 mediaRepository, null, null, aditionalParamList, this);
 
         for (MediaThread mtCheck : mediaThreadList) {
-            System.out.println("PRIMER CHECK!!");
             if (mtCheck.getMediaFile().getUrl().equals(url)) {
-                System.out.println("SEGUNDO CHECK!!");
                 contenido.put("mediaFile", "error, descarga ya iniciada.");
                 return ResponseEntity.ok(contenido);
             }
@@ -129,7 +121,6 @@ public class MediaController {
      */
     @PostMapping("/getInfo")
     public ResponseEntity<ArrayList<MediaThread>> getList() {
-        System.out.println("URL ->>>>>>>>>>>>>>>>>>>>> " + mediaThreadList.size());
         return ResponseEntity.ok(mediaThreadList);
     }
 
@@ -163,32 +154,18 @@ public class MediaController {
 
     @PostMapping("/stopThread")
     public ResponseEntity<String> stopThreadWeb(@RequestParam("url") String url) {
-        // System.out.println("PASO 1");
-        // if (!stopThread(url))
-        // return ResponseEntity.ok("false");
-        // System.out.println("PASO 2");
-        // if (!delByUrlFromThreadList(url))
-        // return ResponseEntity.ok("false");
-        // System.out.println("PASO 3");
-        // return ResponseEntity.ok("true");
-
         return ResponseEntity.ok(stopThreadTotal(url));
     }
 
     public String stopThreadTotal(String url) {
-        System.out.println("PASO 1");
         if (!stopThread(url)) {
-            System.out.println("STOPTHREAD");
             return "false";
         }
 
-        System.out.println("PASO 2");
         if (!delByUrlFromThreadList(url)) {
-            System.out.println("DELBYURLFROMTHREADLIST");
             return "false";
         }
 
-        System.out.println("PASO 3");
         return "true";
     }
 
@@ -203,8 +180,6 @@ public class MediaController {
                     try {
                         tr.join();
                     } catch (InterruptedException e) {
-                        // Thread.currentThread().interrupt();
-                        // System.out.println("Hilo interrumpido. Limpiando recursos...");
                         e.printStackTrace();
                     }
                     if (!tr.isAlive()) {
@@ -223,7 +198,6 @@ public class MediaController {
 
             for (MediaThread mt : mediaThreadList) {
                 if (mt.getMediaFile().getUrl().equals(url)) {
-                    System.out.println("BORRANDO DE LA LISTA DE THREADS");
                     mediaThreadList.remove(mt);
                     return true;
                 }
@@ -235,13 +209,5 @@ public class MediaController {
     @PostMapping("/checkYtUpdate")
     public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
         return ResponseEntity.ok(new ExecuteYtdlp().getRelease());
-    }
-
-    public void printAllURLS() {
-        System.out.println("################ URLS AÑADIDOS ################");
-        for (MediaFile mf : mediaRepository.findAll()) {
-            System.out.println(mf.getId() + " - " + mf.getUrl());
-        }
-        System.out.println("################################################");
     }
 }
