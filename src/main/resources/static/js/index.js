@@ -43,9 +43,7 @@ window.onload = function () {
                 }
 
                 const mediaFile = JSON.parse(response);
-                const jsonData = JSON.parse(mediaFile.jsonData);
-
-                addDownload(jsonData);
+                addDownload(mediaFile);
 
             } catch (error) {
                 console.log(error);
@@ -69,7 +67,8 @@ function removeAfterAmpersand(url) {
 }
 
 
-function addDownload(jsonData) {
+function addDownload(mediaFile) {
+    const jsonData = JSON.parse(mediaFile.jsonData);
 
     const texto = `<article id="${jsonData.webpage_url}" class="down-box-info">
 
@@ -90,7 +89,7 @@ function addDownload(jsonData) {
     
     
     
-            <div class="wrapper_2">
+            <div id="wrapperBar${jsonData.webpage_url}" class="wrapper_2">
                 <div id="progressBar${jsonData.webpage_url}" class="progress_2"></div>
             </div>
     
@@ -99,8 +98,8 @@ function addDownload(jsonData) {
         </div>
     
         <div class="video-down-actions">
-            <button id="${jsonData.webpage_url}" name="btnDownload">Descargar</button>
-            <button id="${jsonData.webpage_url}" name="btnDelete">Eliminar</button>
+            <button btn-down-id="${mediaFile.id}" id="${jsonData.webpage_url}" name="btnDownload">Descargar</button>
+            <button btn-del-id="${mediaFile.id}" id="${jsonData.webpage_url}" name="btnDelete">Eliminar</button>
         </div>
     </article>`
 
@@ -126,7 +125,6 @@ function addDownload(jsonData) {
     btnDeleteList.forEach(btn => {
         btn.addEventListener("click", e => {
             const url = e.target.id;
-            console.log(url)
             delByUrl(url);
         });
     });
@@ -145,6 +143,7 @@ function delBtnDelAddCancelBtn(btnDown) {
     newCancelBtn.textContent = "Cancelar";
     newCancelBtn.name = "btnCancel";
     newCancelBtn.id = btnDown.id;
+    newCancelBtn.setAttribute("btn-cancel-id",btnDown.getAttribute("btn-down-id"));
     const locationAdd = btnDown.parentElement;
     locationAdd.appendChild(newCancelBtn);
     const btnCancelList = document.getElementsByName("btnCancel");
@@ -189,6 +188,11 @@ function download(url) {
     fetch(`/download`, options)
         .then(res => res.json())
         .then(response => {
+            console.log("-----> RESPUESTA DOWNLOAD <-----")
+            console.log(response)
+
+
+
             updateTable();
         })
 }
@@ -225,11 +229,14 @@ function firstLoad() {
         .then(res => res.json())
         .then(response => {
             response.forEach(element => {
-                const jsonData = element.jsonData;
-                const jsonDataBBDD = JSON.parse(jsonData);
-                addDownload(jsonDataBBDD)
                 const mediaFile = element;
+                addDownload(mediaFile);
                 checkStatusRow(mediaFile.url, mediaFile.downloaded, mediaFile.status, mediaFile.progressDownload);
+                console.log("######################")
+                console.log(mediaFile.url)
+                console.log(mediaFile.downloaded)
+                console.log("######################")
+                console.log()
             });
         })
 }
@@ -247,42 +254,18 @@ async function updateTable() {
         fetch(`/getInfo`, options)
             .then(res => res.json())
             .then(response => {
-
-
-                //Paramos el bucle si no hay articles.
-                if (document.getElementsByTagName("article").length === 0)
-                    updateData = false;
-
                 response.forEach(element => {
+                    // console.log(element)
                     const mediaFile = element.mediaFile;
                     url = mediaFile.url;
                     downloaded = mediaFile.downloaded;
                     status = element.status
                     updateBarProgress(url, downloaded, status)
-                    if (downloaded == true) {
+                    if (downloaded === true) {
                         checkStatusRow(url, downloaded, "FINISH");
-                        const downBtnList = document.getElementsByName("btnDownload")
-                        downBtnList.forEach(btn => {
-                            if (url === btn.id)
-                                if (btn.disabled === true) {
-
-                                    const cancelBtnList = document.getElementsByName("btnCancel")
-                                    cancelBtnList.forEach(btn => {
-                                        if (url === btn.id)
-                                            delBtnCancelAddDelBtn(btn);
-                                    })
-
-                                }
-                        })
                     } else {
                         checkStatusRow(url, downloaded, status);
-                        const downBtnList = document.getElementsByName("btnDownload")
-                        downBtnList.forEach(btn => {
-                            if (url === btn.id)
-                                if (btn.disabled === false) {
-                                    delBtnDelAddCancelBtn(btn);
-                                }
-                        })
+                        checkStatusButtons(mediaFile.id,downloaded);
                     }
                 });
 
@@ -291,13 +274,25 @@ async function updateTable() {
     }
 };
 
+function checkStatusButtons(id,downloaded){
+    const btnDown = document.querySelector('[btn-down-id="'+id+'"]');
+    
+    
+
+    // console.log(downloaded+" - "+id)
+
+
+
+
+
+}
+
 
 function updateBarProgress(url, estado, status) {
     const progressBar = document.getElementById("progressBar" + url);
-
     if (progressBar === null)
         return;
-    if (status == "Recoding") {
+    if (status === "Recoding") {
         progressBar.style.width = 100 + '%';
     } else {
         progressBar.style.width = status;
@@ -306,6 +301,7 @@ function updateBarProgress(url, estado, status) {
 
 function checkStatusRow(url, downloaded, status, progressDownload) {
     const progressBar = document.getElementById("progressBar" + url);
+    // console.log("POSGRESSBAR .> " + progressBar.id)
     if (progressBar === null)
         return;
     if (downloaded == true) {

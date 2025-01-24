@@ -88,24 +88,34 @@ public class MediaController {
     public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url) {
         List<String> aditionalParamList = new ArrayList<>();
 
-        // if (idDownload != "null") {
-        // String idDownloadFiltered = idDownload;
-        // // if (idDownload.contains(" "))
-        // idDownloadFiltered = idDownload.split(" ")[0];
-
-        // aditionalParamList.add("-f");
-        // aditionalParamList.add(idDownloadFiltered);
-        // }
-
-        Map<String, Object> contenido = new HashMap<>();
         MediaFile mfBBDD = mediaRepository.findByUrl(url);
-        mfBBDD.setExitCode(EXIT_CODE_OK);
-
-        contenido.put("mediaFile", mfBBDD);
-
         MediaThread mfThread = new MediaThread(threadGroup, mfBBDD,
                 mediaRepository, null, null, aditionalParamList);
 
+
+        Map<String, Object> contenido = new HashMap<>();
+
+        if (mfBBDD == null) {
+            contenido.put("mediaFile", "error, url no existe");
+            return ResponseEntity.ok(contenido);
+        }
+
+        if(mfBBDD.getDownloaded() == true){
+            contenido.put("mediaFile", "error, contenido ya descargado");
+            return ResponseEntity.ok(contenido);
+        }
+
+        for (MediaThread mtCheck : mediaThreadList) {
+            System.out.println("PRIMER CHECK!!");
+            if (mtCheck.getMediaFile().getUrl().equals(url)){
+                System.out.println("SEGUNDO CHECK!!");
+                contenido.put("mediaFile", "error, descarga ya iniciada.");
+                return ResponseEntity.ok(contenido);
+            }
+        }
+
+
+        mfBBDD.setExitCode(EXIT_CODE_OK);
         mediaThreadList.add(mfThread);
         mfThread.start();
 

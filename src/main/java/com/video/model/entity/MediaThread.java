@@ -53,7 +53,7 @@ public class MediaThread extends Thread {
                         String statusString = matcher.group(1);
                         if (statusString.equals("download")) {
                             try {
-                                System.out.println(line);
+                                // System.out.println(line);
                                 if (line.contains("Destination")) {
                                     String[] downDesti = line.split("/");
                                     mediaFile.setFileName(downDesti[downDesti.length - 1]);
