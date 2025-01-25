@@ -16,26 +16,23 @@ public class MediaThread extends Thread {
 
     private Double segundos = 0.0;
     private String status;
-    private Boolean soloAudio, audioFormatMp3;
     private MediaFile mediaFile;
     private BufferedReader reader;
     private int exitCode;
-    private List<String> aditionalParamList;
     private boolean downloadInProgress;
+    private String formatId;
     private MediaController mediaController;
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
 
-    public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, Boolean soloAudio,
-            Boolean audioFormatMp3, List<String> aditionalParamList, MediaController mediaController) {
+    public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, String formatId,
+            MediaController mediaController) {
         super(threadGroup, "threadgroup");
         this.mediaFile = mediaFile;
         this.mediaRepository = mediaRepository;
-        this.soloAudio = soloAudio;
-        this.audioFormatMp3 = audioFormatMp3;
-        this.aditionalParamList = aditionalParamList;
         this.mediaController = mediaController;
+        this.formatId = formatId;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class MediaThread extends Thread {
         status = "WAIT";
         try {
             ExecuteYtdlp procesYtdlp = new ExecuteYtdlp();
-            Process process = procesYtdlp.getDownloadProces(soloAudio, audioFormatMp3, mediaFile, aditionalParamList);
+            Process process = procesYtdlp.getDownloadProces(formatId, mediaFile);
 
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line = "";

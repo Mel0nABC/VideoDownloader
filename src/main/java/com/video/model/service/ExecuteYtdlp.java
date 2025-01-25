@@ -20,14 +20,14 @@ public class ExecuteYtdlp {
     private YtdlpUpdateInfo ytstatus = new YtdlpUpdateInfo();
     private static final int EXIT_CODE_ERROR = 1;
 
-    public Process getDownloadProces(Boolean soloAudio, Boolean audioFormatMp3, MediaFile mediaFile,
-            List<String> aditionalParamList) {
+    public Process getDownloadProces(String formatId, MediaFile mediaFile) {
 
         List<String> totalParams = new ArrayList<>();
         totalParams.add(YT_DLP_BIN);
         totalParams.add("-o");
         totalParams.add("./DownloadedFiles/%(title)s.%(ext)s");
-
+        totalParams.add("-f");
+        totalParams.add(formatId);
         totalParams.add(mediaFile.getUrl());
 
         executeProcess(totalParams);

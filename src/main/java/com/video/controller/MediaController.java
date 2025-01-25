@@ -79,7 +79,7 @@ public class MediaController {
     }
 
     @PostMapping("/download")
-    public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url) {
+    public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url, @RequestParam("formatId") String formatId) {
         List<String> aditionalParamList = new ArrayList<>();
 
         Map<String, Object> contenido = new HashMap<>();
@@ -96,7 +96,7 @@ public class MediaController {
         }
 
         MediaThread mfThread = new MediaThread(threadGroup, mfBBDD,
-                mediaRepository, null, null, aditionalParamList, this);
+                mediaRepository, formatId, this);
 
         for (MediaThread mtCheck : mediaThreadList) {
             if (mtCheck.getMediaFile().getUrl().equals(url)) {

@@ -15,6 +15,7 @@ html {
     margin: 0;
     padding: 2%;
     text-align: center;
+    overflow: auto;
 }
 
 body {
@@ -28,14 +29,14 @@ body {
     background-color: var(--color-fondo);
     font-family: 'Lato',
     sans-serif;
-    width: 80rem;
+
+    /* overflow: auto; */
 }
 
 
 main {
     padding: 15px;
     height: 100%;
-    border: white 1px solid;
     border-radius: 20px;
     margin: 10px;
     width: 100%;
@@ -79,11 +80,9 @@ h1 {
 
 /* From Uiverse.io by adamgiebl */
 button {
-    /* display: block; */
     --green: #1BFD9C;
-    font-size: 0.8rem;
+    font-size: 15px;
     padding: 0.7em 2.7em;
-    margin: 0.3em;
     letter-spacing: 0.06em;
     position: relative;
     font-family: inherit;
@@ -114,7 +113,7 @@ button:before {
 }
 
 button:hover:before {
-    transform: translateX(15em);
+    transform: translateX(30em);
 }
 
 .no-hover:hover {
@@ -134,8 +133,10 @@ button:hover:before {
     padding-inline: 1em;
     padding-block: 0.8em;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* border: var(--color-fondo); */
 }
 
+.input:hover,
 .input:focus {
     border-color: #1BFD9C;
 }
@@ -199,6 +200,7 @@ footer {
 }
 
 article {
+
     border: white 1px solid;
     border-radius: 1em;
     padding: 1%;
@@ -206,9 +208,15 @@ article {
     margin: 2%;
 }
 
+article:hover,
+article:focus {
+    border-color: #1BFD9C;
+}
+
 .down-box-info {
     display: inline-flex;
     color: white;
+    justify-content: center;
 }
 
 .video-down-info {
@@ -229,7 +237,7 @@ article {
 .video-down-actions {
     width: 33%;
     display: grid;
-
+    gap: 1em;
 }
 
 .articleImg {
@@ -241,7 +249,7 @@ article {
     width: 100%;
     display: block;
     margin-bottom: 1em;
-    font-size: 1.2rem;
+    font-size: 1.2em;
 }
 
 
@@ -262,7 +270,7 @@ article {
         0 2px 2px rgba(256, 256, 256, 0.45),
         inset 0 5px 10px rgba(0, 0, 0, 0.5);
     position: relative;
-    margin: 3%;
+    margin-top: 1em;
 }
 
 .wrapper_2 label {
@@ -278,7 +286,6 @@ article {
     width: 0%;
     height: 20px;
     border-radius: 50px 50px 50px 50px;
-    /* border-radius: 30px; */
     background-color: hsla(131, 55%, 45%, 1);
     position: relative;
     box-shadow:
@@ -296,6 +303,11 @@ article {
     .down-box-info {
         display: block;
         color: white;
+
+    }
+
+    .articleTittle {
+        font-size: 1em;
     }
 
     .video-down-info {
@@ -303,29 +315,14 @@ article {
         margin: 1em auto;
 
         img {
-            width: 30%;
-        }
-    }
-
-    .video-down-options {
-        width: 100%;
-        display: grid;
-        justify-content: center;
-        margin: 1em auto;
-
-        div {
-            margin: 0 auto;
+            width: 70%;
         }
     }
 
     .video-down-actions {
-        display: inline;
-    }
-
-    .video-down-info {
-        img {
-            width: 50%;
-        }
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
     }
 
     .title h1 {
@@ -358,4 +355,195 @@ article {
 
 .blink {
     animation: blink-animation 1s linear infinite;
+}
+
+.table-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 3;
+}
+
+
+.table-data-container {
+    background-color: var(--color-fondo);
+    transform: translate(-50%, 0%);
+    padding: 3em 3em 3em 3em;
+
+    border: 1px solid white;
+    border-radius: 2em;
+    margin-bottom: 2em;
+
+    h2 {
+        margin-bottom: 2em;
+        text-align: center;
+        font-weight: 400;
+        color: white;
+        font-size: 2em;
+        font-family: inherit;
+    }
+}
+
+.cierre {
+    position: absolute;
+    top: 1%;
+    right: 2%;
+}
+
+
+
+
+
+/*	
+	Table Responsive
+	===================
+	Author: https://github.com/pablorgarcia
+ */
+.containerTable {
+    text-align: left;
+    margin: 0 auto;
+    display: table;
+    border: 1px solid white;
+}
+
+.containerTable th {
+    background-color: #1F2739;
+    padding: 30px;
+}
+
+.containerTable tbody tr td,
+.containerTable thead tr th h1 {
+    text-align: center;
+    padding: 0.1em;
+}
+
+.containerTable th h1 {
+    font-weight: bold;
+    font-size: 1em;
+    text-align: center;
+    color: #185875;
+    font-size: 0.9em;
+}
+
+.containerTable td {
+    font-weight: normal;
+    font-size: 1em;
+    -webkit-box-shadow: 0 2px 2px -2px #0E1119;
+    -moz-box-shadow: 0 2px 2px -2px #0E1119;
+    box-shadow: 0 2px 2px -2px #0E1119;
+}
+
+/* Background-color of the odd rows */
+.containerTable tr:nth-child(odd) {
+    background-color: #323C50;
+}
+
+/* Background-color of the even rows */
+.containerTable tr:nth-child(even) {
+    background-color: #2C3446;
+}
+
+.containerTable td:first-child {
+    color: #FB667A;
+}
+
+.containerTable tr:hover {
+    background-color: #464A52;
+    -webkit-box-shadow: 0 6px 6px -6px #0E1119;
+    -moz-box-shadow: 0 6px 6px -6px #0E1119;
+    box-shadow: 0 6px 6px -6px #0E1119;
+}
+
+@media (max-width: 1050px) {
+
+    .containerTable td:nth-child(5),
+    .containerTable th:nth-child(5) {
+        display: none;
+    }
+}
+
+@media (max-width: 850px) {
+
+    .containerTable td:nth-child(10),
+    .containerTable th:nth-child(10) {
+        display: none;
+    }
+}
+
+@media (max-width: 730px) {
+
+    .containerTable td:nth-child(9),
+    .containerTable th:nth-child(9) {
+        display: none;
+    }
+}
+
+@media (max-width: 680px) {
+
+    .containerTable td:nth-child(7),
+    .containerTable th:nth-child(7) {
+        display: none;
+    }
+
+    .table-data-container {
+        h2 {
+            font-size: 1em;
+            margin-right: 2.5em;
+        }
+
+        button {
+            margin-right: 1.5em;
+        }
+    }
+
+}
+
+@media (max-width: 580px) {
+
+    .containerTable td:nth-child(8),
+    .containerTable th:nth-child(8) {
+        display: none;
+    }
+}
+
+@media (max-width: 490px) {
+
+    .containerTable td:nth-child(6),
+    .containerTable th:nth-child(6) {
+        display: none;
+    }
+
+    .table-data-container {
+        h2 {
+            font-size: 1em;
+            margin-right: 3.5em;
+        }
+
+    }
+}
+
+@media (max-width: 380px) {
+
+    .containerTable td:nth-child(4),
+    .containerTable th:nth-child(4) {
+        display: none;
+    }
+
+    .table-data-container {
+        h2 {
+            font-size: 1em;
+            margin-right: 3.5em;
+        }
+
+    }
+
+}
+
+@media (max-width: 250px) {
+
+    .containerTable td:nth-child(4),
+    .containerTable th:nth-child(4) {
+        display: none;
+    }
+
 }

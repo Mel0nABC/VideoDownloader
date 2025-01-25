@@ -8,7 +8,6 @@ window.onload = function () {
     firstLoad();
     updateTable();
     checkUpdate();
-
     const btnAddDownload = document.getElementById("btnAddDownload");
     var urlValue;
     btnAddDownload.addEventListener("click", function () {
@@ -40,7 +39,6 @@ window.onload = function () {
 
                 const consulta = await fetch("/addDownload", options);
                 const response = await consulta.text();
-
                 if (response === "error") {
                     return;
                 }
@@ -70,6 +68,110 @@ function removeAfterAmpersand(url) {
     return url.split('&')[0];
 }
 
+function createTableFormats(mediaFile) {
+    const jsonData = JSON.parse(mediaFile.jsonData);
+
+    var tabla = `<div id="containerFormatos" class="table-container">
+                    <div class="table-data-container">
+                        <h2>SELECCIÓN DE FORMATOS</h2>
+                        <table class="containerTable">
+                            <thead>
+                                <tr>
+                                    <th><h1>ID</h1></th>
+                                    <th><h1>EXT</h1></th>
+                                    <th><h1>RESOLUTION</h1></th>
+                                    <th><h1>FILESIZE</h1></th>
+                                    <th><h1>TBR</h1></th>
+                                    <th><h1>VCODEC</h1></th>
+                                    <th><h1>VBR</h1></th>
+                                    <th><h1>ACODEC</h1></th>
+                                    <th><h1>ABR</h1></th>
+                                    <th><h1>MORE</h1></th>
+                                   </tr>
+                            </thead>
+                            <tbody>`
+
+    jsonData.formats.forEach(formats => {
+        var tbrcalc = Number(formats.tbr).toFixed(0);
+        var mbytes = formats.filesize / 1024 / 1024;
+        var mbytesUnit = "MB"
+        if (mbytes > 1024) {
+            mbytes = mbytes / 1024;
+            mbytesUnit = "GB"
+        }
+        mbytes = mbytes.toFixed(2);
+        if (formats.filesize === undefined){
+            mbytesUnit = "";
+            mbytes = "ND";
+        }
+
+        var vbrCalc = formats.vbr;
+
+        if(vbrCalc === null){
+            vbrCalc = "ND";
+        }else{
+            vbrCalc = vbrCalc.toFixed(0);
+        }
+            
+
+
+        tabla += `<tr id="${formats.format_id}" class="rowFormat">
+                                    <td>${formats.format_id}</td>
+                                    <td>${formats.ext}</td>
+                                    <td>${formats.resolution}</td>
+                                    <td>${mbytes}${mbytesUnit}</td>
+                                    <td>${tbrcalc}K</td>
+                                    <td>${formats.vcodec}</td>
+                                    <td>${vbrCalc}K</td>
+                                    <td>${formats.acodec}</td>
+                                    <td>${formats.abr}</td>
+                                    <td>${formats.format_note}</td>
+                                </tr>`;
+    })
+
+    tabla += `</tbody>
+                        </table>
+                    </div>
+                </div>`;
+
+    const title = document.getElementsByClassName("title")[0];
+    title.innerHTML += tabla;
+    const cierre = document.createElement("button");
+    cierre.textContent = "X";
+    cierre.classList.add("cierre");
+    cierre.id = "clsFormatSelection";
+    document.getElementsByClassName("table-data-container")[0].appendChild(cierre)
+
+
+    Array.from(document.getElementsByClassName("rowFormat")).forEach(row => {
+        row.addEventListener("click", async td => {
+            const rowClicked = td.target.parentElement
+            const data = await download(mediaFile, rowClicked.id);
+            const texto = data.mediaFile;
+            try {
+                if (texto.includes("Error")) {
+                    checkButtonsStatus();
+                    alert(texto);
+                }
+            } catch (error) {
+                updateTable();
+            } finally {
+                updateBarProgress(mediaFile);
+                closeContainerFormats();
+            }
+        })
+
+    });
+
+    cierre.addEventListener("click", e => {
+        closeContainerFormats();
+
+    });
+}
+
+function closeContainerFormats() {
+    document.getElementById("containerFormatos").remove();
+}
 
 function addDownload(mediaFile) {
     const jsonData = JSON.parse(mediaFile.jsonData);
@@ -81,26 +183,7 @@ function addDownload(mediaFile) {
                     <div class="video-down-info">
                         <img id="thumbnail" src="${jsonData.thumbnail}" class="articleImg">
                     </div>
-                    <div class="video-down-options">
-                        <div>
-                            <label for="selectQuality">Calidad de imagen:</label>
-                            <select id="selectQuality" class="selectQuality">
-                                <option value="selecciona">Selecciona una opción</option>
-                                <option value="opcion1">640x480</option>
-                                <option value="opcion2">1024x840</option>
-                                <option value="opcion3">1280x1024</option>
-                                <option value="opcion3">1440x1280</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="soloAudio">Descargar sólo audio:</label>
-                            <input type="checkbox" id="soloAudio">
-                        </div>
-                        <div>
-                            <label for="soloAudio">Audio en MP3:</label>
-                            <input type="checkbox" id="mp3">
-                        </div>
-                    </div>
+
                     <div class="video-down-actions">
                         <button data-btn-down-id="${mediaFile.id}" id="${jsonData.webpage_url}"
                             name="btnDownload">Descargar</button>
@@ -124,21 +207,7 @@ function addDownload(mediaFile) {
 
     btnDownloadList.forEach(btnDown => {
         btnDown.addEventListener("click", async e => {
-            const btn = e.target;
-            const url = btn.id;
-            const data = await download(url);
-            const texto = data.mediaFile;
-            try {
-                if (texto.includes("Error")) {
-                    checkButtonsStatus();
-                    alert(texto);
-                }
-            } catch (error) {
-                updateTable();
-                delBtnDelAddCancelBtn(btn);
-            } finally {
-                updateBarProgress(mediaFile);
-            }
+            prepareDownload(mediaFile);
         });
     });
 
@@ -152,10 +221,15 @@ function addDownload(mediaFile) {
     document.getElementById("url").value = "";
 }
 
-async function download(url) {
+function prepareDownload(mediaFile) {
+    createTableFormats(mediaFile);
+}
 
+async function download(mediaFile, formatId) {
+    const url = mediaFile.url
     const formData = new FormData();
     formData.append("url", url);
+    formData.append("formatId", formatId);
     let options = {
         method: "POST",
         body: formData
@@ -214,7 +288,6 @@ function delBtnCancelAddDelBtn(btnCancel) {
     const newDelBtn = document.createElement("button");
     const btnCancelIdNumber = btnCancel.getAttribute("data-btn-cancel-id")
     const btnDown = document.querySelector('[data-btn-down-id="' + btnCancelIdNumber + '"]')
-    console.log('[data-btn-down-id="' + btnCancelIdNumber + '"]')
     enableButtonColors(btnDown);
     newDelBtn.textContent = "Eliminar";
     newDelBtn.name = "btnDelete";
@@ -330,13 +403,9 @@ async function checkButtonsStatus() {
     btnDownloadList.forEach(btn => {
         const id = btn.getAttribute("data-btn-down-id");
         const btnCancel = document.querySelector('[data-btn-cancel-id="' + id + '"]')
-
-        console.log(listaDescargas.length)
-        console.log(btnCancel)
         if (listaDescargas.length === 0)
             if (btnCancel != null) {
                 delBtnCancelAddDelBtn(btnCancel);
-                console.log("BTN LALALALAL")
             }
 
 
