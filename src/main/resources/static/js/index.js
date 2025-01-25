@@ -74,36 +74,49 @@ function removeAfterAmpersand(url) {
 function addDownload(mediaFile) {
     const jsonData = JSON.parse(mediaFile.jsonData);
 
-    const texto = `<article id="${jsonData.webpage_url}" class="down-box-info">
-
-        <div class="video-down-info">
-            <h3 id="fulltitle" class="articleTittle">${jsonData.fulltitle}</h3>
-            <img id="thumbnail" src="${jsonData.thumbnail}" class="articleImg">
-        </div>
-    
-        <div class="video-down-options">
-            <label for="selectQuality">Calidad de imagen:</label>
-            <select id="selectQuality" class="selectQuality">
-                <option value="selecciona">Selecciona una opción</option>
-                <option value="opcion1">640x480</option>
-                <option value="opcion2">1024x840</option>
-                <option value="opcion3">1280x1024</option>
-                <option value="opcion3">1440x1280</option>
-            </select>
-            <div id="wrapperBar${jsonData.webpage_url}" class="wrapper_2">
-                <label id="progressLabel${mediaFile.id}"></label>
-                <div id="progressBar${jsonData.webpage_url}" class="progress_2"></div>
-            </div>
-        </div>
-        <div class="video-down-actions">
-            <button data-btn-down-id="${mediaFile.id}" id="${jsonData.webpage_url}" name="btnDownload">Descargar</button>
-            <button data-btn-del-id="${mediaFile.id}" id="${jsonData.webpage_url}" name="btnDelete">Eliminar</button>
-        </div>
-    </article>`
+    const texto = `<section id="section">
+            <article id="${jsonData.webpage_url}">
+                <h2 id="fulltitle" class="articleTittle">${jsonData.fulltitle}</h2>
+                <div class="down-box-info">
+                    <div class="video-down-info">
+                        <img id="thumbnail" src="${jsonData.thumbnail}" class="articleImg">
+                    </div>
+                    <div class="video-down-options">
+                        <div>
+                            <label for="selectQuality">Calidad de imagen:</label>
+                            <select id="selectQuality" class="selectQuality">
+                                <option value="selecciona">Selecciona una opción</option>
+                                <option value="opcion1">640x480</option>
+                                <option value="opcion2">1024x840</option>
+                                <option value="opcion3">1280x1024</option>
+                                <option value="opcion3">1440x1280</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="soloAudio">Descargar sólo audio:</label>
+                            <input type="checkbox" id="soloAudio">
+                        </div>
+                        <div>
+                            <label for="soloAudio">Audio en MP3:</label>
+                            <input type="checkbox" id="mp3">
+                        </div>
+                    </div>
+                    <div class="video-down-actions">
+                        <button data-btn-down-id="${mediaFile.id}" id="${jsonData.webpage_url}"
+                            name="btnDownload">Descargar</button>
+                        <button data-btn-del-id="${mediaFile.id}" id="${jsonData.webpage_url}"
+                            name="btnDelete">Eliminar</button>
+                    </div>
+                </div>
+                <div id="wrapperBar${jsonData.webpage_url}" class="wrapper_2">
+                    <label id="progressLabel${mediaFile.id}">Descarga no iniciada</label>
+                    <div id="progressBar${jsonData.webpage_url}" class="progress_2"></div>
+                </div>
+            </article>`
 
 
     const section = document.getElementById("section");
-    section.innerHTML = texto+section.getHTML();
+    section.innerHTML = texto + section.getHTML();
 
     const btnDownloadList = document.getElementsByName("btnDownload");
     const btnDeleteList = document.getElementsByName("btnDelete");
@@ -206,7 +219,7 @@ function delBtnCancelAddDelBtn(btnCancel) {
     newDelBtn.textContent = "Eliminar";
     newDelBtn.name = "btnDelete";
     newDelBtn.id = btnCancel.id;
-    newDelBtn.setAttribute("data-btn-del-id",btnCancel.id)
+    newDelBtn.setAttribute("data-btn-del-id", btnCancel.id)
     locationAdd.appendChild(newDelBtn);
     btnCancel.remove();
     finish = true;
@@ -321,11 +334,11 @@ async function checkButtonsStatus() {
         console.log(listaDescargas.length)
         console.log(btnCancel)
         if (listaDescargas.length === 0)
-            if (btnCancel != null){
+            if (btnCancel != null) {
                 delBtnCancelAddDelBtn(btnCancel);
                 console.log("BTN LALALALAL")
             }
-                
+
 
         listaDescargas.forEach(descarga => {
             if (btn.id === descarga.mediaFile.url) {
