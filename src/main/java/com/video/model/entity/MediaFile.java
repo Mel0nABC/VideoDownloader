@@ -23,7 +23,7 @@ public class MediaFile {
     private String jsonData;
 
     {
-        progressDownload = "0";
+        progressDownload = "Descarga no iniciada";
     }
 
     @ConstructorBinding

@@ -47,7 +47,7 @@ window.onload = function () {
 
                 const mediaFile = JSON.parse(response);
                 addDownload(mediaFile);
-
+                updateBarProgress(mediaFile)
             } catch (error) {
                 console.log(error);
             } finally {
@@ -91,6 +91,7 @@ function addDownload(mediaFile) {
                 <option value="opcion3">1440x1280</option>
             </select>
             <div id="wrapperBar${jsonData.webpage_url}" class="wrapper_2">
+                <label id="progressLabel${mediaFile.id}"></label>
                 <div id="progressBar${jsonData.webpage_url}" class="progress_2"></div>
             </div>
         </div>
@@ -102,7 +103,7 @@ function addDownload(mediaFile) {
 
 
     const section = document.getElementById("section");
-    section.innerHTML += texto;
+    section.innerHTML = texto+section.getHTML();
 
     const btnDownloadList = document.getElementsByName("btnDownload");
     const btnDeleteList = document.getElementsByName("btnDelete");
@@ -122,6 +123,8 @@ function addDownload(mediaFile) {
             } catch (error) {
                 updateTable();
                 delBtnDelAddCancelBtn(btn);
+            } finally {
+                updateBarProgress(mediaFile);
             }
         });
     });
@@ -133,7 +136,7 @@ function addDownload(mediaFile) {
             delByUrl(url);
         });
     });
-
+    document.getElementById("url").value = "";
 }
 
 async function download(url) {
@@ -196,13 +199,17 @@ function enableButtonColors(btn) {
 function delBtnCancelAddDelBtn(btnCancel) {
     const locationAdd = btnCancel.parentElement;
     const newDelBtn = document.createElement("button");
+    const btnCancelIdNumber = btnCancel.getAttribute("data-btn-cancel-id")
+    const btnDown = document.querySelector('[data-btn-down-id="' + btnCancelIdNumber + '"]')
+    console.log('[data-btn-down-id="' + btnCancelIdNumber + '"]')
+    enableButtonColors(btnDown);
     newDelBtn.textContent = "Eliminar";
     newDelBtn.name = "btnDelete";
     newDelBtn.id = btnCancel.id;
-    finish = true;
+    newDelBtn.setAttribute("data-btn-del-id",btnCancel.id)
     locationAdd.appendChild(newDelBtn);
     btnCancel.remove();
-
+    finish = true;
     const btnDellList = document.getElementsByName("btnDelete");
     btnDellList.forEach(btnDel => {
         btnDel.addEventListener("click", e => {
@@ -210,7 +217,6 @@ function delBtnCancelAddDelBtn(btnCancel) {
             delByUrl(url);
         });
     });
-
 }
 
 function cancelDownload(url) {
@@ -248,7 +254,7 @@ function firstLoad() {
             response.forEach(element => {
                 const mediaFile = element;
                 addDownload(mediaFile);
-                checkStatusRow(mediaFile.url, mediaFile.downloaded, mediaFile.status, mediaFile.progressDownload);
+                updateBarProgress(mediaFile);
                 checkButtonsStatus();
             });
         })
@@ -259,36 +265,44 @@ function firstLoad() {
 async function updateTable() {
     updateData = true;
     while (updateData) {
-
         updateData = false;
         var status = null;
         var downloaded = null;
         var id = null;
-
-        const response = await getDownloadingThreas();
-
-
+        const response = await getDownloadingThreads();
         response.forEach(element => {
             updateData = true;
-            const mediaFile = element.mediaFile;
-            id = mediaFile.id
-            url = mediaFile.url;
-            downloaded = mediaFile.downloaded;
-            status = element.status
-            updateBarProgress(url, downloaded, status)
-            if (downloaded === true) {
-                checkStatusRow(url, downloaded, "FINISH");
-
-            } else {
-                checkStatusRow(url, downloaded, status);
-            }
+            updateBarProgress(element.mediaFile)
+            checkButtonsStatus();
         });
+        checkButtonsStatus();
         await new Promise(resolve => setTimeout(resolve, 300));
     }
 };
 
 
-async function getDownloadingThreas() {
+function updateBarProgress(mediaFile) {
+
+    const url = mediaFile.url;
+    const progressDownload = mediaFile.progressDownload;
+    const id = mediaFile.id;
+    const progressBar = document.getElementById("progressBar" + url);
+    const progressLabel = document.getElementById("progressLabel" + id)
+
+
+    if (progressBar === null)
+        return;
+    if (progressDownload === "100%") {
+        progressBar.style.width = 100 + '%';
+        progressLabel.innerHTML = "Descargado"
+    } else {
+        progressBar.style.width = progressDownload;
+        progressLabel.innerHTML = progressDownload;
+    }
+}
+
+
+async function getDownloadingThreads() {
     let options = {
         method: "POST",
     }
@@ -297,13 +311,21 @@ async function getDownloadingThreas() {
 }
 
 async function checkButtonsStatus() {
-
-    const listaDescargas = await getDownloadingThreas();
+    const listaDescargas = await getDownloadingThreads();
     const btnDownloadList = document.getElementsByName("btnDownload");
 
     btnDownloadList.forEach(btn => {
         const id = btn.getAttribute("data-btn-down-id");
         const btnCancel = document.querySelector('[data-btn-cancel-id="' + id + '"]')
+
+        console.log(listaDescargas.length)
+        console.log(btnCancel)
+        if (listaDescargas.length === 0)
+            if (btnCancel != null){
+                delBtnCancelAddDelBtn(btnCancel);
+                console.log("BTN LALALALAL")
+            }
+                
 
         listaDescargas.forEach(descarga => {
             if (btn.id === descarga.mediaFile.url) {
@@ -311,39 +333,12 @@ async function checkButtonsStatus() {
                     delBtnDelAddCancelBtn(btn);
                 }
             } else {
+
             }
         });
     });
 }
 
-
-function updateBarProgress(url, estado, status) {
-    const progressBar = document.getElementById("progressBar" + url);
-    if (progressBar === null)
-        return;
-    if (status === "Recoding") {
-        progressBar.style.width = 100 + '%';
-    } else {
-        progressBar.style.width = status;
-    }
-}
-
-function checkStatusRow(url, downloaded, status, progressDownload) {
-    const progressBar = document.getElementById("progressBar" + url);
-    if (progressBar === null)
-        return;
-    if (downloaded == true) {
-        progressBar.style.width = 100 + '%';
-    } else {
-
-        if (progressBar != null)
-            progressBar.style.width = progressDownload;
-
-        if (status == "ERROR") {
-            console.log(status)
-        }
-    }
-}
 
 
 function checkRowBlink(url) {

@@ -66,6 +66,7 @@ public class MediaThread extends Thread {
                                 if (line.length() > 16) {
                                     status = line.substring(11, 14).strip() + "%";
                                     mediaFile.setProgressDownload(status);
+                                    mediaRepository.save(mediaFile);
                                     downloadInProgress = true;
                                     if (status.isBlank() | status.isEmpty()) {
                                         status = "1%";
