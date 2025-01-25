@@ -86,12 +86,12 @@ public class MediaController {
         MediaFile mfBBDD = mediaRepository.findByUrl(url);
 
         if (mfBBDD == null) {
-            contenido.put("mediaFile", "error, url no existe");
+            contenido.put("mediaFile", "Error, url no existe");
             return ResponseEntity.ok(contenido);
         }
 
         if (mfBBDD.getDownloaded() == true) {
-            contenido.put("mediaFile", "error, contenido ya descargado");
+            contenido.put("mediaFile", "Error, contenido ya descargado");
             return ResponseEntity.ok(contenido);
         }
 
@@ -100,7 +100,7 @@ public class MediaController {
 
         for (MediaThread mtCheck : mediaThreadList) {
             if (mtCheck.getMediaFile().getUrl().equals(url)) {
-                contenido.put("mediaFile", "error, descarga ya iniciada.");
+                contenido.put("mediaFile", "Error, descarga ya iniciada.");
                 return ResponseEntity.ok(contenido);
             }
         }
@@ -172,7 +172,6 @@ public class MediaController {
     public boolean stopThread(String url) {
         MediaThread[] lista = new MediaThread[threadGroup.activeCount()];
         threadGroup.enumerate(lista);
-
         for (MediaThread tr : lista) {
             if (tr != null) {
                 if (tr.getMediaFile().getUrl().equals(url)) {

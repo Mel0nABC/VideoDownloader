@@ -359,6 +359,10 @@ button:hover:before {
     transform: translateX(15em);
 }
 
+.no-hover:hover {
+    pointer-events: none;
+  }
+
 .input {
     color: #fff;
     font-size: 0.9rem;
@@ -366,10 +370,6 @@ button:hover:before {
     border-radius: 10px;
     width: 100%;
     box-sizing: border-box;
-    padding-inline: 0.5em;
-    padding-block: 0.7em;
-    border-color: transparent;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     outline: none;
     transition: border-color 0.3s ease;
     text-align: center;
