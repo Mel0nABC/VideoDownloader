@@ -59,7 +59,7 @@ window.onload = function () {
 
     var intervalID = setInterval(() => {
         checkUpdatesBBDD();
-    }, 10000);
+    }, 2000);
 
 }
 
@@ -312,6 +312,7 @@ function enableButtonColors(btn) {
     btn.style.setProperty('border-color', 'var(--green)');
     btn.style.setProperty('color', 'var(--green)');
     btn.classList.remove('no-hover')
+    btn.disabled = false;
 }
 
 function delBtnCancelAddDelBtn(btnCancel) {
