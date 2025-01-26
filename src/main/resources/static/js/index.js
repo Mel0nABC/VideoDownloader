@@ -7,7 +7,7 @@ window.onload = function () {
 
     firstLoad();
     updateTable();
-    checkUpdate();
+    checkUpdateYtDlp()
     const btnAddDownload = document.getElementById("btnAddDownload");
     var urlValue;
     btnAddDownload.addEventListener("click", function () {
@@ -42,8 +42,8 @@ window.onload = function () {
                 if (response === "error") {
                     return;
                 }
-
                 const mediaFile = JSON.parse(response);
+
                 addDownload(mediaFile);
                 updateBarProgress(mediaFile)
             } catch (error) {
@@ -55,6 +55,25 @@ window.onload = function () {
             }
         })();
     });
+
+
+    var intervalID = setInterval(() => {
+        checkUpdatesBBDD();
+    }, 10000);
+
+}
+
+async function checkUpdatesBBDD() {
+
+    const response = await getAllUrl();
+    const section = document.getElementById("section");
+    response.forEach(res => {
+        if (!section.innerHTML.includes(res.url)) {
+            addDownload(res);
+        }
+        updateTable();
+    })
+
 }
 
 function isblack(url) {
@@ -335,35 +354,24 @@ function cancelDownload(url) {
         })
 }
 
-function firstLoad() {
-
-    const url = document.getElementById("url").value;
-    const formData = new FormData();
-    formData.append("url", url)
-
-    let options = {
-        method: "POST",
-        body: formData
-    }
-
-    fetch(`/getAllURL`, options)
-        .then(res => res.json())
-        .then(response => {
-            response.forEach(element => {
-                const mediaFile = element;
-                addDownload(mediaFile);
-                updateBarProgress(mediaFile);
-                checkButtonsStatus();
-            });
-        })
+async function firstLoad() {
+    const response = await getAllUrl();
+    response.forEach(element => {
+        const mediaFile = element;
+        addDownload(mediaFile);
+        updateBarProgress(mediaFile);
+        checkButtonsStatus();
+    });
 }
 
-var contador = 0;
+async function getAllUrl() {
+    const elements = await fetch(`/getAllURL`, { method: "POST" });
+    return response = await elements.json();
+}
 
 async function updateTable() {
-    contador = 0;
     updateData = true;
-    while (updateData || contador < 100) {
+    while (updateData) {
         updateData = false;
         var status = null;
         var downloaded = null;
@@ -377,7 +385,8 @@ async function updateTable() {
         checkButtonsStatus();
         await new Promise(resolve => setTimeout(resolve, 300));
     }
-    firstLoad();
+    if (updateData)
+        firstLoad();
 };
 
 
@@ -483,7 +492,7 @@ function delArticle(url) {
 }
 
 
-function checkUpdate() {
+function checkUpdateYtDlp() {
 
     let actualVersion;
     let latestVersion;
