@@ -55,10 +55,8 @@ window.onload = function () {
             }
         })();
     });
-
-
-
 }
+
 function isblack(url) {
     return !url.trim();
 }
@@ -83,8 +81,6 @@ function createTableFormats(url, id) {
     fetch("/getUrl", options)
         .then(res => res.json())
         .then(response => {
-            console.log(response)
-
 
             const jsonData = JSON.parse(response.jsonData);
 
@@ -196,7 +192,7 @@ function addDownload(mediaFile) {
     const jsonData = JSON.parse(mediaFile.jsonData);
 
     const texto = `<section id="section">
-            <article id="${jsonData.webpage_url}">
+            <article id="${mediaFile.url}">
                 <h2 id="fulltitle" class="articleTittle">${jsonData.fulltitle}</h2>
                 <div class="down-box-info">
                     <div class="video-down-info">
@@ -204,15 +200,15 @@ function addDownload(mediaFile) {
                     </div>
 
                     <div class="video-down-actions">
-                        <button data-btn-down-id="${mediaFile.id}" id="${jsonData.webpage_url}"
+                        <button data-btn-down-id="${mediaFile.id}" id="${mediaFile.url}"
                             name="btnDownload">Descargar</button>
-                        <button data-btn-del-id="${mediaFile.id}" id="${jsonData.webpage_url}"
+                        <button data-btn-del-id="${mediaFile.id}" id="${mediaFile.url}"
                             name="btnDelete">Eliminar</button>
                     </div>
                 </div>
-                <div id="wrapperBar${jsonData.webpage_url}" class="wrapper_2">
+                <div id="wrapperBar${mediaFile.url}" class="wrapper_2">
                     <label id="progressLabel${mediaFile.id}">Descarga no iniciada</label>
-                    <div id="progressBar${jsonData.webpage_url}" class="progress_2"></div>
+                    <div id="progressBar${mediaFile.url}" class="progress_2"></div>
                 </div>
             </article>`
 
@@ -228,7 +224,7 @@ function addDownload(mediaFile) {
         btnDown.addEventListener("click", async e => {
             const url = e.target.id;
             const id = e.target.getAttribute("data-btn-down-id")
-            prepareDownload(url, id);
+            createTableFormats(url, id);
         });
     });
 
@@ -240,10 +236,6 @@ function addDownload(mediaFile) {
         });
     });
     document.getElementById("url").value = "";
-}
-
-function prepareDownload(url, id) {
-    createTableFormats(url, id);
 }
 
 async function download(url, formatId) {
@@ -366,11 +358,12 @@ function firstLoad() {
         })
 }
 
-
+var contador = 0;
 
 async function updateTable() {
+    contador = 0;
     updateData = true;
-    while (updateData) {
+    while (updateData || contador < 100) {
         updateData = false;
         var status = null;
         var downloaded = null;
@@ -384,6 +377,7 @@ async function updateTable() {
         checkButtonsStatus();
         await new Promise(resolve => setTimeout(resolve, 300));
     }
+    firstLoad();
 };
 
 

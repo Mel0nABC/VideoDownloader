@@ -42,6 +42,7 @@ public class MediaController {
 
     @PostMapping("/addDownload")
     public ResponseEntity<Object> addDownload(@RequestParam("url") String url) {
+
         if (urlExist(url))
             return ResponseEntity.ok("error");
 
@@ -75,10 +76,8 @@ public class MediaController {
     @PostMapping("/getUrl")
     public ResponseEntity<Object> getUrl(@RequestParam("url") String url) {
         MediaFile mfInfo = mediaRepository.findByUrl(url);
-
         if (mfInfo == null)
             return ResponseEntity.ok(null);
-
         return ResponseEntity.ok(mfInfo);
     }
 
