@@ -68,7 +68,6 @@ Ticker.prototype.loop = function () {
 };
 
 function loadingStop() {
-    console.log("LOADING STOP")
     $words = $('.word');
     $words.remove();
     $overlay = $('.overlay');
@@ -76,7 +75,6 @@ function loadingStop() {
 }
 
 function loadingStart() {
-    console.log("LOADING START")
     const word = document.createElement("div");
     word.className = "word";
     word.textContent = "LOADING...";

@@ -6,7 +6,6 @@ const GREEN_STATUS = "rgb(198, 239, 206)";
 window.onload = function () {
 
     firstLoad();
-    updateTable();
     checkUpdateYtDlp()
     const btnAddDownload = document.getElementById("btnAddDownload");
     var urlValue;
@@ -63,15 +62,52 @@ window.onload = function () {
 
 async function checkUpdatesDB() {
 
-    const response = await getAllUrl();
-    const section = document.getElementById("section");
-    response.forEach(res => {
-        if (!section.innerHTML.includes(res.url)) {
-            addDownload(res);
-        }
+    const urlDbList = await getAllUrl();
+    const articleList = document.querySelectorAll("article");
+    const sectionString = document.getElementById("section").innerHTML;
+
+    if (urlDbList.length > 0 && updateData === false) {
+        updateData = true;
         updateTable();
-    })
+    } else if(urlDbList.length <= 0 &&updateData === true){
+        updateData = false;
+    }
+
+    if (urlDbList.length < articleList.length) {
+        articleList.forEach(article => {
+            if (!JSON.stringify(urlDbList).includes(article.id)) {
+                article.remove();
+            }
+
+        })
+    }
+
+    if (urlDbList.length > articleList.length) {
+        urlDbList.forEach(urlDb => {
+            if (!sectionString.includes(urlDb.url)) {
+                addDownload(urlDb)
+            }
+        });
+    }
 }
+
+async function updateTable() {
+    while (updateData) {
+        const articleList = document.querySelectorAll("section");
+        var status = null;
+        var downloaded = null;
+        var id = null;
+        const response = await getDownloadingThreads();
+        response.forEach(element => {
+            updateBarProgress(element.mediaFile)
+            checkButtonsStatus();
+        });
+        checkButtonsStatus();
+        await new Promise(resolve => setTimeout(resolve,5000));
+    }
+    if (updateData)
+        firstLoad();
+};
 
 function isblack(url) {
     return !url.trim();
@@ -184,7 +220,6 @@ function createTableFormats(url, id) {
                             alert(texto);
                         }
                     } catch (error) {
-                        updateTable();
                     } finally {
                         updateBarProgress(data.mediaFile);
                         closeContainerFormats();
@@ -364,26 +399,6 @@ async function getAllUrl() {
     const elements = await fetch(`/getAllURL`, { method: "POST" });
     return await elements.json();
 }
-
-async function updateTable() {
-    updateData = true;
-    while (updateData) {
-        updateData = false;
-        var status = null;
-        var downloaded = null;
-        var id = null;
-        const response = await getDownloadingThreads();
-        response.forEach(element => {
-            updateData = true;
-            updateBarProgress(element.mediaFile)
-            checkButtonsStatus();
-        });
-        checkButtonsStatus();
-        await new Promise(resolve => setTimeout(resolve, 800));
-    }
-    if (updateData)
-        firstLoad();
-};
 
 
 function updateBarProgress(mediaFile) {
