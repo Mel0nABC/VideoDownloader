@@ -56,31 +56,21 @@ window.onload = function () {
         })();
     });
 
-
-    var intervalID = setInterval(() => {
-        checkUpdatesBBDD();
-    }, 2000);
-
+    const intervalID = setInterval(() => {
+        checkUpdatesDB();
+    }, 5000);
 }
 
-async function checkUpdatesBBDD() {
+async function checkUpdatesDB() {
 
     const response = await getAllUrl();
     const section = document.getElementById("section");
     response.forEach(res => {
         if (!section.innerHTML.includes(res.url)) {
-            console.log(res)
             addDownload(res);
         }
         updateTable();
     })
-
-}
-
-function delSection(sectionToDel) {
-
-
-
 }
 
 function isblack(url) {
@@ -372,7 +362,7 @@ async function firstLoad() {
 
 async function getAllUrl() {
     const elements = await fetch(`/getAllURL`, { method: "POST" });
-    return response = await elements.json();
+    return await elements.json();
 }
 
 async function updateTable() {
@@ -389,7 +379,7 @@ async function updateTable() {
             checkButtonsStatus();
         });
         checkButtonsStatus();
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise(resolve => setTimeout(resolve, 800));
     }
     if (updateData)
         firstLoad();
