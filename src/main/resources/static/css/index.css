@@ -454,15 +454,12 @@ article:focus {
     box-shadow: 0 6px 6px -6px #0E1119;
 }
 
-@media (max-width: 1050px) {
+@media (max-width: 1400px) {
 
     .containerTable td:nth-child(5),
     .containerTable th:nth-child(5) {
         display: none;
     }
-}
-
-@media (max-width: 850px) {
 
     .containerTable td:nth-child(10),
     .containerTable th:nth-child(10) {
@@ -470,59 +467,34 @@ article:focus {
     }
 }
 
-@media (max-width: 730px) {
+@media (max-width: 1150px) {
 
     .containerTable td:nth-child(9),
     .containerTable th:nth-child(9) {
         display: none;
     }
-}
-
-@media (max-width: 680px) {
 
     .containerTable td:nth-child(7),
     .containerTable th:nth-child(7) {
         display: none;
     }
-
-    .table-data-container {
-        h2 {
-            font-size: 1em;
-            margin-right: 2.5em;
-        }
-
-        button {
-            margin-right: 1.5em;
-        }
-    }
-
 }
 
-@media (max-width: 580px) {
+
+@media (max-width: 920px) {
 
     .containerTable td:nth-child(8),
     .containerTable th:nth-child(8) {
         display: none;
     }
-}
-
-@media (max-width: 490px) {
 
     .containerTable td:nth-child(6),
     .containerTable th:nth-child(6) {
         display: none;
     }
-
-    .table-data-container {
-        h2 {
-            font-size: 1em;
-            margin-right: 3.5em;
-        }
-
-    }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 650px) {
 
     .containerTable td:nth-child(4),
     .containerTable th:nth-child(4) {
@@ -535,15 +507,36 @@ article:focus {
             margin-right: 3.5em;
         }
 
+        button {
+            margin-right: 1em;
+        }
     }
-
 }
 
-@media (max-width: 250px) {
+@media (max-width: 520px) {
 
-    .containerTable td:nth-child(4),
-    .containerTable th:nth-child(4) {
-        display: none;
+    .table-data-container {
+        padding: 1em;
+
+        button {
+            padding: 0.35em 1.35em;
+        }
+    }
+
+    .containerTable {
+
+        th,
+        td {
+            padding: 0em;
+        }
+    }
+
+    article {
+        margin-bottom: 2em;
+    }
+
+    main div button {
+        margin-bottom: 1em;
     }
 
 }
