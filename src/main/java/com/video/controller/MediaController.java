@@ -72,6 +72,16 @@ public class MediaController {
         return mfBBDD;
     }
 
+    @PostMapping("/getUrl")
+    public ResponseEntity<Object> getUrl(@RequestParam("url") String url) {
+        MediaFile mfInfo = mediaRepository.findByUrl(url);
+
+        if (mfInfo == null)
+            return ResponseEntity.ok(null);
+
+        return ResponseEntity.ok(mfInfo);
+    }
+
     @PostMapping("/getAllURL")
     public ResponseEntity<List<MediaFile>> firstLoad() {
         List<MediaFile> listaMF = mediaRepository.findAll();
@@ -79,7 +89,8 @@ public class MediaController {
     }
 
     @PostMapping("/download")
-    public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url, @RequestParam("formatId") String formatId) {
+    public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url,
+            @RequestParam("formatId") String formatId) {
         List<String> aditionalParamList = new ArrayList<>();
 
         Map<String, Object> contenido = new HashMap<>();

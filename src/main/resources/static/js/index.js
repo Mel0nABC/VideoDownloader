@@ -68,10 +68,27 @@ function removeAfterAmpersand(url) {
     return url.split('&')[0];
 }
 
-function createTableFormats(mediaFile) {
-    const jsonData = JSON.parse(mediaFile.jsonData);
+function createTableFormats(url, id) {
 
-    var tabla = `<div id="containerFormatos" class="table-container">
+
+    const formData = new FormData();
+    formData.append("url", url);
+    formData.append("id", id)
+
+    const options = {
+        method: "POST",
+        body: formData
+    }
+
+    fetch("/getUrl", options)
+        .then(res => res.json())
+        .then(response => {
+            console.log(response)
+
+
+            const jsonData = JSON.parse(response.jsonData);
+
+            var tabla = `<div id="containerFormatos" class="table-container">
                     <div class="table-data-container">
                         <h2>SELECCIÓN DE FORMATOS</h2>
                         <table class="containerTable">
@@ -91,31 +108,31 @@ function createTableFormats(mediaFile) {
                             </thead>
                             <tbody>`
 
-    jsonData.formats.forEach(formats => {
-        var tbrcalc = Number(formats.tbr).toFixed(0);
-        var mbytes = formats.filesize / 1024 / 1024;
-        var mbytesUnit = "MB"
-        if (mbytes > 1024) {
-            mbytes = mbytes / 1024;
-            mbytesUnit = "GB"
-        }
-        mbytes = mbytes.toFixed(2);
-        if (formats.filesize === undefined){
-            mbytesUnit = "";
-            mbytes = "ND";
-        }
+            jsonData.formats.forEach(formats => {
+                var tbrcalc = Number(formats.tbr).toFixed(0);
+                var mbytes = formats.filesize / 1024 / 1024;
+                var mbytesUnit = "MB"
+                if (mbytes > 1024) {
+                    mbytes = mbytes / 1024;
+                    mbytesUnit = "GB"
+                }
+                mbytes = mbytes.toFixed(2);
+                if (formats.filesize === undefined) {
+                    mbytesUnit = "";
+                    mbytes = "ND";
+                }
 
-        var vbrCalc = formats.vbr;
+                var vbrCalc = formats.vbr;
 
-        if(vbrCalc === null){
-            vbrCalc = "ND";
-        }else{
-            vbrCalc = vbrCalc.toFixed(0);
-        }
-            
+                if (vbrCalc === null) {
+                    vbrCalc = "ND";
+                } else {
+                    vbrCalc = vbrCalc.toFixed(0);
+                }
 
 
-        tabla += `<tr id="${formats.format_id}" class="rowFormat">
+
+                tabla += `<tr id="${formats.format_id}" class="rowFormat">
                                     <td>${formats.format_id}</td>
                                     <td>${formats.ext}</td>
                                     <td>${formats.resolution}</td>
@@ -127,46 +144,48 @@ function createTableFormats(mediaFile) {
                                     <td>${formats.abr}</td>
                                     <td>${formats.format_note}</td>
                                 </tr>`;
-    })
+            })
 
-    tabla += `</tbody>
+            tabla += `</tbody>
                         </table>
                     </div>
                 </div>`;
 
-    const title = document.getElementsByClassName("title")[0];
-    title.innerHTML += tabla;
-    const cierre = document.createElement("button");
-    cierre.textContent = "X";
-    cierre.classList.add("cierre");
-    cierre.id = "clsFormatSelection";
-    document.getElementsByClassName("table-data-container")[0].appendChild(cierre)
+            const title = document.getElementsByClassName("title")[0];
+            title.innerHTML += tabla;
+            const cierre = document.createElement("button");
+            cierre.textContent = "X";
+            cierre.classList.add("cierre");
+            cierre.id = "clsFormatSelection";
+            document.getElementsByClassName("table-data-container")[0].appendChild(cierre)
 
 
-    Array.from(document.getElementsByClassName("rowFormat")).forEach(row => {
-        row.addEventListener("click", async td => {
-            const rowClicked = td.target.parentElement
-            const data = await download(mediaFile, rowClicked.id);
-            const texto = data.mediaFile;
-            try {
-                if (texto.includes("Error")) {
-                    checkButtonsStatus();
-                    alert(texto);
-                }
-            } catch (error) {
-                updateTable();
-            } finally {
-                updateBarProgress(mediaFile);
+            Array.from(document.getElementsByClassName("rowFormat")).forEach(row => {
+                row.addEventListener("click", async td => {
+                    const rowClicked = td.target.parentElement
+                    const data = await download(url, rowClicked.id);
+
+                    const texto = data.mediaFile;
+                    try {
+                        if (texto.includes("Error")) {
+                            checkButtonsStatus();
+                            alert(texto);
+                        }
+                    } catch (error) {
+                        updateTable();
+                    } finally {
+                        updateBarProgress(data.mediaFile);
+                        closeContainerFormats();
+                    }
+                })
+
+            });
+
+            cierre.addEventListener("click", e => {
                 closeContainerFormats();
-            }
-        })
 
-    });
-
-    cierre.addEventListener("click", e => {
-        closeContainerFormats();
-
-    });
+            });
+        });
 }
 
 function closeContainerFormats() {
@@ -207,7 +226,9 @@ function addDownload(mediaFile) {
 
     btnDownloadList.forEach(btnDown => {
         btnDown.addEventListener("click", async e => {
-            prepareDownload(mediaFile);
+            const url = e.target.id;
+            const id = e.target.getAttribute("data-btn-down-id")
+            prepareDownload(url, id);
         });
     });
 
@@ -221,12 +242,11 @@ function addDownload(mediaFile) {
     document.getElementById("url").value = "";
 }
 
-function prepareDownload(mediaFile) {
-    createTableFormats(mediaFile);
+function prepareDownload(url, id) {
+    createTableFormats(url, id);
 }
 
-async function download(mediaFile, formatId) {
-    const url = mediaFile.url
+async function download(url, formatId) {
     const formData = new FormData();
     formData.append("url", url);
     formData.append("formatId", formatId);

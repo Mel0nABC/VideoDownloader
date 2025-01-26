@@ -29,8 +29,8 @@ body {
     background-color: var(--color-fondo);
     font-family: 'Lato',
     sans-serif;
-
-    /* overflow: auto; */
+    width: 80vw;
+    max-width: 1280;
 }
 
 

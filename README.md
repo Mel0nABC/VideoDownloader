@@ -2,17 +2,45 @@ User interface for yt-dlt, only three options.
 
 For all skills, go to https://github.com/yt-dlp/yt-dlp
 
-
 Insert video URL:
 
-![image](https://github.com/user-attachments/assets/a17f252c-0662-4798-8858-12910b9ac78f)
+![alt text](image-1.png)
+
+Then press download boton:
+
+![alt text](image-2.png)
+
+Select clicking in format type to download:
+
+![alt text](image-3.png)
+
+Control your download with the progress bar:
+
+![alt text](image-4.png)
 
 
-Actual download list:
+Multiple downloads:
 
-![image](https://github.com/user-attachments/assets/7a2f3657-24e9-4949-877c-15f967b2f23a)
+![alt text](image-5.png)
+
+Tablets, movils, etc:
+
+![alt text](image-6.png)
 
 
-Finish downloads:
+Installatión:
 
-![image](https://github.com/user-attachments/assets/1d03eeb1-1423-4a4e-b147-98747a1adee9)
+DEPENDENCYS:
+
+- maven
+- openjdk23
+
+How to:
+
+- Download de files, use git or link to zip file.
+- Unzip or enter in folder.
+- Execute command -> mvn spring-boot:run
+
+Other posibilities:
+
+Docker -> https://hub.docker.com/repository/docker/mel0nabc/videodownloader/general
