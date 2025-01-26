@@ -69,10 +69,17 @@ async function checkUpdatesBBDD() {
     const section = document.getElementById("section");
     response.forEach(res => {
         if (!section.innerHTML.includes(res.url)) {
+            console.log(res)
             addDownload(res);
         }
         updateTable();
     })
+
+}
+
+function delSection(sectionToDel) {
+
+
 
 }
 
@@ -210,8 +217,7 @@ function closeContainerFormats() {
 function addDownload(mediaFile) {
     const jsonData = JSON.parse(mediaFile.jsonData);
 
-    const texto = `<section id="section">
-            <article id="${mediaFile.url}">
+    const texto = `<article id="${mediaFile.url}">
                 <h2 id="fulltitle" class="articleTittle">${jsonData.fulltitle}</h2>
                 <div class="down-box-info">
                     <div class="video-down-info">
@@ -229,12 +235,11 @@ function addDownload(mediaFile) {
                     <label id="progressLabel${mediaFile.id}">Descarga no iniciada</label>
                     <div id="progressBar${mediaFile.url}" class="progress_2"></div>
                 </div>
-            </article>`
+                </article>`
 
 
     const section = document.getElementById("section");
-    section.innerHTML = texto + section.getHTML();
-
+    section.innerHTML = texto + section.innerHTML;
     const btnDownloadList = document.getElementsByName("btnDownload");
     const btnDeleteList = document.getElementsByName("btnDelete");
 
