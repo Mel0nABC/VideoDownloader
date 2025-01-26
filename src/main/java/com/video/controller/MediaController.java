@@ -90,7 +90,6 @@ public class MediaController {
     @PostMapping("/download")
     public ResponseEntity<Map<String, Object>> download(@RequestParam("url") String url,
             @RequestParam("formatId") String formatId) {
-        List<String> aditionalParamList = new ArrayList<>();
 
         Map<String, Object> contenido = new HashMap<>();
         MediaFile mfBBDD = mediaRepository.findByUrl(url);
