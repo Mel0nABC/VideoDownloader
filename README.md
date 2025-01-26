@@ -2,6 +2,8 @@ User interface for yt-dlt.
 
 For all skills, go to https://github.com/yt-dlp/yt-dlp
 
+Sincronization downloads with others devices.
+
 Insert video URL:
 
 
