@@ -244,24 +244,30 @@ function closeContainerFormats() {
 function addDownload(mediaFile) {
     const jsonData = JSON.parse(mediaFile.jsonData);
 
+
+    console.log(jsonData)
+    let isList = false;
     let titulo;
     let img;
     if (mediaFile.jsonData.includes("playlist_channel")) {
+        isList = true;
         titulo = jsonData.playlist;
-        // img = jsonData.thumbnails
-        // img = img[img.length - 1].url
         img = "/images/image.png"
     } else {
         titulo = jsonData.fulltitle;
         img = jsonData.thumbnail;
     }
 
-    const texto = `<article id="${mediaFile.url}">
+    let texto = `<article id="${mediaFile.url}">
                 <h2 id="fulltitle" class="articleTittle">${titulo}</h2>
                 <div class="down-box-info">
                     <div class="video-down-info">
-                        <img id="thumbnail" src="${img}" class="articleImg">
-                    </div>
+                        <img id="thumbnail" src="${img}" class="articleImg">`
+
+    if (isList) {
+        texto += `<div>Canciones disponibles: ${jsonData.playlist_count}</div>`
+    }
+    texto += `</div>
 
                     <div class="video-down-actions">
                         <button data-btn-down-id="${mediaFile.id}" id="${mediaFile.url}"
