@@ -18,6 +18,7 @@ public class MediaFile {
     private boolean downloaded;
     private int exitCode;
     private String progressDownload;
+    private String statusDownload;
     private String fileName;
     @Column(columnDefinition = "CLOB")
     private String jsonData;
@@ -111,6 +112,14 @@ public class MediaFile {
     public String toString() {
         return "MediaFile [id=" + id + ", url=" + url + ", downloaded=" + downloaded + ", exitCode=" + exitCode
                 + ", progressDownload=" + progressDownload + ", fileName=" + fileName + "]";
+    }
+
+    public String getStatusDownload() {
+        return statusDownload;
+    }
+
+    public void setStatusDownload(String statusDownload) {
+        this.statusDownload = statusDownload;
     }
 
 }

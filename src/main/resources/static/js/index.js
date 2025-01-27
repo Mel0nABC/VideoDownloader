@@ -2,11 +2,14 @@ let updateData = false;
 const YELLOW_STATUS = "rgb(255, 235, 156)";
 const RED_STATUS = "rgb(255, 199, 206)";
 const GREEN_STATUS = "rgb(198, 239, 206)";
-
+const waitTime = 800;
+const threadsDescarga = 0;
+const threadsParados = 1;
 window.onload = function () {
 
     firstLoad();
     checkUpdateYtDlp()
+
     const btnAddDownload = document.getElementById("btnAddDownload");
     var urlValue;
     btnAddDownload.addEventListener("click", function () {
@@ -59,7 +62,7 @@ window.onload = function () {
 
     const intervalID = setInterval(() => {
         checkUpdatesDB();
-    }, 5000);
+    }, waitTime);
 }
 
 async function checkUpdatesDB() {
@@ -91,6 +94,7 @@ async function checkUpdatesDB() {
             }
         });
     }
+
 }
 
 async function updateTable() {
@@ -99,13 +103,22 @@ async function updateTable() {
         var status = null;
         var downloaded = null;
         var id = null;
-        const response = await getDownloadingThreads();
-        response.forEach(element => {
+        const allArrays = await getDownloadingThreads();
+        const startedArray = allArrays[threadsDescarga];
+        const stopeddArray = allArrays[threadsParados];
+
+
+        startedArray.forEach(element => {
             updateBarProgress(element.mediaFile)
             checkButtonsStatus();
         });
-        checkButtonsStatus();
-        await new Promise(resolve => setTimeout(resolve, 5000));
+
+        stopeddArray.forEach(element => {
+            updateBarProgress(element.mediaFile)
+            checkButtonsStatus();
+        });
+
+        await new Promise(resolve => setTimeout(resolve, waitTime));
     }
     if (updateData)
         firstLoad();
@@ -243,9 +256,6 @@ function closeContainerFormats() {
 
 function addDownload(mediaFile) {
     const jsonData = JSON.parse(mediaFile.jsonData);
-
-
-    console.log(jsonData)
     let isList = false;
     let titulo;
     let img;
@@ -456,20 +466,23 @@ async function getAllUrl() {
 function updateBarProgress(mediaFile) {
 
     const url = mediaFile.url;
-    const progressDownload = mediaFile.progressDownload;
     const id = mediaFile.id;
+    const downloaded = mediaFile.downloaded
+    const statusDownload = mediaFile.statusDownload;
+    const progressDownload = mediaFile.progressDownload;
+
     const progressBar = document.getElementById("progressBar" + url);
     const progressLabel = document.getElementById("progressLabel" + id)
 
 
     if (progressBar === null)
         return;
-    if (progressDownload === "100%") {
+    if (downloaded === true) {
         progressBar.style.width = 100 + '%';
         progressLabel.innerHTML = "Descargado"
     } else {
         progressBar.style.width = progressDownload;
-        progressLabel.innerHTML = progressDownload;
+        progressLabel.innerHTML = statusDownload;
     }
 }
 
@@ -483,22 +496,25 @@ async function getDownloadingThreads() {
 }
 
 async function checkButtonsStatus() {
-    const listaDescargas = await getDownloadingThreads();
+
+    let btnDirect = null;
+    const dosArraysThreads = await getDownloadingThreads();
+    const listaDescargas = dosArraysThreads[threadsDescarga];
     const btnDownloadList = document.getElementsByName("btnDownload");
 
-    btnDownloadList.forEach(btn => {
-        const id = btn.getAttribute("data-btn-down-id");
+    btnDownloadList.forEach(btnDown => {
+        const id = btnDown.getAttribute("data-btn-down-id");
         const btnCancel = document.querySelector('[data-btn-cancel-id="' + id + '"]')
+        btnDirect = document.querySelector('[data-btn-directlist-id="' + btnDown.getAttribute("data-btn-down-id") + '"]')
         if (listaDescargas.length === 0)
             if (btnCancel != null) {
                 delBtnCancelAddDelBtn(btnCancel);
+                enableButtonColors(btnDirect);
             }
-
-
         listaDescargas.forEach(descarga => {
-            if (btn.id === descarga.mediaFile.url) {
-                if (!btn.disabled) {
-                    delBtnDelAddCancelBtn(btn);
+            if (btnDown.id === descarga.mediaFile.url) {
+                if (!btnDown.disabled) {
+                    delBtnDelAddCancelBtn(btnDown);
                 }
             } else {
 

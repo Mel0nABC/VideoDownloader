@@ -1,20 +1,18 @@
 package com.video.model.entity;
 
-import com.video.controller.MediaController;
-import com.video.model.service.*;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.video.controller.MediaController;
+import com.video.model.service.ExecuteYtdlp;
+import com.video.model.service.MediaRepository;
+
 public class MediaThread extends Thread {
 
     private MediaRepository mediaRepository;
-
-    private Double segundos = 0.0;
-    private String status;
     private MediaFile mediaFile;
     private BufferedReader reader;
     private int exitCode;
@@ -36,7 +34,8 @@ public class MediaThread extends Thread {
 
     @Override
     public void run() {
-        status = "WAIT";
+        mediaFile.setStatusDownload("Iniciando descarga ...");
+        mediaFile.setProgressDownload("0%");
         try {
             ExecuteYtdlp procesYtdlp = new ExecuteYtdlp();
             Process process = procesYtdlp.getDownloadProces(formatId, mediaFile);
@@ -46,38 +45,16 @@ public class MediaThread extends Thread {
             try {
                 boolean finish = false;
                 while ((line = reader.readLine()) != null && !finish) {
+                    downloadInProgress = true;
                     System.out.println(line);
-                    String regex = "\\[(.*?)]";
+                    String regex = "\\d+\\.\\d+%";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(line);
+
                     while (matcher.find()) {
-                        String statusString = matcher.group(1);
-                        if (statusString.equals("download")) {
-                            try {
-
-                                if (line.contains("Destination")) {
-                                    String[] downDesti = line.split("/");
-                                    mediaFile.setFileName(downDesti[downDesti.length - 1]);
-                                }
-
-                                if (line.length() > 16) {
-                                    status = line.substring(11, 14).strip() + "%";
-                                    mediaFile.setProgressDownload(status);
-                                    mediaRepository.save(mediaFile);
-                                    downloadInProgress = true;
-                                    if (status.isBlank() | status.isEmpty()) {
-                                        status = "1%";
-                                    }
-
-                                    if (status.equals("100%"))
-                                        status = "Recoding";
-                                }
-
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        mediaFile.setProgressDownload(matcher.group(0));
                     }
+                    mediaFile.setStatusDownload(line);
 
                     if (this.isInterrupted()) {
                         finish = true;
@@ -106,19 +83,19 @@ public class MediaThread extends Thread {
 
             mediaFile.setDownloaded(true);
             mediaFile.setExitCode(EXIT_CODE_OK);
-            status = "FINISH";
+            mediaFile.setStatusDownload("Descarga finalizada");
             downloadInProgress = false;
 
             if (exitCode == EXIT_CODE_ERROR) {
                 mediaFile.setDownloaded(false);
                 mediaFile.setExitCode(EXIT_CODE_ERROR);
-                status = "ERROR";
+                mediaFile.setStatusDownload("Ha ocurrido algún error: " + exitCode);
             }
 
             if (exitCode == EXIT_CODE_CANCEL) {
                 mediaFile.setDownloaded(false);
                 mediaFile.setExitCode(EXIT_CODE_CANCEL);
-                status = "CANCEL";
+                mediaFile.setStatusDownload("Se ha cancelado la descarga: " + exitCode);
             }
 
             mediaRepository.save(mediaFile);
@@ -131,6 +108,16 @@ public class MediaThread extends Thread {
         }
     }
 
+    public boolean isNumber(String num) {
+        try {
+            Integer.parseInt(num);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+
+        return true;
+    }
+
     public boolean isDownloadInProgress() {
         return downloadInProgress;
     }
@@ -139,7 +126,13 @@ public class MediaThread extends Thread {
         return mediaFile;
     }
 
-    public String getStatus() {
-        return status;
+    public String getFormatId() {
+        return formatId;
     }
+
+    public void setFormatId(String formatId) {
+        this.formatId = formatId;
+    }
+
+    
 }

@@ -38,9 +38,6 @@ public class ExecuteYtdlp {
             e.printStackTrace();
         }
 
-        if (!titlePath.equals("null"))
-            System.out.println("TITLE -> " + titlePath);
-
         List<String> totalParams = new ArrayList<>();
         totalParams.add(YT_DLP_BIN);
         totalParams.add("-o");
@@ -58,10 +55,6 @@ public class ExecuteYtdlp {
         }
 
         totalParams.add(mediaFile.getUrl());
-
-        for (String s : totalParams) {
-            System.out.println(s + " ");
-        }
 
         executeProcess(totalParams);
 
