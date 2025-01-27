@@ -56,7 +56,6 @@ public class MediaController {
 
     public boolean urlExist(String url) {
         MediaFile mediaFile = mediaRepository.findByUrl(url);
-
         if (mediaFile == null)
             return false;
         return true;

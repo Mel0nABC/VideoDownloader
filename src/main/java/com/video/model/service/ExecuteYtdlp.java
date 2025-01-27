@@ -26,8 +26,12 @@ public class ExecuteYtdlp {
         totalParams.add(YT_DLP_BIN);
         totalParams.add("-o");
         totalParams.add("./DownloadedFiles/%(title)s.%(ext)s");
-        totalParams.add("-f");
-        totalParams.add(formatId);
+
+        if (!formatId.equals("direct")) {
+            totalParams.add("-f");
+            totalParams.add(formatId);
+        }
+
         totalParams.add(mediaFile.getUrl());
 
         executeProcess(totalParams);
@@ -42,10 +46,11 @@ public class ExecuteYtdlp {
     }
 
     public ArrayList<String> getVideoFromats(String url) {
+
         executeProcess(Arrays.asList(YT_DLP_BIN, "-F", url));
+
         ArrayList<String> listRows = new ArrayList<>();
         String line;
-
         try {
             process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -77,7 +82,13 @@ public class ExecuteYtdlp {
     }
 
     public String getVideoMetadata(String url) {
-        executeProcess(Arrays.asList(YT_DLP_BIN, "-j", url));
+
+        if (url.contains("list")) {
+            executeProcess(Arrays.asList(YT_DLP_BIN, "--flat-playlist", "-j", url));
+        } else {
+            executeProcess(Arrays.asList(YT_DLP_BIN, "-j", url));
+        }
+
         int exitCode = 100;
         String jsonResult = "";
         String line = "";

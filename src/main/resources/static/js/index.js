@@ -11,7 +11,9 @@ window.onload = function () {
     var urlValue;
     btnAddDownload.addEventListener("click", function () {
         const urlElement = document.getElementById("url");
-        urlValue = removeAfterAmpersand(urlElement.value);
+        // urlValue = removeAfterAmpersand(urlElement.value);
+        urlValue = urlElement.value;
+
 
         if (isblack(urlValue)) {
             alert("Debe introducir alguna dirección web.")
@@ -69,7 +71,7 @@ async function checkUpdatesDB() {
     if (urlDbList.length > 0 && updateData === false) {
         updateData = true;
         updateTable();
-    } else if(urlDbList.length <= 0 &&updateData === true){
+    } else if (urlDbList.length <= 0 && updateData === true) {
         updateData = false;
     }
 
@@ -103,7 +105,7 @@ async function updateTable() {
             checkButtonsStatus();
         });
         checkButtonsStatus();
-        await new Promise(resolve => setTimeout(resolve,5000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
     }
     if (updateData)
         firstLoad();
@@ -242,18 +244,32 @@ function closeContainerFormats() {
 function addDownload(mediaFile) {
     const jsonData = JSON.parse(mediaFile.jsonData);
 
+    let titulo;
+    let img;
+    if (mediaFile.jsonData.includes("playlist_channel")) {
+        titulo = jsonData.playlist;
+        // img = jsonData.thumbnails
+        // img = img[img.length - 1].url
+        img = "/images/image.png"
+    } else {
+        titulo = jsonData.fulltitle;
+        img = jsonData.thumbnail;
+    }
+
     const texto = `<article id="${mediaFile.url}">
-                <h2 id="fulltitle" class="articleTittle">${jsonData.fulltitle}</h2>
+                <h2 id="fulltitle" class="articleTittle">${titulo}</h2>
                 <div class="down-box-info">
                     <div class="video-down-info">
-                        <img id="thumbnail" src="${jsonData.thumbnail}" class="articleImg">
+                        <img id="thumbnail" src="${img}" class="articleImg">
                     </div>
 
                     <div class="video-down-actions">
                         <button data-btn-down-id="${mediaFile.id}" id="${mediaFile.url}"
-                            name="btnDownload">Descargar</button>
+                            name="btnDownload">SELECCIÓN CALIDAD</button>
+                        <button data-btn-DirectList-id="${mediaFile.id}" id="${mediaFile.url}"
+                            name="btnListDirect">DESCARGA DIRECTA Y LISTAS</button> 
                         <button data-btn-del-id="${mediaFile.id}" id="${mediaFile.url}"
-                            name="btnDelete">Eliminar</button>
+                            name="btnDelete">ELIMINAR</button>
                     </div>
                 </div>
                 <div id="wrapperBar${mediaFile.url}" class="wrapper_2">
@@ -266,6 +282,8 @@ function addDownload(mediaFile) {
     const section = document.getElementById("section");
     section.innerHTML = texto + section.innerHTML;
     const btnDownloadList = document.getElementsByName("btnDownload");
+    const btnDirectList = document.getElementsByName("btnListDirect");
+
     const btnDeleteList = document.getElementsByName("btnDelete");
 
 
@@ -276,6 +294,26 @@ function addDownload(mediaFile) {
             createTableFormats(url, id);
         });
     });
+
+    btnDirectList.forEach(btnDirect => {
+        btnDirect.addEventListener("click", async e => {
+            const url = e.target.id;
+
+            const data = await download(url, "direct");
+
+            const texto = data.mediaFile;
+            try {
+                if (texto.includes("Error")) {
+                    checkButtonsStatus();
+                    alert(texto);
+                }
+            } catch (error) {
+            } finally {
+                updateBarProgress(data.mediaFile);
+            }
+        })
+    });
+
 
 
     btnDeleteList.forEach(btn => {
@@ -288,9 +326,11 @@ function addDownload(mediaFile) {
 }
 
 async function download(url, formatId) {
+
     const formData = new FormData();
     formData.append("url", url);
     formData.append("formatId", formatId);
+
     let options = {
         method: "POST",
         body: formData
@@ -300,8 +340,12 @@ async function download(url, formatId) {
 }
 
 function delBtnDelAddCancelBtn(btnDown) {
+    const btnDirect = document.querySelector('[data-btn-directlist-id="' + btnDown.getAttribute("data-btn-down-id") + '"]')
     btnDown.disabled = true;
+    btnDirect.disabled = true;
     disableButtonColors(btnDown);
+    disableButtonColors(btnDirect);
+
     document.getElementsByName("btnDelete").forEach(btnDel => {
 
         if (btnDown.id === btnDel.id)
@@ -322,7 +366,9 @@ function delBtnDelAddCancelBtn(btnDown) {
             cancelDownload(url);
             delBtnCancelAddDelBtn(btnCancel);
             btnDown.disabled = false;
+            btnDirect.disabled = false;
             enableButtonColors(btnDown);
+            enableButtonColors(btnDirect);
         });
     });
 }

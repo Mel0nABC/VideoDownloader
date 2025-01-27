@@ -47,6 +47,7 @@ public class MediaThread extends Thread {
             try {
                 boolean finish = false;
                 while ((line = reader.readLine()) != null && !finish) {
+                    System.out.println(line);
                     String regex = "\\[(.*?)]";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(line);
@@ -54,7 +55,7 @@ public class MediaThread extends Thread {
                         String statusString = matcher.group(1);
                         if (statusString.equals("download")) {
                             try {
-                                System.out.println(line);
+
                                 if (line.contains("Destination")) {
                                     String[] downDesti = line.split("/");
                                     mediaFile.setFileName(downDesti[downDesti.length - 1]);
