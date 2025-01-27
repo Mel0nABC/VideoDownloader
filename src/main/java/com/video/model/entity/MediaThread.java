@@ -45,8 +45,10 @@ public class MediaThread extends Thread {
             try {
                 boolean finish = false;
                 while ((line = reader.readLine()) != null && !finish) {
-                    downloadInProgress = true;
+
                     System.out.println(line);
+
+                    downloadInProgress = true;
                     String regex = "\\d+\\.\\d+%";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(line);
@@ -56,12 +58,22 @@ public class MediaThread extends Thread {
                     }
                     mediaFile.setStatusDownload(line);
 
+                    if (line.contains("[download] Downloading item")) {
+                        regex = "(\\d+).+?(\\d+)";
+                        pattern = Pattern.compile(regex);
+                        matcher = pattern.matcher(line);
+                        while (matcher.find()) {
+                            int actualDownloadedSong = Integer.parseInt(matcher.group(1));
+                            mediaFile.setDownloadedSong(actualDownloadedSong);
+                        }
+                    }
+
                     if (this.isInterrupted()) {
                         finish = true;
                         process.destroy();
                         exitCode = EXIT_CODE_CANCEL;
                     }
-
+                    mediaRepository.save(mediaFile);
                 }
                 reader.close();
             } catch (Exception e) {
@@ -134,5 +146,4 @@ public class MediaThread extends Thread {
         this.formatId = formatId;
     }
 
-    
 }

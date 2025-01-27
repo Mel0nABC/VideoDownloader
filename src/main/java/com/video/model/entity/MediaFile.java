@@ -22,6 +22,8 @@ public class MediaFile {
     private String fileName;
     @Column(columnDefinition = "CLOB")
     private String jsonData;
+    private int totalSongs;
+    private int downloadedSong;
 
     {
         progressDownload = "Descarga no iniciada";
@@ -121,5 +123,23 @@ public class MediaFile {
     public void setStatusDownload(String statusDownload) {
         this.statusDownload = statusDownload;
     }
+
+    public int getTotalSongs() {
+        return totalSongs;
+    }
+
+    public void setTotalSongs(int totalSongs) {
+        this.totalSongs = totalSongs;
+    }
+
+    public int getDownloadedSong() {
+        return downloadedSong;
+    }
+
+    public void setDownloadedSong(int downloadedSong) {
+        this.downloadedSong = downloadedSong;
+    }
+
+    
 
 }

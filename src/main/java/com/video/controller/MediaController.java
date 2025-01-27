@@ -107,17 +107,6 @@ public class MediaController {
             @RequestParam("formatId") String formatId) {
 
         Map<String, Object> contenido = new HashMap<>();
-        // MediaFile mfBBDD = mediaRepository.findByUrl(url);
-
-        // if (mfBBDD == null) {
-        // contenido.put("mediaFile", "Error, url no existe");
-        // return ResponseEntity.ok(contenido);
-        // }
-
-        // if (mfBBDD.getDownloaded() == true) {
-        // contenido.put("mediaFile", "Error, contenido ya descargado");
-        // return ResponseEntity.ok(contenido);
-        // }
 
         MediaThread delOnStopeds = null;
         MediaThread toStart = null;
@@ -247,5 +236,10 @@ public class MediaController {
     @PostMapping("/checkYtUpdate")
     public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
         return ResponseEntity.ok(new ExecuteYtdlp().getRelease());
+    }
+
+
+    public void test(){
+        System.out.println("TONTO");
     }
 }

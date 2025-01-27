@@ -28,10 +28,20 @@ public class ExecuteYtdlp {
 
         ObjectMapper objectMapper = new ObjectMapper();
         String titlePath = "";
+        int totalSongs;
+        int downloadedSong = 0;
+
         try {
             @SuppressWarnings("unchecked")
             Map<String, Object> jsonMap = objectMapper.readValue(mediaFile.getJsonData(), Map.class);
             titlePath = String.valueOf(jsonMap.get("playlist_title"));
+
+            String totalSongString = String.valueOf(jsonMap.get("playlist_count"));
+            if (!totalSongString.equals("null")) {
+                totalSongs = Integer.parseInt((String.valueOf(totalSongString)));
+                mediaFile.setTotalSongs(totalSongs);
+                mediaFile.setDownloadedSong(downloadedSong);
+            }
         } catch (JsonMappingException e) {
             e.printStackTrace();
         } catch (JsonProcessingException e) {

@@ -105,19 +105,18 @@ async function updateTable() {
         var id = null;
         const allArrays = await getDownloadingThreads();
         const startedArray = allArrays[threadsDescarga];
-        const stopeddArray = allArrays[threadsParados];
-
+        const stopedArray = allArrays[threadsParados];
 
         startedArray.forEach(element => {
             updateBarProgress(element.mediaFile)
             checkButtonsStatus();
         });
 
-        stopeddArray.forEach(element => {
+        stopedArray.forEach(element => {
             updateBarProgress(element.mediaFile)
             checkButtonsStatus();
         });
-
+        checkButtonsStatus();
         await new Promise(resolve => setTimeout(resolve, waitTime));
     }
     if (updateData)
@@ -275,7 +274,7 @@ function addDownload(mediaFile) {
                         <img id="thumbnail" src="${img}" class="articleImg">`
 
     if (isList) {
-        texto += `<div>Canciones disponibles: ${jsonData.playlist_count}</div>`
+        texto += `<div id="downPlayList${mediaFile.id}">Canciones descargadas:${mediaFile.downloadedSong}/${jsonData.playlist_count}</div>`
     }
     texto += `</div>
 
@@ -470,10 +469,14 @@ function updateBarProgress(mediaFile) {
     const downloaded = mediaFile.downloaded
     const statusDownload = mediaFile.statusDownload;
     const progressDownload = mediaFile.progressDownload;
-
+    const totalSongs = mediaFile.totalSongs;
+    const downloadedSong = mediaFile.downloadedSong;
     const progressBar = document.getElementById("progressBar" + url);
-    const progressLabel = document.getElementById("progressLabel" + id)
+    const progressLabel = document.getElementById("progressLabel" + id);
+    const downPlayList = document.getElementById("downPlayList" + id);
 
+    if (downPlayList != null)
+        downPlayList.innerHTML = "Canciones descargadas:" + downloadedSong + "/" + totalSongs;
 
     if (progressBar === null)
         return;
@@ -506,12 +509,15 @@ async function checkButtonsStatus() {
         const id = btnDown.getAttribute("data-btn-down-id");
         const btnCancel = document.querySelector('[data-btn-cancel-id="' + id + '"]')
         btnDirect = document.querySelector('[data-btn-directlist-id="' + btnDown.getAttribute("data-btn-down-id") + '"]')
+console.log(listaDescargas.length)
         if (listaDescargas.length === 0)
+            console.log(btnCancel)
             if (btnCancel != null) {
+                console.log("BTN CANCEL EXISTE!!!!")
                 delBtnCancelAddDelBtn(btnCancel);
                 enableButtonColors(btnDirect);
             }
-        listaDescargas.forEach(descarga => {
+            listaDescargas.forEach(descarga => {
             if (btnDown.id === descarga.mediaFile.url) {
                 if (!btnDown.disabled) {
                     delBtnDelAddCancelBtn(btnDown);
