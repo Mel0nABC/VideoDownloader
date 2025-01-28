@@ -22,21 +22,12 @@ public class MediaController {
     private MediaRepository mediaRepository;
 
     private ThreadGroup threadGroup = new ThreadGroup("ThreadGroup");
-    private ArrayList<MediaThread> startedMediaThreadList = new ArrayList<>();
-    private ArrayList<MediaThread> stopedMediaThreadList = new ArrayList<>();
+    private ArrayList<MediaThread> mediaThreadList = new ArrayList<>();
     private final int EXIT_CODE_OK = 0;
 
     public MediaController(MediaRepository mediaRepository) {
         this.mediaRepository = mediaRepository;
         addAllDBtothreadlist();
-    }
-
-    public void addAllDBtothreadlist() {
-        for (MediaFile mfLoad : mediaRepository.findAll()) {
-            MediaThread mfThread = new MediaThread(threadGroup, mfLoad,
-                    mediaRepository, "", this);
-            stopedMediaThreadList.add(mfThread);
-        }
     }
 
     @GetMapping("/favicon.ico")
@@ -47,6 +38,24 @@ public class MediaController {
     @GetMapping("/")
     public String inicio() {
         return "index";
+    }
+
+    public void addAllDBtothreadlist() {
+        for (MediaFile mfLoad : mediaRepository.findAll()) {
+            MediaThread mfThread = new MediaThread(threadGroup, mfLoad,
+                    mediaRepository, "", false);
+            mediaThreadList.add(mfThread);
+        }
+    }
+
+    /**
+     * Devuelve lista actualizada
+     * 
+     * @return lista startedMediaThreadList
+     */
+    @PostMapping("/getInfo")
+    public ResponseEntity<ArrayList<MediaThread>> getList() {
+        return ResponseEntity.ok(mediaThreadList);
     }
 
     @PostMapping("/addDownload")
@@ -63,11 +72,11 @@ public class MediaController {
         MediaFile newMFile = addUrlBBDD(url, jsonData);
 
         MediaThread mfThread = new MediaThread(threadGroup, newMFile,
-                mediaRepository, "", this);
+                mediaRepository, "", false);
 
-        stopedMediaThreadList.add(mfThread);
+        mediaThreadList.add(mfThread);
 
-        return ResponseEntity.ok(newMFile);
+        return ResponseEntity.ok(mfThread);
     }
 
     public boolean urlExist(String url) {
@@ -108,38 +117,27 @@ public class MediaController {
 
         Map<String, Object> contenido = new HashMap<>();
 
-        MediaThread delOnStopeds = null;
-        MediaThread toStart = null;
-        for (MediaThread mtCheck : stopedMediaThreadList) {
-            if (mtCheck.getMediaFile().getUrl().equals(url)) {
-                delOnStopeds = mtCheck;
-                toStart = mtCheck;
-                startedMediaThreadList.add(mtCheck);
+        MediaThread mediaThread = null;
+        MediaFile mediaFile = null;
+
+        for (int i = 0; i < mediaThreadList.size(); i++) {
+
+            mediaThread = mediaThreadList.get(i);
+
+            if (mediaThread.getMediaFile().getUrl().equals(url)) {
+                mediaFile = mediaThread.getMediaFile();
+                mediaThreadList.remove(i);
             }
         }
+        mediaFile.setExitCode(EXIT_CODE_OK);
+        mediaThread.setFormatId(formatId);
+        mediaThread = new MediaThread(threadGroup, mediaFile, mediaRepository, formatId, false);
+        mediaThread.start();
 
-        stopedMediaThreadList.remove(delOnStopeds);
-        MediaFile mfBBDD = toStart.getMediaFile();
-        mfBBDD.setExitCode(EXIT_CODE_OK);
-        toStart.setFormatId(formatId);
-        toStart.start();
+        mediaThreadList.add(mediaThread);
 
-        contenido.put("mediaFile", mfBBDD);
-
+        contenido.put("mediaFile", mediaFile);
         return ResponseEntity.ok(contenido);
-    }
-
-    /**
-     * Devuelve lista actualizada
-     * 
-     * @return lista startedMediaThreadList
-     */
-    @PostMapping("/getInfo")
-    public ResponseEntity<ArrayList<ArrayList<MediaThread>>> getList() {
-        ArrayList<ArrayList<MediaThread>> threadsContainer = new ArrayList<>();
-        threadsContainer.add(startedMediaThreadList);
-        threadsContainer.add(stopedMediaThreadList);
-        return ResponseEntity.ok(threadsContainer);
     }
 
     /**
@@ -155,13 +153,13 @@ public class MediaController {
         if (mfToDelete != null) {
 
             MediaThread tmpDelete = null;
-            for (MediaThread mtDelete : stopedMediaThreadList) {
+            for (MediaThread mtDelete : mediaThreadList) {
                 if (mtDelete.getMediaFile().getUrl().equals(mfToDelete.getUrl())) {
                     tmpDelete = mtDelete;
                     break;
                 }
             }
-            stopedMediaThreadList.remove(tmpDelete);
+            mediaThreadList.remove(tmpDelete);
             mediaRepository.delete(mfToDelete);
             return ResponseEntity.ok("true");
         }
@@ -169,10 +167,9 @@ public class MediaController {
     }
 
     public boolean delThreadFromList(MediaFile mfToDel) {
-        for (MediaThread mt : startedMediaThreadList) {
+        for (MediaThread mt : mediaThreadList) {
             if (mt.getMediaFile().getUrl().equals(mfToDel.getUrl())) {
-                startedMediaThreadList.remove(mt);
-                stopedMediaThreadList.add(mt);
+                mediaThreadList.remove(mt);
                 return true;
             }
         }
@@ -180,26 +177,9 @@ public class MediaController {
     }
 
     @PostMapping("/stopThread")
-    public ResponseEntity<String> stopThreadWeb(@RequestParam("url") String url) {
-        return ResponseEntity.ok(stopThreadTotal(url));
-    }
+    public ResponseEntity<Boolean> stopThreadWeb(@RequestParam("url") String url) {
 
-    public String stopThreadTotal(String url) {
-        if (!stopThread(url)) {
-            return "false";
-        }
-
-        if (!delByUrlFromThreadList(url)) {
-            return "false";
-        }
-
-        return "true";
-    }
-
-    public boolean stopThread(String url) {
-        MediaThread[] lista = new MediaThread[threadGroup.activeCount()];
-        threadGroup.enumerate(lista);
-        for (MediaThread tr : lista) {
+        for (MediaThread tr : mediaThreadList) {
             if (tr != null) {
                 if (tr.getMediaFile().getUrl().equals(url)) {
                     tr.interrupt();
@@ -209,37 +189,17 @@ public class MediaController {
                         e.printStackTrace();
                     }
                     if (!tr.isAlive()) {
-                        return true;
+                        return ResponseEntity.ok(true);
                     }
 
                 }
             }
         }
-        return false;
-    }
-
-    public boolean delByUrlFromThreadList(String url) {
-        MediaFile mfToDelete = mediaRepository.findByUrl(url);
-        if (mfToDelete != null) {
-
-            for (MediaThread mt : startedMediaThreadList) {
-                if (mt.getMediaFile().getUrl().equals(url)) {
-                    startedMediaThreadList.remove(mt);
-                    stopedMediaThreadList.add(mt);
-                    return true;
-                }
-            }
-        }
-        return false;
+        return ResponseEntity.ok(false);
     }
 
     @PostMapping("/checkYtUpdate")
     public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
         return ResponseEntity.ok(new ExecuteYtdlp().getRelease());
-    }
-
-
-    public void test(){
-        System.out.println("TONTO");
     }
 }

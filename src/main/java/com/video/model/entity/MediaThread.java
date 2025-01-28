@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.video.controller.MediaController;
 import com.video.model.service.ExecuteYtdlp;
 import com.video.model.service.MediaRepository;
 
@@ -18,24 +17,22 @@ public class MediaThread extends Thread {
     private int exitCode;
     private boolean downloadInProgress;
     private String formatId;
-    private MediaController mediaController;
     private final int EXIT_CODE_OK = 0;
     private final int EXIT_CODE_ERROR = 1;
     private final int EXIT_CODE_CANCEL = 2;
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, MediaRepository mediaRepository, String formatId,
-            MediaController mediaController) {
+            Boolean downloadInProgress) {
         super(threadGroup, "threadgroup");
         this.mediaFile = mediaFile;
         this.mediaRepository = mediaRepository;
-        this.mediaController = mediaController;
         this.formatId = formatId;
+        this.downloadInProgress = downloadInProgress;
     }
 
     @Override
     public void run() {
         mediaFile.setStatusDownload("Iniciando descarga ...");
-        mediaFile.setProgressDownload("0%");
         try {
             ExecuteYtdlp procesYtdlp = new ExecuteYtdlp();
             Process process = procesYtdlp.getDownloadProces(formatId, mediaFile);
@@ -44,11 +41,13 @@ public class MediaThread extends Thread {
             String line = "";
             try {
                 boolean finish = false;
+                downloadInProgress = true;
+
                 while ((line = reader.readLine()) != null && !finish) {
 
                     System.out.println(line);
 
-                    downloadInProgress = true;
+
                     String regex = "\\d+\\.\\d+%";
                     Pattern pattern = Pattern.compile(regex);
                     Matcher matcher = pattern.matcher(line);
@@ -102,40 +101,29 @@ public class MediaThread extends Thread {
                 mediaFile.setDownloaded(false);
                 mediaFile.setExitCode(EXIT_CODE_ERROR);
                 mediaFile.setStatusDownload("Ha ocurrido algún error: " + exitCode);
+                downloadInProgress = false;
             }
 
             if (exitCode == EXIT_CODE_CANCEL) {
                 mediaFile.setDownloaded(false);
                 mediaFile.setExitCode(EXIT_CODE_CANCEL);
                 mediaFile.setStatusDownload("Se ha cancelado la descarga: " + exitCode);
+                downloadInProgress = false;
             }
 
             mediaRepository.save(mediaFile);
 
             System.out.println("El proceso terminó con el código de salida: " + exitCode);
 
-            if (exitCode != EXIT_CODE_CANCEL)
-                mediaController.delByUrlFromThreadList(mediaFile.getUrl());
-
         }
-    }
-
-    public boolean isNumber(String num) {
-        try {
-            Integer.parseInt(num);
-        } catch (NumberFormatException e) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean isDownloadInProgress() {
-        return downloadInProgress;
     }
 
     public MediaFile getMediaFile() {
         return mediaFile;
+    }
+
+    public void setMediaFile(MediaFile mediaFile) {
+        this.mediaFile = mediaFile;
     }
 
     public String getFormatId() {
@@ -144,6 +132,14 @@ public class MediaThread extends Thread {
 
     public void setFormatId(String formatId) {
         this.formatId = formatId;
+    }
+
+    public boolean isDownloadInProgress() {
+        return downloadInProgress;
+    }
+
+    public void setDownloadInProgress(boolean downloadInProgress) {
+        this.downloadInProgress = downloadInProgress;
     }
 
 }

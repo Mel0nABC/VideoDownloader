@@ -26,7 +26,8 @@ public class MediaFile {
     private int downloadedSong;
 
     {
-        progressDownload = "Descarga no iniciada";
+        progressDownload = "0%";
+        statusDownload = "Descarga no iniciada";
     }
 
     @ConstructorBinding

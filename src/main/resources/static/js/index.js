@@ -1,14 +1,16 @@
-let updateData = false;
 const YELLOW_STATUS = "rgb(255, 235, 156)";
 const RED_STATUS = "rgb(255, 199, 206)";
 const GREEN_STATUS = "rgb(198, 239, 206)";
-const waitTime = 800;
+const waitTime = 1000;
 const threadsDescarga = 0;
 const threadsParados = 1;
+let updateData = false;
 window.onload = function () {
 
-    firstLoad();
-    checkUpdateYtDlp()
+    firstLoad(null);
+    checkUpdatesDB();
+    checkUpdateYtDlp();
+
 
     const btnAddDownload = document.getElementById("btnAddDownload");
     var urlValue;
@@ -49,7 +51,6 @@ window.onload = function () {
                 const mediaFile = JSON.parse(response);
 
                 addDownload(mediaFile);
-                updateBarProgress(mediaFile)
             } catch (error) {
                 console.log(error);
             } finally {
@@ -60,67 +61,59 @@ window.onload = function () {
         })();
     });
 
-    const intervalID = setInterval(() => {
+    setInterval(() => {
         checkUpdatesDB();
     }, waitTime);
 }
 
 async function checkUpdatesDB() {
-
-    const urlDbList = await getAllUrl();
+    const mediaThreadList = await getInfo();
     const articleList = document.querySelectorAll("article");
     const sectionString = document.getElementById("section").innerHTML;
 
-    if (urlDbList.length > 0 && updateData === false) {
+    // Encendemos updateArticleList
+    if (mediaThreadList.length > 0 && updateData === false) {
         updateData = true;
-        updateTable();
-    } else if (urlDbList.length <= 0 && updateData === true) {
+        updateArticleList(mediaThreadList);
+    } else if (mediaThreadList.length <= 0 && updateData === true) {
         updateData = false;
     }
 
-    if (urlDbList.length < articleList.length) {
+    // añade articles si (db > section)
+    if (mediaThreadList.length > articleList.length) {
+        mediaThreadList.forEach(mediaThread => {
+            const mediaFile = mediaThread.mediaFile;
+            if (!sectionString.includes(mediaFile.url)) {
+                addDownload(mediaThread);
+            }
+        });
+    }
+
+    // elimina articles si hay más si (sectión > db)
+    if (mediaThreadList.length < articleList.length) {
         articleList.forEach(article => {
-            if (!JSON.stringify(urlDbList).includes(article.id)) {
+            if (!JSON.stringify(mediaThreadList).includes(article.id)) {
                 article.remove();
             }
-
         })
     }
-
-    if (urlDbList.length > articleList.length) {
-        urlDbList.forEach(urlDb => {
-            if (!sectionString.includes(urlDb.url)) {
-                addDownload(urlDb)
-            }
-        });
-    }
-
 }
 
-async function updateTable() {
+async function getInfo() {
+    const elements = await fetch(`/getInfo`, { method: "POST" });
+    return await elements.json();
+}
+
+
+async function updateArticleList(mediaThreadList) {
     while (updateData) {
-        const articleList = document.querySelectorAll("section");
-        var status = null;
-        var downloaded = null;
-        var id = null;
-        const allArrays = await getDownloadingThreads();
-        const startedArray = allArrays[threadsDescarga];
-        const stopedArray = allArrays[threadsParados];
-
-        startedArray.forEach(element => {
-            updateBarProgress(element.mediaFile)
+        const mediaThreadList = await getInfo();
+        updateBarProgress(mediaThreadList);
+        mediaThreadList.forEach(mediaThread => {
             checkButtonsStatus();
         });
-
-        stopedArray.forEach(element => {
-            updateBarProgress(element.mediaFile)
-            checkButtonsStatus();
-        });
-        checkButtonsStatus();
         await new Promise(resolve => setTimeout(resolve, waitTime));
     }
-    if (updateData)
-        firstLoad();
 };
 
 function isblack(url) {
@@ -230,12 +223,10 @@ function createTableFormats(url, id) {
                     const texto = data.mediaFile;
                     try {
                         if (texto.includes("Error")) {
-                            checkButtonsStatus();
                             alert(texto);
                         }
                     } catch (error) {
                     } finally {
-                        updateBarProgress(data.mediaFile);
                         closeContainerFormats();
                     }
                 })
@@ -253,8 +244,12 @@ function closeContainerFormats() {
     document.getElementById("containerFormatos").remove();
 }
 
-function addDownload(mediaFile) {
-    const jsonData = JSON.parse(mediaFile.jsonData);
+function addDownload(mediaThread) {
+
+    const jsonData = JSON.parse(mediaThread.mediaFile.jsonData);
+    const mediaFile = mediaThread.mediaFile;
+
+
     let isList = false;
     let titulo;
     let img;
@@ -285,6 +280,8 @@ function addDownload(mediaFile) {
                             name="btnListDirect">DESCARGA DIRECTA Y LISTAS</button> 
                         <button data-btn-del-id="${mediaFile.id}" id="${mediaFile.url}"
                             name="btnDelete">ELIMINAR</button>
+                        <button data-btn-cancel-id="${mediaFile.id}" id="${mediaFile.url}"
+                            name="btnCancel" style="display: none">CANCELAR</button>
                     </div>
                 </div>
                 <div id="wrapperBar${mediaFile.url}" class="wrapper_2">
@@ -293,14 +290,18 @@ function addDownload(mediaFile) {
                 </div>
                 </article>`
 
-
     const section = document.getElementById("section");
     section.innerHTML = texto + section.innerHTML;
     const btnDownloadList = document.getElementsByName("btnDownload");
     const btnDirectList = document.getElementsByName("btnListDirect");
-
+    const btnCancelList = document.getElementsByName("btnCancel");
     const btnDeleteList = document.getElementsByName("btnDelete");
 
+    btnCancelList.forEach(btnCancel => {
+        btnCancel.addEventListener("click", async e => {
+            cancelDownload(e.target.id);
+        });
+    });
 
     btnDownloadList.forEach(btnDown => {
         btnDown.addEventListener("click", async e => {
@@ -319,12 +320,10 @@ function addDownload(mediaFile) {
             const texto = data.mediaFile;
             try {
                 if (texto.includes("Error")) {
-                    checkButtonsStatus();
                     alert(texto);
                 }
             } catch (error) {
             } finally {
-                updateBarProgress(data.mediaFile);
             }
         })
     });
@@ -354,38 +353,46 @@ async function download(url, formatId) {
     return await data.json();
 }
 
-function delBtnDelAddCancelBtn(btnDown) {
-    const btnDirect = document.querySelector('[data-btn-directlist-id="' + btnDown.getAttribute("data-btn-down-id") + '"]')
-    btnDown.disabled = true;
-    btnDirect.disabled = true;
-    disableButtonColors(btnDown);
-    disableButtonColors(btnDirect);
+async function checkButtonsStatus() {
 
-    document.getElementsByName("btnDelete").forEach(btnDel => {
+    const mediaThreadList = await getDownloadingThreads();
+    const btnDownloadList = document.getElementsByName("btnDownload");
 
-        if (btnDown.id === btnDel.id)
-            btnDel.remove();
+    mediaThreadList.forEach(mediaThread => {
+
+        const mediaFile = mediaThread.mediaFile;
+        const id = mediaFile.id;
+        const url = mediaFile.url;
+
+        const btnDown = document.querySelector('[data-btn-down-id="' + id + '"]')
+        const btnDownDirect = document.querySelector('[data-btn-directlist-id="' + id + '"]')
+        const btnDelete = document.querySelector('[data-btn-del-id="' + id + '"]')
+        const btnCancel = document.querySelector('[data-btn-cancel-id="' + id + '"]')
+
+        if (mediaThread.downloadInProgress === true) {
+            startedsDownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id);
+        } else {
+            stopedsownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id);
+        }
     })
+}
 
-    const newCancelBtn = document.createElement("button");
-    newCancelBtn.textContent = "Cancelar";
-    newCancelBtn.name = "btnCancel";
-    newCancelBtn.id = btnDown.id;
-    newCancelBtn.setAttribute("data-btn-cancel-id", btnDown.getAttribute("data-btn-down-id"));
-    const locationAdd = btnDown.parentElement;
-    locationAdd.appendChild(newCancelBtn);
-    const btnCancelList = document.getElementsByName("btnCancel");
-    btnCancelList.forEach(btnCancel => {
-        btnCancel.addEventListener("click", e => {
-            const url = e.target.id;
-            cancelDownload(url);
-            delBtnCancelAddDelBtn(btnCancel);
-            btnDown.disabled = false;
-            btnDirect.disabled = false;
-            enableButtonColors(btnDown);
-            enableButtonColors(btnDirect);
-        });
-    });
+function startedsDownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id) {
+    btnDown.disabled = true;
+    btnDownDirect.disabled = true;
+    disableButtonColors(btnDown);
+    disableButtonColors(btnDownDirect);
+    btnCancel.style.setProperty("display", "unset");
+    btnDelete.style.setProperty("display", "none");
+}
+
+function stopedsownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id) {
+    btnDown.disabled = false;
+    btnDownDirect.disabled = false;
+    enableButtonColors(btnDown);
+    enableButtonColors(btnDownDirect);
+    btnCancel.style.setProperty("display", "none");
+    btnDelete.style.setProperty("display", "unset");
 }
 
 function disableButtonColors(btn) {
@@ -406,27 +413,7 @@ function enableButtonColors(btn) {
     btn.disabled = false;
 }
 
-function delBtnCancelAddDelBtn(btnCancel) {
-    const locationAdd = btnCancel.parentElement;
-    const newDelBtn = document.createElement("button");
-    const btnCancelIdNumber = btnCancel.getAttribute("data-btn-cancel-id")
-    const btnDown = document.querySelector('[data-btn-down-id="' + btnCancelIdNumber + '"]')
-    enableButtonColors(btnDown);
-    newDelBtn.textContent = "Eliminar";
-    newDelBtn.name = "btnDelete";
-    newDelBtn.id = btnCancel.id;
-    newDelBtn.setAttribute("data-btn-del-id", btnCancel.id)
-    locationAdd.appendChild(newDelBtn);
-    btnCancel.remove();
-    finish = true;
-    const btnDellList = document.getElementsByName("btnDelete");
-    btnDellList.forEach(btnDel => {
-        btnDel.addEventListener("click", e => {
-            const url = e.target.id;
-            delByUrl(url);
-        });
-    });
-}
+
 
 function cancelDownload(url) {
     const formData = new FormData();
@@ -446,47 +433,57 @@ function cancelDownload(url) {
         })
 }
 
-async function firstLoad() {
-    const response = await getAllUrl();
-    response.forEach(element => {
-        const mediaFile = element;
-        addDownload(mediaFile);
-        updateBarProgress(mediaFile);
-        checkButtonsStatus();
+async function firstLoad(mediaThreadListInput) {
+    let mediaThreadList = null;
+    if (mediaThreadListInput === null) {
+        mediaThreadList = await getInfo();
+    } else {
+        mediaThreadList = mediaThreadListInput;
+    }
+    mediaThreadList.forEach(mediaThread => {
+        addDownload(mediaThread);
     });
 }
 
-async function getAllUrl() {
-    const elements = await fetch(`/getAllURL`, { method: "POST" });
-    return await elements.json();
-}
 
 
-function updateBarProgress(mediaFile) {
 
-    const url = mediaFile.url;
-    const id = mediaFile.id;
-    const downloaded = mediaFile.downloaded
-    const statusDownload = mediaFile.statusDownload;
-    const progressDownload = mediaFile.progressDownload;
-    const totalSongs = mediaFile.totalSongs;
-    const downloadedSong = mediaFile.downloadedSong;
-    const progressBar = document.getElementById("progressBar" + url);
-    const progressLabel = document.getElementById("progressLabel" + id);
-    const downPlayList = document.getElementById("downPlayList" + id);
+function updateBarProgress(mediaThreadList) {
 
-    if (downPlayList != null)
-        downPlayList.innerHTML = "Canciones descargadas:" + downloadedSong + "/" + totalSongs;
 
-    if (progressBar === null)
-        return;
-    if (downloaded === true) {
-        progressBar.style.width = 100 + '%';
-        progressLabel.innerHTML = "Descargado"
-    } else {
-        progressBar.style.width = progressDownload;
-        progressLabel.innerHTML = statusDownload;
-    }
+    mediaThreadList.forEach(mediaThread => {
+
+        const mediaFile = mediaThread.mediaFile
+        const url = mediaFile.url;
+        const id = mediaFile.id;
+        const downloaded = mediaFile.downloaded
+        const statusDownload = mediaFile.statusDownload;
+        const progressDownload = mediaFile.progressDownload;
+        const totalSongs = mediaFile.totalSongs;
+        const downloadedSong = mediaFile.downloadedSong;
+        console.log(statusDownload)
+
+        const progressBar = document.getElementById("progressBar" + url);
+        const progressLabel = document.getElementById("progressLabel" + id);
+        const downPlayList = document.getElementById("downPlayList" + id);
+
+
+
+        if (downPlayList != null) {
+            downPlayList.innerHTML = "Canciones descargadas:" + downloadedSong + "/" + totalSongs;
+        }
+
+        if (progressBar === null)
+            return;
+
+        if (downloaded === true) {
+            progressBar.style.width = 100 + '%';
+            progressLabel.innerHTML = "Descargado"
+        } else {
+            progressBar.style.width = progressDownload;
+            progressLabel.innerHTML = statusDownload;
+        }
+    })
 }
 
 
@@ -497,39 +494,6 @@ async function getDownloadingThreads() {
     const data = await fetch(`/getInfo`, options);
     return data.json();
 }
-
-async function checkButtonsStatus() {
-
-    let btnDirect = null;
-    const dosArraysThreads = await getDownloadingThreads();
-    const listaDescargas = dosArraysThreads[threadsDescarga];
-    const btnDownloadList = document.getElementsByName("btnDownload");
-
-    btnDownloadList.forEach(btnDown => {
-        const id = btnDown.getAttribute("data-btn-down-id");
-        const btnCancel = document.querySelector('[data-btn-cancel-id="' + id + '"]')
-        btnDirect = document.querySelector('[data-btn-directlist-id="' + btnDown.getAttribute("data-btn-down-id") + '"]')
-console.log(listaDescargas.length)
-        if (listaDescargas.length === 0)
-            console.log(btnCancel)
-            if (btnCancel != null) {
-                console.log("BTN CANCEL EXISTE!!!!")
-                delBtnCancelAddDelBtn(btnCancel);
-                enableButtonColors(btnDirect);
-            }
-            listaDescargas.forEach(descarga => {
-            if (btnDown.id === descarga.mediaFile.url) {
-                if (!btnDown.disabled) {
-                    delBtnDelAddCancelBtn(btnDown);
-                }
-            } else {
-
-            }
-        });
-    });
-}
-
-
 
 function checkRowBlink(url) {
     const articleCheck = document.getElementById(url);
