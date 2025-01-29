@@ -1,7 +1,7 @@
 const YELLOW_STATUS = "rgb(255, 235, 156)";
 const RED_STATUS = "rgb(255, 199, 206)";
 const GREEN_STATUS = "rgb(198, 239, 206)";
-const waitTime = 1000;
+const waitTime = 5000;
 const threadsDescarga = 0;
 const threadsParados = 1;
 let updateData = false;
@@ -16,7 +16,6 @@ window.onload = function () {
     var urlValue;
     btnAddDownload.addEventListener("click", function () {
         const urlElement = document.getElementById("url");
-        // urlValue = removeAfterAmpersand(urlElement.value);
         urlValue = urlElement.value;
 
 
@@ -66,8 +65,10 @@ window.onload = function () {
     }, waitTime);
 }
 
+let mediaThreadList;
+
 async function checkUpdatesDB() {
-    const mediaThreadList = await getInfo();
+    mediaThreadList = await getInfo();
     const articleList = document.querySelectorAll("article");
     const sectionString = document.getElementById("section").innerHTML;
 
@@ -105,9 +106,8 @@ async function getInfo() {
 }
 
 
-async function updateArticleList(mediaThreadList) {
+async function updateArticleList() {
     while (updateData) {
-        const mediaThreadList = await getInfo();
         updateBarProgress(mediaThreadList);
         mediaThreadList.forEach(mediaThread => {
             checkButtonsStatus();
@@ -355,7 +355,6 @@ async function download(url, formatId) {
 
 async function checkButtonsStatus() {
 
-    const mediaThreadList = await getDownloadingThreads();
     const btnDownloadList = document.getElementsByName("btnDownload");
 
     mediaThreadList.forEach(mediaThread => {
@@ -434,7 +433,7 @@ function cancelDownload(url) {
 }
 
 async function firstLoad(mediaThreadListInput) {
-    let mediaThreadList = null;
+    mediaThreadList = null;
     if (mediaThreadListInput === null) {
         mediaThreadList = await getInfo();
     } else {
@@ -487,13 +486,7 @@ function updateBarProgress(mediaThreadList) {
 }
 
 
-async function getDownloadingThreads() {
-    let options = {
-        method: "POST",
-    }
-    const data = await fetch(`/getInfo`, options);
-    return data.json();
-}
+
 
 function checkRowBlink(url) {
     const articleCheck = document.getElementById(url);
