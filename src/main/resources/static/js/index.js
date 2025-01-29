@@ -1,16 +1,17 @@
 const YELLOW_STATUS = "rgb(255, 235, 156)";
 const RED_STATUS = "rgb(255, 199, 206)";
 const GREEN_STATUS = "rgb(198, 239, 206)";
-const waitTime = 5000;
+const waitTime = 600;
 const threadsDescarga = 0;
 const threadsParados = 1;
 let updateData = false;
 window.onload = function () {
 
+
+
     firstLoad(null);
     checkUpdatesDB();
     checkUpdateYtDlp();
-
 
     const btnAddDownload = document.getElementById("btnAddDownload");
     var urlValue;
@@ -68,9 +69,9 @@ window.onload = function () {
 let mediaThreadList;
 
 async function checkUpdatesDB() {
+
     mediaThreadList = await getInfo();
     const articleList = document.querySelectorAll("article");
-    const sectionString = document.getElementById("section").innerHTML;
 
     // Encendemos updateArticleList
     if (mediaThreadList.length > 0 && updateData === false) {
@@ -84,9 +85,16 @@ async function checkUpdatesDB() {
     if (mediaThreadList.length > articleList.length) {
         mediaThreadList.forEach(mediaThread => {
             const mediaFile = mediaThread.mediaFile;
-            if (!sectionString.includes(mediaFile.url)) {
+            let existe = false;
+            Array.from(articleList).forEach(article => {
+                if (mediaFile.url === article.id) {
+                    existe = true
+                }
+            })
+
+            if (!existe)
                 addDownload(mediaThread);
-            }
+
         });
     }
 
@@ -144,7 +152,7 @@ async function createTableFormats(url, id) {
             // alert($(window).width())
             $(window).width()
             var tabla = `<div id="containerFormatos" class="table-container">
-                    <div class="table-data-container" style="width: ${$(window).width()-($(window).width()*0.1)}">
+                    <div class="table-data-container" style="width: ${$(window).width() - ($(window).width() * 0.1)}">
                         <h2>SELECCIÓN DE FORMATOS</h2>
                         <table class="containerTable">
                             <thead>
@@ -251,7 +259,6 @@ function closeContainerFormats() {
 }
 
 function addDownload(mediaThread) {
-
     const jsonData = JSON.parse(mediaThread.mediaFile.jsonData);
     const mediaFile = mediaThread.mediaFile;
 
@@ -374,10 +381,12 @@ async function checkButtonsStatus() {
         const btnDelete = document.querySelector('[data-btn-del-id="' + id + '"]')
         const btnCancel = document.querySelector('[data-btn-cancel-id="' + id + '"]')
 
-        if (mediaThread.downloadInProgress === true) {
-            startedsDownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id);
-        } else {
-            stopedsownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id);
+        if (btnDown != null) {
+            if (mediaThread.downloadInProgress === true) {
+                startedsDownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id);
+            } else {
+                stopedsownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id);
+            }
         }
     })
 }
@@ -398,6 +407,8 @@ function stopedsownloads(btnDown, btnDownDirect, btnDelete, btnCancel, id) {
     enableButtonColors(btnDownDirect);
     btnCancel.style.setProperty("display", "none");
     btnDelete.style.setProperty("display", "unset");
+
+
 }
 
 function disableButtonColors(btn) {
@@ -466,7 +477,6 @@ function updateBarProgress(mediaThreadList) {
         const progressDownload = mediaFile.progressDownload;
         const totalSongs = mediaFile.totalSongs;
         const downloadedSong = mediaFile.downloadedSong;
-        console.log(statusDownload)
 
         const progressBar = document.getElementById("progressBar" + url);
         const progressLabel = document.getElementById("progressLabel" + id);
