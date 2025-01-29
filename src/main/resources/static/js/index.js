@@ -125,9 +125,7 @@ function removeAfterAmpersand(url) {
     return url.split('&')[0];
 }
 
-function createTableFormats(url, id) {
-
-
+async function createTableFormats(url, id) {
     const formData = new FormData();
     formData.append("url", url);
     formData.append("id", id)
@@ -143,8 +141,10 @@ function createTableFormats(url, id) {
 
             const jsonData = JSON.parse(response.jsonData);
 
+            // alert($(window).width())
+            $(window).width()
             var tabla = `<div id="containerFormatos" class="table-container">
-                    <div class="table-data-container">
+                    <div class="table-data-container" style="width: ${$(window).width()-($(window).width()*0.1)}">
                         <h2>SELECCIÓN DE FORMATOS</h2>
                         <table class="containerTable">
                             <thead>
@@ -237,8 +237,14 @@ function createTableFormats(url, id) {
                 closeContainerFormats();
 
             });
+
+
         });
+
 }
+
+
+
 
 function closeContainerFormats() {
     document.getElementById("containerFormatos").remove();

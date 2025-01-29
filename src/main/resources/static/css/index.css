@@ -369,6 +369,7 @@ article:focus {
     top: 50%;
     left: 50%;
     z-index: 3;
+    width: 10px;
 }
 
 
@@ -523,6 +524,7 @@ article:focus {
 @media (max-width: 520px) {
 
     .table-data-container {
+        width: 100%;
         padding: 1em;
 
         button {
@@ -534,7 +536,7 @@ article:focus {
 
         th,
         td {
-            padding: 0em;
+            padding:1em;
         }
     }
 
