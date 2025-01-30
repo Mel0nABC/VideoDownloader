@@ -47,7 +47,7 @@ Installatión:
 DEPENDENCYS:
 
 - maven
-- openjdk23
+- openjre23
 
 How to:
 
