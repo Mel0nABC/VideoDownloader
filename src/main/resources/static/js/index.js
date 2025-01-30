@@ -5,12 +5,18 @@ const waitTime = 600;
 const threadsDescarga = 0;
 const threadsParados = 1;
 let updateData = false;
-window.onload = function () {
+let mediaThreadList = null;
+let stompClient = null;
 
+window.onload = async function () {
 
+    const conectado = await connectWS();
 
-    firstLoad(null);
-    checkUpdatesDB();
+    if (conectado)
+        stompClient.publish({
+            destination: "/getInfo"
+        })
+
     checkUpdateYtDlp();
 
     const btnAddDownload = document.getElementById("btnAddDownload");
@@ -62,15 +68,44 @@ window.onload = function () {
     });
 
     setInterval(() => {
+        stompClient.publish({
+            destination: "/getInfo"
+        })
         checkUpdatesDB();
     }, waitTime);
 }
 
-let mediaThreadList;
+async function connectWS() {
+    return new Promise((resolve, reject) => {
+        stompClient = new StompJs.Client({
+            brokerURL: 'ws://localhost:8080/wc_server',
+            onConnect: (frame) => {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/update/getInfo', (respuesta) => {
+                    try {
+                        console.log("Updating...")
+                        mediaThreadList = JSON.parse(respuesta.body);
+                        checkUpdatesDB(mediaThreadList);
+                    } catch (error) {
+                        console.error("Error al parsear JSON", error);
+                    }
+                });
+                resolve(true);
+            },
+            onStompError: (frame) => {
+                console.error("Error de STOMP: ", frame);
+                reject(false);  // Rechaza la promesa si hay un error de STOMP
+            }
+        });
+        stompClient.activate();
+
+    });
+}
+
+
 
 async function checkUpdatesDB() {
 
-    mediaThreadList = await getInfo();
     const articleList = document.querySelectorAll("article");
 
     // Encendemos updateArticleList
@@ -107,12 +142,6 @@ async function checkUpdatesDB() {
         })
     }
 }
-
-async function getInfo() {
-    const elements = await fetch(`/getInfo`, { method: "POST" });
-    return await elements.json();
-}
-
 
 async function updateArticleList() {
     while (updateData) {
@@ -246,12 +275,8 @@ async function createTableFormats(url, id) {
 
             });
 
-
         });
-
 }
-
-
 
 
 function closeContainerFormats() {
@@ -450,6 +475,7 @@ function cancelDownload(url) {
 }
 
 async function firstLoad(mediaThreadListInput) {
+
     mediaThreadList = null;
     if (mediaThreadListInput === null) {
         mediaThreadList = await getInfo();

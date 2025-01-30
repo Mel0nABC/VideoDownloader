@@ -1,5 +1,6 @@
 package com.video.controller;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.video.model.entity.*;
 import com.video.model.service.*;
 
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -178,7 +180,7 @@ public class MediaController {
 
     @PostMapping("/stopThread")
     public ResponseEntity<Boolean> stopThreadWeb(@RequestParam("url") String url) {
-
+        System.out.println("STOP THREAD");
         for (MediaThread tr : mediaThreadList) {
             if (tr != null) {
                 if (tr.getMediaFile().getUrl().equals(url)) {
@@ -202,4 +204,10 @@ public class MediaController {
     public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
         return ResponseEntity.ok(new ExecuteYtdlp().getRelease());
     }
+
+    @Bean
+    public ArrayList<MediaThread> getMediaThreadList() {
+        return mediaThreadList;
+    }
+
 }
