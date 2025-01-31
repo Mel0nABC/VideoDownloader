@@ -85,7 +85,7 @@ async function connectWS() {
                     try {
                         console.log("Updating...")
                         mediaThreadList = JSON.parse(respuesta.body);
-                        checkUpdatesDB(mediaThreadList);
+                        checkUpdatesDB();
                     } catch (error) {
                         console.error("Error al parsear JSON", error);
                     }
@@ -107,6 +107,7 @@ async function connectWS() {
 async function checkUpdatesDB() {
 
     const articleList = document.querySelectorAll("article");
+
 
     // Encendemos updateArticleList
     if (mediaThreadList.length > 0 && updateData === false) {
@@ -284,14 +285,15 @@ function closeContainerFormats() {
 }
 
 function addDownload(mediaThread) {
-    const jsonData = JSON.parse(mediaThread.mediaFile.jsonData);
-    const mediaFile = mediaThread.mediaFile;
 
+    const jsonData = mediaThread.mediaFile.updateInfo;
+    const mediaFile = mediaThread.mediaFile;
 
     let isList = false;
     let titulo;
     let img;
-    if (mediaFile.jsonData.includes("playlist_channel")) {
+
+    if (jsonData.playlist_channel != null) {
         isList = true;
         titulo = jsonData.playlist;
         img = "/images/image.png"
@@ -474,27 +476,9 @@ function cancelDownload(url) {
         })
 }
 
-async function firstLoad(mediaThreadListInput) {
-
-    mediaThreadList = null;
-    if (mediaThreadListInput === null) {
-        mediaThreadList = await getInfo();
-    } else {
-        mediaThreadList = mediaThreadListInput;
-    }
-    mediaThreadList.forEach(mediaThread => {
-        addDownload(mediaThread);
-    });
-}
-
-
-
 
 function updateBarProgress(mediaThreadList) {
-
-
     mediaThreadList.forEach(mediaThread => {
-
         const mediaFile = mediaThread.mediaFile
         const url = mediaFile.url;
         const id = mediaFile.id;

@@ -38,6 +38,7 @@ public class MediaThread extends Thread {
             Process process = procesYtdlp.getDownloadProces(formatId, mediaFile);
 
             reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
             String line = "";
             try {
                 boolean finish = false;
@@ -46,7 +47,6 @@ public class MediaThread extends Thread {
                 while ((line = reader.readLine()) != null && !finish) {
 
                     System.out.println(line);
-
 
                     String regex = "\\d+\\.\\d+%";
                     Pattern pattern = Pattern.compile(regex);
@@ -74,6 +74,14 @@ public class MediaThread extends Thread {
                     }
                     mediaRepository.save(mediaFile);
                 }
+
+                BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                String errorLine;
+                System.out.println("EN ERROR");
+                    while ((errorLine = readerError.readLine()) != null) {
+                        System.err.println(line);
+                    }
+
                 reader.close();
             } catch (Exception e) {
                 System.out.println("Se ha detenido el thread de la url -> " + mediaFile.getUrl());

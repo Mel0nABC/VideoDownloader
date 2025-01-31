@@ -1,24 +1,21 @@
-FROM eclipse-temurin:23-jdk AS builder
+FROM archlinux:latest
 
-WORKDIR /app
 
-COPY . .
+RUN mkdir -p /opt/videodownloader/
+COPY /target/video-1.0-SNAPSHOT.jar /opt/videodownloader/aplication.jar
+COPY yt-dlp /opt/videodownloader/yt-dlp
 
-# FROM eclipse-temurin:23-jre
+RUN pacman -Sy --noconfirm
+RUN pacman -S jre-openjdk --noconfirm
 
-# COPY . .
-
-# WORKDIR /app
-
-# COPY --from=builder /app/target/video-1.0-SNAPSHOT.jar video.jar
-
-COPY /target/video-1.0-SNAPSHOT.jar video.jar
-RUN ["apt","update"]
-RUN ["apt","-y","install","ffmpeg"]
-RUN ["wget","https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux"]
-RUN ["mv","yt-dlp_linux","yt-dlp"]
-RUN ["chmod","u+x","yt-dlp"]
 
 EXPOSE 8080
 
-ENTRYPOINT [ "java","-jar", "video.jar" ]
+RUN ["pacman","-Syu","--noconfirm"]
+RUN ["pacman","-S","ffmpeg","--noconfirm"]
+
+WORKDIR /opt/videodownloader/
+RUN chmod u+x yt-dlp
+
+ENTRYPOINT ["java","-jar","aplication.jar"]
+CMD ["/usr/bin/bash"]

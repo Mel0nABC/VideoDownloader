@@ -6,13 +6,9 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.video.model.entity.MediaFile;
 import com.video.model.entity.YtdlpUpdateInfo;
 
@@ -26,33 +22,22 @@ public class ExecuteYtdlp {
 
     public Process getDownloadProces(String formatId, MediaFile mediaFile) {
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String titlePath = "";
-        int totalSongs;
         int downloadedSong = 0;
 
-        try {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> jsonMap = objectMapper.readValue(mediaFile.getJsonData(), Map.class);
-            titlePath = String.valueOf(jsonMap.get("playlist_title"));
+        titlePath = mediaFile.getUpdateInfo().getPlaylist();
+        int totalSongInt = mediaFile.getUpdateInfo().getPlaylist_count();
 
-            String totalSongString = String.valueOf(jsonMap.get("playlist_count"));
-            if (!totalSongString.equals("null")) {
-                totalSongs = Integer.parseInt((String.valueOf(totalSongString)));
-                mediaFile.setTotalSongs(totalSongs);
-                mediaFile.setDownloadedSong(downloadedSong);
-            }
-        } catch (JsonMappingException e) {
-            e.printStackTrace();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
+        if (totalSongInt != 0) {
+            mediaFile.setTotalSongs(totalSongInt);
+            mediaFile.setDownloadedSong(downloadedSong);
         }
 
         List<String> totalParams = new ArrayList<>();
         totalParams.add(YT_DLP_BIN);
         totalParams.add("-o");
 
-        if (!titlePath.equals("null")) {
+        if (titlePath != null) {
             totalParams.add("./DownloadedFiles/" + titlePath + "/%(title)s.%(ext)s");
         } else {
             totalParams.add("./DownloadedFiles/%(title)s.%(ext)s");

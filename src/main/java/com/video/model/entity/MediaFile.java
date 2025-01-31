@@ -1,12 +1,11 @@
 package com.video.model.entity;
 
-import org.springframework.boot.context.properties.bind.ConstructorBinding;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class MediaFile {
@@ -20,8 +19,10 @@ public class MediaFile {
     private String progressDownload;
     private String statusDownload;
     private String fileName;
-    @Column(columnDefinition = "CLOB")
-    private String jsonData;
+    
+    @OneToOne
+    @JoinColumn(name = "update_info_id")
+    private UpdateInfo updateInfo;
     private int totalSongs;
     private int downloadedSong;
 
@@ -30,25 +31,11 @@ public class MediaFile {
         statusDownload = "Descarga no iniciada";
     }
 
-    @ConstructorBinding
-    public MediaFile(long id, String url, boolean downloaded, int exitCode) {
-        this.id = id;
+    public MediaFile(String url, boolean downloaded, int exitCode, UpdateInfo updateInfo) {
         this.url = url;
         this.downloaded = downloaded;
         this.exitCode = exitCode;
-    }
-
-    public MediaFile(String url, boolean downloaded, int exitCode, String jsonData) {
-        this.url = url;
-        this.downloaded = downloaded;
-        this.exitCode = exitCode;
-        this.jsonData = jsonData;
-    }
-
-    public MediaFile(String url, boolean downloaded, int exitCode) {
-        this.url = url;
-        this.downloaded = downloaded;
-        this.exitCode = exitCode;
+        this.updateInfo = updateInfo;
     }
 
     public MediaFile() {
@@ -87,12 +74,12 @@ public class MediaFile {
         this.exitCode = exitCode;
     }
 
-    public String getJsonData() {
-        return jsonData;
+    public UpdateInfo getUpdateInfo() {
+        return updateInfo;
     }
 
-    public void setJsonData(String jsonData) {
-        this.jsonData = jsonData;
+    public void setUpdateInfo(UpdateInfo updateInfo) {
+        this.updateInfo = updateInfo;
     }
 
     public String getProgressDownload() {
@@ -140,7 +127,5 @@ public class MediaFile {
     public void setDownloadedSong(int downloadedSong) {
         this.downloadedSong = downloadedSong;
     }
-
-    
 
 }

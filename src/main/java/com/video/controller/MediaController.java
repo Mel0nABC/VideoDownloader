@@ -1,6 +1,5 @@
 package com.video.controller;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.video.model.entity.*;
 import com.video.model.service.*;
 
@@ -22,19 +21,21 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MediaController {
 
     private MediaRepository mediaRepository;
+    private UpdateRepository updateRepository;
 
     private ThreadGroup threadGroup = new ThreadGroup("ThreadGroup");
     private ArrayList<MediaThread> mediaThreadList = new ArrayList<>();
     private final int EXIT_CODE_OK = 0;
 
-    public MediaController(MediaRepository mediaRepository) {
+    public MediaController(MediaRepository mediaRepository, UpdateRepository updateRepository) {
         this.mediaRepository = mediaRepository;
+        this.updateRepository = updateRepository;
         addAllDBtothreadlist();
     }
 
     @GetMapping("/favicon.ico")
     public void handleFavicon(HttpServletResponse response) {
-        response.setStatus(HttpServletResponse.SC_NO_CONTENT); // 204 No Content
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
     @GetMapping("/")
@@ -71,7 +72,11 @@ public class MediaController {
         if (jsonData.equals("false"))
             return ResponseEntity.ok("error");
 
-        MediaFile newMFile = addUrlBBDD(url, jsonData);
+        UpdateInfo updateInfo = UpdateInfoService.getFilteredJson(url, jsonData);
+
+        System.out.println(updateInfo.toString());
+
+        MediaFile newMFile = addUrlBBDD(url, updateInfo);
 
         MediaThread mfThread = new MediaThread(threadGroup, newMFile,
                 mediaRepository, "", false);
@@ -92,8 +97,10 @@ public class MediaController {
         return new ExecuteYtdlp().getVideoMetadata(url);
     }
 
-    public MediaFile addUrlBBDD(String url, String jsonData) {
-        MediaFile mfBBDD = new MediaFile(url, false, EXIT_CODE_OK, jsonData);
+    public MediaFile addUrlBBDD(String url, UpdateInfo updateInfo) {
+        MediaFile mfBBDD = new MediaFile(url, false, EXIT_CODE_OK, updateInfo);
+        mfBBDD.setTotalSongs(updateInfo.getPlaylist_count());
+        updateRepository.save(updateInfo);
         mediaRepository.save(mfBBDD);
         mfBBDD = mediaRepository.findByUrl(mfBBDD.getUrl());
         return mfBBDD;
