@@ -47,7 +47,7 @@ Installatión:
 DEPENDENCYS:
 
 - maven
-- openjdk23
+- openjre23
 
 How to:
 
@@ -57,4 +57,4 @@ How to:
 
 Other posibilities:
 
-Docker -> https://hub.docker.com/repository/docker/mel0nabc/videodownloader/general
+Docker -> https://hub.docker.com/r/mel0nabc/videodownloader
