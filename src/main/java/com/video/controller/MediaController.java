@@ -41,10 +41,10 @@ public class MediaController {
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
-    @GetMapping("/")
-    public String inicio() {
-        return "index";
-    }
+    // @GetMapping("/")
+    // public String inicio() {
+    //     return "index";
+    // }
 
     @PostMapping("/addDownload")
     public ResponseEntity<Object> addDownload(@RequestParam("url") String url) {

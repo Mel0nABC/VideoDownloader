@@ -30,11 +30,6 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
-    <!-- CARGAMOS THY ME LEAF -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-thymeleaf</artifactId>
-    </dependency>
     <!-- CARGAMOS SPRING DATA JPA -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
