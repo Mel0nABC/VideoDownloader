@@ -1,10 +1,16 @@
 package com.video.model.entity;
 
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -19,10 +25,23 @@ public class MediaFile {
     private String progressDownload;
     private String statusDownload;
     private String fileName;
-    
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "update_info_id")
     private UpdateInfo updateInfo;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "table_info_id")
+    private List<TableInfo> tableInfoList;
+
+    public List<TableInfo> getTableInfoList() {
+        return tableInfoList;
+    }
+
+    public void setTableInfoList(List<TableInfo> tableInfoList) {
+        this.tableInfoList = tableInfoList;
+    }
+
     private int totalSongs;
     private int downloadedSong;
 

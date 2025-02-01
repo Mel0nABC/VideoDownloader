@@ -1,8 +1,14 @@
 package com.video;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import com.video.model.service.CheckFolderFiles;
+
+import com.video.service.UpdateInfoService;
+import com.video.util.CheckFolderFiles;
 
 /**
  * @author Mel0n
@@ -18,8 +24,9 @@ import com.video.model.service.CheckFolderFiles;
 public class App {
 
     public static void main(String[] args) {
-        CheckFolderFiles.CheckOrCreateDownloadDir();
-        CheckFolderFiles.checkOrDownloadYtdlp();
+        CheckFolderFiles checkFolderFiles = new CheckFolderFiles();
+        checkFolderFiles.CheckOrCreateDownloadDir();
+        checkFolderFiles.checkOrDownloadYtdlp();
         SpringApplication.run(App.class, args);
     }
 }

@@ -1,4 +1,4 @@
-package com.video.Config;
+package com.video.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

@@ -10,6 +10,7 @@ let stompClient = null;
 
 window.onload = async function () {
 
+    getLocalIp();
     const conectado = await connectWS();
 
     if (conectado)
@@ -51,14 +52,13 @@ window.onload = async function () {
 
                 const consulta = await fetch("/addDownload", options);
                 const response = await consulta.text();
-                if (response === "error") {
-                    return;
-                }
                 const mediaFile = JSON.parse(response);
+
 
                 addDownload(mediaFile);
             } catch (error) {
                 console.log(error);
+                alert("Ha ocurrido algún problema al añadir la descarga.")
             } finally {
                 loadingStop();
                 urlElement.value = "";
@@ -75,10 +75,23 @@ window.onload = async function () {
     }, waitTime);
 }
 
+async function getLocalIp() {
+
+    const response = await fetch("/getLocalIp", { method: "POST" })
+
+    if (!response.ok) {
+        console.log("Ha habido algún error")
+        return "ws://localhost:8080/wc_server"
+    }
+    const ip = await response.text();
+    return "ws://" + ip + ":8080/wc_server"
+}
+
 async function connectWS() {
-    return new Promise((resolve, reject) => {
+    const ip = await getLocalIp();
+    return new Promise(async (resolve, reject) => {
         stompClient = new StompJs.Client({
-            brokerURL: 'ws://localhost:8080/wc_server',
+            brokerURL: "ws://localhost:8080/wc_server",
             onConnect: (frame) => {
                 console.log('Connected: ' + frame);
                 stompClient.subscribe('/update/getInfo', (respuesta) => {
@@ -177,12 +190,8 @@ async function createTableFormats(url, id) {
         .then(res => res.json())
         .then(response => {
 
-            const jsonData = JSON.parse(response.jsonData);
-
-            // alert($(window).width())
-            $(window).width()
             var tabla = `<div id="containerFormatos" class="table-container">
-                    <div class="table-data-container" style="width: ${$(window).width() - ($(window).width() * 0.1)}">
+                    <div class="table-data-container">
                         <h2>SELECCIÓN DE FORMATOS</h2>
                         <table class="containerTable">
                             <thead>
@@ -201,7 +210,7 @@ async function createTableFormats(url, id) {
                             </thead>
                             <tbody>`
 
-            jsonData.formats.forEach(formats => {
+            response.tableInfoList.forEach(formats => {
                 var tbrcalc = Number(formats.tbr).toFixed(0);
                 var mbytes = formats.filesize / 1024 / 1024;
                 var mbytesUnit = "MB"
@@ -390,7 +399,7 @@ async function download(url, formatId) {
         body: formData
     }
     const data = await fetch(`/download`, options);
-    return await data.json();
+    return await data.text();
 }
 
 async function checkButtonsStatus() {

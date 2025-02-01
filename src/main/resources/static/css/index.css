@@ -200,7 +200,6 @@ footer {
 }
 
 article {
-
     border: white 1px solid;
     border-radius: 1em;
     padding: 1%;
@@ -221,7 +220,7 @@ article:focus {
 
 .video-down-info {
     width: 33%;
-    margin: auto 0;
+    height: 100%;
 
     div {
         margin-top: 1em;
@@ -240,23 +239,23 @@ article:focus {
 }
 
 .video-down-actions {
-    width: 33%;
-    display: grid;
+    /* width: 33%; */
+    /* display: grid;
+    gap: 1em; */
+    display: flex;
     gap: 1em;
 }
 
 .articleImg {
-    width: 70%;
+    width: 10em;
     border-radius: 20px;
-
-
 }
 
 .articleTittle {
-    width: 100%;
-    display: block;
+    /* width: 100%; */
+    /* display: block; */
     margin-bottom: 1em;
-    font-size: 1.2em;
+    /* font-size: 1.2em; */
 }
 
 
@@ -267,6 +266,7 @@ article:focus {
 
 .wrapper_2 {
     width: auto;
+    height: 1.2em;
     background: #484850;
     padding: 2px;
     border-radius: 30px;
@@ -286,12 +286,11 @@ article:focus {
     z-index: 1;
     font-weight: bold;
     transform: translate(-50%, 0%);
-    top: 0.5em;
 }
 
 .progress_2 {
     width: 0%;
-    height: 20px;
+    height: 100%;
     border-radius: 50px 50px 50px 50px;
     background-color: hsla(131, 55%, 45%, 1);
     position: relative;
@@ -303,10 +302,15 @@ article:focus {
     border-right: 1px solid rgba(0, 0, 0, 0.75);
 }
 
+@media (max-width: 1100px) {
+    .infoSoftware {
+        display: none;
+    }
 
+}
 
+@media (max-width: 950px) {
 
-@media (max-width: 570px) {
     .down-box-info {
         display: block;
         color: white;
@@ -336,14 +340,7 @@ article:focus {
         font-size: 1em;
     }
 
-}
 
-
-
-@media (max-width: 900px) {
-    .infoSoftware {
-        display: none;
-    }
 }
 
 @keyframes blink-animation {
@@ -360,6 +357,8 @@ article:focus {
     }
 }
 
+
+
 .blink {
     animation: blink-animation 1s linear infinite;
 }
@@ -370,10 +369,12 @@ article:focus {
     left: 50%;
     z-index: 3;
     width: 10px;
+    width: 100%;
 }
 
 
 .table-data-container {
+    width: 110%;
     background-color: var(--color-fondo);
     transform: translate(-50%, 0%);
     padding: 3em 3em 3em 3em;
@@ -408,6 +409,7 @@ article:focus {
 	Author: https://github.com/pablorgarcia
  */
 .containerTable {
+    width: auto;
     text-align: left;
     margin: 0 auto;
     display: table;
@@ -462,7 +464,11 @@ article:focus {
     box-shadow: 0 6px 6px -6px #0E1119;
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1580px) {
+
+    .table-data-container{
+        width: 100%;
+    }
 
     .containerTable td:nth-child(5),
     .containerTable th:nth-child(5) {
@@ -475,7 +481,7 @@ article:focus {
     }
 }
 
-@media (max-width: 1150px) {
+@media (max-width: 1428px) {
 
     .containerTable td:nth-child(9),
     .containerTable th:nth-child(9) {
@@ -488,8 +494,7 @@ article:focus {
     }
 }
 
-
-@media (max-width: 920px) {
+@media (max-width: 1160px) {
 
     .containerTable td:nth-child(8),
     .containerTable th:nth-child(8) {
@@ -502,7 +507,7 @@ article:focus {
     }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 790px) {
 
     .containerTable td:nth-child(4),
     .containerTable th:nth-child(4) {
@@ -521,7 +526,7 @@ article:focus {
     }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 620px) {
 
     .table-data-container {
         width: 100%;
@@ -536,7 +541,7 @@ article:focus {
 
         th,
         td {
-            padding:1em;
+            padding: 1em;
         }
     }
 
