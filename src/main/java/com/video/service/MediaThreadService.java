@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.video.model.entity.MediaFile;
@@ -19,8 +18,6 @@ import com.video.util.MediaThread;
 public class MediaThreadService {
 
     private final int EXIT_CODE_OK = 0;
-    private final int EXIT_CODE_ERROR = 1;
-    private final int EXIT_CODE_CANCEL = 2;
 
     private MediaRepository mediaRepository;
     private UpdateRepository updateRepository;

@@ -76,12 +76,15 @@ public class MediaThread extends Thread {
                     mediaRepository.save(mediaFile);
                 }
 
-                BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-                String errorLine;
-                System.out.println("EN ERROR");
-                while ((errorLine = readerError.readLine()) != null) {
-                    System.err.println(line);
-                }
+
+
+                // Pendent
+                // BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                // String errorLine;
+                // System.out.println("EN ERROR");
+                // while ((errorLine = readerError.readLine()) != null) {
+                //     System.err.println(line);
+                // }
 
                 reader.close();
             } catch (Exception e) {

@@ -15,7 +15,7 @@ public class LocalIPService {
             inetAddress = InetAddress.getLocalHost();
         } catch (UnknownHostException e) {
             e.printStackTrace();
-            return inetAddress.toString();
+            return null;
         }
         return inetAddress.toString();
     }

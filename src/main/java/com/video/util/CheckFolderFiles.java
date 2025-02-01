@@ -22,7 +22,7 @@ public class CheckFolderFiles {
         File ytFile = new File(YT_DLP_BIN);
 
         if (!ytFile.exists()) {
-            String fileUrl = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux";
+            String fileUrl = getOsLink();
             String outputPath = "yt-dlp";
             try (InputStream inputStream = new URL(fileUrl).openStream();
                     FileOutputStream outputStream = new FileOutputStream(outputPath)) {
@@ -42,4 +42,35 @@ public class CheckFolderFiles {
         }
 
     }
+
+    public String getOsLink() {
+
+        String osName = System.getProperty("os.name").toLowerCase();
+
+        if (osName.contains("windows"))
+            osName = "windows";
+
+        if (osName.contains("mac"))
+            osName = "mac";
+
+        String fileUrl = "";
+        switch (osName) {
+            case "linux":
+                fileUrl = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_linux";
+                break;
+
+            case "windows":
+                fileUrl = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_x86.exe";
+                break;
+
+            case "mac":
+                fileUrl = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos";
+                break;
+
+            default:
+                break;
+        }
+        return fileUrl;
+    }
+
 }

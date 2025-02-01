@@ -3,7 +3,6 @@ package com.video.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -17,8 +16,6 @@ import com.video.model.repository.UpdateRepository;
 public class MediaFileService {
 
     private final int EXIT_CODE_OK = 0;
-    private final int EXIT_CODE_ERROR = 1;
-    private final int EXIT_CODE_CANCEL = 2;
 
     private UpdateRepository updateRepository;
     private MediaRepository mediaRepository;
