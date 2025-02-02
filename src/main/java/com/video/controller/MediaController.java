@@ -7,7 +7,6 @@ import com.video.util.YtdlpUpdateInfo;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,12 +40,24 @@ public class MediaController {
     }
 
     @PostMapping("/addDownload")
-    public ResponseEntity<MediaThread> addDownload(@RequestParam("url") String url) {
-        String jsonData = executeYtdlpService.getVideoMetadata(url);
-        UpdateInfo updateInfo = updateInfoService.getInfoDownload(url, jsonData);
-        List<TableInfo> tableInfoList = updateInfoService.getTableInfo(url, jsonData);
-        MediaFile newMFile = mediaFileService.addUrlBBDD(url, updateInfo, tableInfoList);
-        return ResponseEntity.ok(mediaThreadService.addDownload(url, jsonData, newMFile, updateInfo, tableInfoList));
+    public ResponseEntity<Object> addDownload(@RequestParam("url") String url) {
+        Optional<MediaThread> mediaThread = null;
+        try {
+
+            String jsonData = executeYtdlpService.getVideoMetadata(url);
+            UpdateInfo updateInfo = updateInfoService.getInfoDownload(url, jsonData);
+            List<TableInfo> tableInfoList = updateInfoService.getTableInfo(url, jsonData);
+            MediaFile newMFile = mediaFileService.addUrlBBDD(url, updateInfo, tableInfoList);
+            mediaThread = mediaThreadService.addDownload(url, jsonData, newMFile, updateInfo,
+                    tableInfoList);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("La URL no es correcta, vuelva a intentarlo.");
+        }
+        if (mediaThread.isEmpty())
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Ha ocurrido algún problema al añadir la descarga, vuelva a intentarlo.");
+        return ResponseEntity.ok(mediaThread);
     }
 
     @PostMapping("/download")
@@ -56,22 +67,20 @@ public class MediaController {
     }
 
     @PostMapping("/getTableInfo")
-    public ResponseEntity<List<TableInfo>> getTableInfo(@RequestParam("url") String url) {
-        Optional<List<TableInfo>> tableInfo = mediaFileService.getTableInfo(url);
-        if (tableInfo.isEmpty()) {
-            List<TableInfo> tableErrorList = new ArrayList<>();
-            TableInfo tableError = new TableInfo();
-            tableError.setStatusMsg("No se encontraron formatos,utilice descarga directa.");
-            tableErrorList.add(tableError);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(tableErrorList);
-        }
-
+    public ResponseEntity<Object> getTableInfo(@RequestParam("url") String url) {
+        Optional<List<TableInfo>> tableInfo = mediaFileService.getTableInfo("url");
+        if (tableInfo.get().isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("No se encontraron formatos,utilice descarga directa.");
         return ResponseEntity.ok(tableInfo.get());
     }
 
     @DeleteMapping("/delByUrl")
-    public ResponseEntity<Boolean> delByUrlWeb(@RequestParam("url") String url) {
-        return ResponseEntity.ok(mediaThreadService.delByUrlWeb(url));
+    public ResponseEntity<Object> delByUrlWeb(@RequestParam("url") String url) {
+        if(!mediaThreadService.delByUrlWeb(url))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error al intentar eliminar la descarga, vuelva a intentarlo");
+
+        return ResponseEntity.ok("ok");
     }
 
     @PostMapping("/stopThread")

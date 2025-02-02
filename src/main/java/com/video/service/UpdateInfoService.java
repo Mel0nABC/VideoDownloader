@@ -86,7 +86,7 @@ public class UpdateInfoService {
 
             if (linea.get("vbr") != null)
                 vbr = linea.get("vbr").longValue();
-            System.out.println("TAMAÑO --> "+filesize);
+
             TableInfo newTableInfo = new TableInfo(url, format_id, ext, resolution, filesize, tbr, acodec, abr,
                     format_note, vbr, "ok");
             listaTableInfo.add(newTableInfo);

@@ -1,9 +1,9 @@
 const YELLOW_STATUS = "rgb(255, 235, 156)";
 const RED_STATUS = "rgb(255, 199, 206)";
 const GREEN_STATUS = "rgb(198, 239, 206)";
-const waitTime = 600;
 const threadsDescarga = 0;
 const threadsParados = 1;
+let waitTime = 800;
 let updateData = false;
 let mediaThreadList = null;
 let stompClient = null;
@@ -50,18 +50,21 @@ window.onload = async function () {
                 }
 
                 const consulta = await fetch("/addDownload", options);
+
+                if (!consulta.ok) {
+                    const errorMsg = await consulta.text();
+                    alert(errorMsg);
+                    return;
+                }
+
                 const response = await consulta.text();
                 const mediaFile = JSON.parse(response);
-
-
                 addDownload(mediaFile);
             } catch (error) {
-                console.log(error);
-                alert("Ha ocurrido algún problema al añadir la descarga.")
+
             } finally {
                 loadingStop();
                 urlElement.value = "";
-
             }
         })();
     });
@@ -175,14 +178,12 @@ function createTableFormats(url, id) {
     fetch("/getTableInfo", options)
         .then(async res => {
             if (!res.ok) {
-                const data = await res.json();
-                alert(data[0].statusMsg);
-
+                alert(await res.text());
+                return;
             }
             return res.json();
         })
         .then(response => {
-
             if (!response)
                 return;
 
@@ -210,7 +211,7 @@ function createTableFormats(url, id) {
 
             tableInfoList.forEach(formats => {
                 var tbrcalc = Number(formats.tbr).toFixed(0);
-                console.log("SIZE -> "+formats.filesize)
+                console.log("SIZE -> " + formats.filesize)
                 var mbytes = formats.filesize / 1024 / 1024;
                 var mbytesUnit = "MB"
                 if (mbytes > 1024) {
@@ -538,9 +539,12 @@ function checkRowBlink(url) {
     }
     return false;
 }
+async function delByUrl(url) {
+    const tmpWait = waitTime;
+    waitTime = 10000;
 
+    mediaThreadList = mediaThreadList.filter(thread => thread.mediaFile.url !== url);
 
-function delByUrl(url) {
     const formData = new FormData();
     formData.append("url", url);
 
@@ -549,17 +553,15 @@ function delByUrl(url) {
         body: formData
     }
 
-    fetch(`/delByUrl`, options)
-        .then(res => res.json())
-        .then(response => {
-            if (response == true) {
-                delArticle(url);
-                return true;
-            }
-
-            return false;
-
-        })
+    const response = await fetch(`/delByUrl`, options);
+    if (!response.ok) {
+        const errorMsg = await response.text();
+        alert(errorMsg);
+        return;
+    }
+    const data = await response.text();
+    delArticle(url);
+    waitTime = tmpWait;
 }
 
 function delArticle(url) {

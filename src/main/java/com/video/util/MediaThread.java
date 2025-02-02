@@ -23,7 +23,7 @@ public class MediaThread extends Thread {
     private final int EXIT_CODE_CANCEL = 2;
 
     public MediaThread(ThreadGroup threadGroup, MediaFile mediaFile, String formatId,
-            Boolean downloadInProgress,MediaRepository mediaRepository) {
+            Boolean downloadInProgress, MediaRepository mediaRepository) {
         super(threadGroup, "threadgroup");
         this.mediaFile = mediaFile;
         this.mediaRepository = mediaRepository;
@@ -31,6 +31,7 @@ public class MediaThread extends Thread {
         this.downloadInProgress = downloadInProgress;
         this.mediaRepository = mediaRepository;
     }
+
     @Override
     public void run() {
         mediaFile.setStatusDownload("Iniciando descarga ...");
@@ -76,14 +77,13 @@ public class MediaThread extends Thread {
                     mediaRepository.save(mediaFile);
                 }
 
-
-
                 // Pendent
-                // BufferedReader readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                // BufferedReader readerError = new BufferedReader(new
+                // InputStreamReader(process.getErrorStream()));
                 // String errorLine;
                 // System.out.println("EN ERROR");
                 // while ((errorLine = readerError.readLine()) != null) {
-                //     System.err.println(line);
+                // System.err.println(line);
                 // }
 
                 reader.close();
@@ -109,18 +109,16 @@ public class MediaThread extends Thread {
             mediaFile.setStatusDownload("Descarga finalizada");
             downloadInProgress = false;
 
-            if (exitCode == EXIT_CODE_ERROR) {
-                mediaFile.setDownloaded(false);
-                mediaFile.setExitCode(EXIT_CODE_ERROR);
-                mediaFile.setStatusDownload("Ha ocurrido algún error: " + exitCode);
-                downloadInProgress = false;
-            }
-
             if (exitCode == EXIT_CODE_CANCEL) {
                 mediaFile.setDownloaded(false);
                 mediaFile.setExitCode(EXIT_CODE_CANCEL);
                 mediaFile.setStatusDownload("Se ha cancelado la descarga: " + exitCode);
-                downloadInProgress = false;
+            }
+
+            if (exitCode != EXIT_CODE_CANCEL || exitCode != EXIT_CODE_OK) {
+                mediaFile.setDownloaded(false);
+                mediaFile.setExitCode(EXIT_CODE_ERROR);
+                mediaFile.setStatusDownload("Ha ocurrido algún error: " + exitCode);
             }
 
             mediaRepository.save(mediaFile);

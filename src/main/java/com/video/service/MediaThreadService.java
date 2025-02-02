@@ -2,8 +2,7 @@ package com.video.service;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.print.attribute.standard.Media;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -35,7 +34,7 @@ public class MediaThreadService {
         addAllDbToThreadList();
     }
 
-    public MediaThread addDownload(String url, String jsonData, MediaFile newFile, UpdateInfo updateInfo,
+    public Optional<MediaThread> addDownload(String url, String jsonData, MediaFile newFile, UpdateInfo updateInfo,
             List<TableInfo> tableInfoList) {
 
         if (!urlExist(url))
@@ -50,14 +49,15 @@ public class MediaThreadService {
         if (tableInfoList == null)
             return null;
 
-        MediaThread mfThread = new MediaThread(threadGroup, newFile, "", false, mediaRepository);
-        mediaThreadList.add(mfThread);
+        Optional<MediaThread> mediaThread = Optional
+                .ofNullable(new MediaThread(threadGroup, newFile, "", false, mediaRepository));
+        if (!mediaThread.isEmpty())
+            mediaThreadList.add(mediaThread.get());
 
-        return mfThread;
+        return mediaThread;
     }
 
-    public MediaFile download(String url, String formatId) {
-
+    public MediaFile download(String url, String formatId){
         MediaThread mediaThread = null;
         MediaFile mediaFile = null;
 
@@ -74,9 +74,7 @@ public class MediaThreadService {
         mediaThread.setFormatId(formatId);
         mediaThread = new MediaThread(threadGroup, mediaFile, formatId, false, mediaRepository);
         mediaThread.start();
-
         mediaThreadList.add(mediaThread);
-
         return mediaFile;
     }
 
