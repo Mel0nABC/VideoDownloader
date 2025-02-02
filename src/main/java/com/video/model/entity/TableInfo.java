@@ -11,17 +11,15 @@ public class TableInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
-    private String url, format_id, ext, resolution, acodec, format_note;
-    private double filesize, tbr, abr, vbr;
+    private String url, format_id, ext, resolution, acodec, format_note, statusMsg;
+    private long filesize, tbr, abr, vbr;
 
     public TableInfo() {
 
     }
 
-    public TableInfo(String url, String format_id, String ext, String resolution, double filesize, double tbr,
-            String acodec,
-            double abr, String format_note, double vbr) {
+    public TableInfo(String url, String format_id, String ext, String resolution, long filesize, long tbr,
+            String acodec, long abr, String format_note, long vbr, String statusMsg) {
         this.url = url;
         this.format_id = format_id;
         this.ext = ext;
@@ -32,6 +30,15 @@ public class TableInfo {
         this.abr = abr;
         this.format_note = format_note;
         this.vbr = vbr;
+        this.statusMsg = statusMsg;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
     public String getUrl() {
@@ -66,36 +73,12 @@ public class TableInfo {
         this.resolution = resolution;
     }
 
-    public double getFilesize() {
-        return filesize;
-    }
-
-    public void setFilesize(double filesize) {
-        this.filesize = filesize;
-    }
-
-    public double getTbr() {
-        return tbr;
-    }
-
-    public void setTbr(double tbr) {
-        this.tbr = tbr;
-    }
-
     public String getAcodec() {
         return acodec;
     }
 
     public void setAcodec(String acodec) {
         this.acodec = acodec;
-    }
-
-    public double getAbr() {
-        return abr;
-    }
-
-    public void setAbr(double abr) {
-        this.abr = abr;
     }
 
     public String getFormat_note() {
@@ -106,26 +89,43 @@ public class TableInfo {
         this.format_note = format_note;
     }
 
-    @Override
-    public String toString() {
-        return "TableInfo [id=" + id + ", format_id=" + format_id + ", ext=" + ext + ", resolution=" + resolution
-                + ", filesize=" + filesize + ", tbr=" + tbr + ", acodec=" + acodec + ", abr=" + abr + ", format_note="
-                + format_note + "]";
+    public String getStatusMsg() {
+        return statusMsg;
     }
 
-    public long getId() {
-        return id;
+    public void setStatusMsg(String statusMsg) {
+        this.statusMsg = statusMsg;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public long getFilesize() {
+        return filesize;
     }
 
-    public double getVbr() {
+    public void setFilesize(long filesize) {
+        this.filesize = filesize;
+    }
+
+    public long getTbr() {
+        return tbr;
+    }
+
+    public void setTbr(long tbr) {
+        this.tbr = tbr;
+    }
+
+    public long getAbr() {
+        return abr;
+    }
+
+    public void setAbr(long abr) {
+        this.abr = abr;
+    }
+
+    public long getVbr() {
         return vbr;
     }
 
-    public void setVbr(double vbr) {
+    public void setVbr(long vbr) {
         this.vbr = vbr;
     }
 }

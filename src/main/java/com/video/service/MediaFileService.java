@@ -1,8 +1,11 @@
 package com.video.service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import javax.swing.text.html.Option;
+
+import org.hibernate.mapping.Table;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -25,7 +28,7 @@ public class MediaFileService {
         this.mediaRepository = mediaRepository;
     }
 
-    public MediaFile addUrlBBDD(String url, UpdateInfo updateInfo, ArrayList<TableInfo> tableInfoList) {
+    public MediaFile addUrlBBDD(String url, UpdateInfo updateInfo, List<TableInfo> tableInfoList) {
         MediaFile mfBBDD = new MediaFile(url, false, EXIT_CODE_OK, updateInfo);
         mfBBDD.setTotalSongs(updateInfo.getPlaylist_count());
 
@@ -38,12 +41,12 @@ public class MediaFileService {
         return mfBBDD;
     }
 
-    public MediaFile getUrl(@RequestParam("url") String url) {
-        return mediaRepository.findByUrl(url);
-    }
+    public Optional<List<TableInfo>> getTableInfo(@RequestParam("url") String url) {
+        MediaFile mediaFile = mediaRepository.findByUrl(url);
 
-    public List<MediaFile> getAllUrl() {
-        return mediaRepository.findAll();
-    }
+        if (mediaFile == null)
+            return Optional.ofNullable(null);
 
+        return Optional.ofNullable(mediaFile.getTableInfoList());
+    }
 }

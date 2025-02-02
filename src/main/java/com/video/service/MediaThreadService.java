@@ -1,8 +1,9 @@
 package com.video.service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import javax.print.attribute.standard.Media;
 
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,7 @@ public class MediaThreadService {
     private UpdateRepository updateRepository;
     private TableInfoRepository tableInfoRepository;
 
-    private ArrayList<MediaThread> mediaThreadList = new ArrayList<>();
+    private List<MediaThread> mediaThreadList = new ArrayList<>();
     private ThreadGroup threadGroup = new ThreadGroup("ThreadGroup");
 
     public MediaThreadService(MediaRepository mediaRepository, UpdateRepository updateRepository,
@@ -34,13 +35,8 @@ public class MediaThreadService {
         addAllDbToThreadList();
     }
 
-    public ArrayList<MediaThread> getList() {
-        return mediaThreadList;
-    }
-
     public MediaThread addDownload(String url, String jsonData, MediaFile newFile, UpdateInfo updateInfo,
-            ArrayList<TableInfo> tableInfoList) {
-        System.out.println("ENTRANDO EN ADD DOWNLOAD MEDIA THREAD SERVICE   " + urlExist(url));
+            List<TableInfo> tableInfoList) {
 
         if (!urlExist(url))
             return null;
@@ -55,16 +51,12 @@ public class MediaThreadService {
             return null;
 
         MediaThread mfThread = new MediaThread(threadGroup, newFile, "", false, mediaRepository);
-        System.out.println("ANTES " + mediaThreadList.size());
         mediaThreadList.add(mfThread);
-        System.out.println("DESPUES " + mediaThreadList.size());
 
         return mfThread;
     }
 
-    public Map<String, Object> download(String url, String formatId) {
-
-        Map<String, Object> contenido = new HashMap<>();
+    public MediaFile download(String url, String formatId) {
 
         MediaThread mediaThread = null;
         MediaFile mediaFile = null;
@@ -85,8 +77,7 @@ public class MediaThreadService {
 
         mediaThreadList.add(mediaThread);
 
-        contenido.put("mediaFile", mediaFile);
-        return contenido;
+        return mediaFile;
     }
 
     public boolean delByUrlWeb(String url) {
@@ -119,7 +110,6 @@ public class MediaThreadService {
     }
 
     public Boolean stopThreadWeb(String url) {
-        System.out.println("STOP THREAD");
         for (MediaThread tr : mediaThreadList) {
             if (tr != null) {
                 if (tr.getMediaFile().getUrl().equals(url)) {
@@ -141,6 +131,7 @@ public class MediaThreadService {
 
     public void addAllDbToThreadList() {
         for (MediaFile mfLoad : mediaRepository.findAll()) {
+            System.out.println(mfLoad.getUrl());
             mfLoad.setUpdateInfo(updateRepository.findByUrl(mfLoad.getUrl()));
             mfLoad.setTableInfoList(tableInfoRepository.findAll());
             MediaThread mfThread = new MediaThread(threadGroup, mfLoad, "", false, mediaRepository);
@@ -155,7 +146,7 @@ public class MediaThreadService {
         return true;
     }
 
-    public ArrayList<MediaThread> getMediaThreadList() {
+    public List<MediaThread> getMediaThreadList() {
         return mediaThreadList;
     }
 

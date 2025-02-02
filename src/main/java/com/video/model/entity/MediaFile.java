@@ -2,6 +2,8 @@ package com.video.model.entity;
 
 import java.util.List;
 
+import javax.print.attribute.standard.Media;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 
@@ -24,6 +26,8 @@ public class MediaFile {
     private String progressDownload;
     private String statusDownload;
     private String fileName;
+    private int totalSongs;
+    private int downloadedSong;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "update_info_id")
@@ -33,20 +37,13 @@ public class MediaFile {
     @JoinColumn(name = "table_info_id")
     private List<TableInfo> tableInfoList;
 
-    public List<TableInfo> getTableInfoList() {
-        return tableInfoList;
-    }
-
-    public void setTableInfoList(List<TableInfo> tableInfoList) {
-        this.tableInfoList = tableInfoList;
-    }
-
-    private int totalSongs;
-    private int downloadedSong;
-
     {
         progressDownload = "0%";
         statusDownload = "Descarga no iniciada";
+    }
+
+    public MediaFile() {
+
     }
 
     public MediaFile(String url, boolean downloaded, int exitCode, UpdateInfo updateInfo) {
@@ -54,10 +51,6 @@ public class MediaFile {
         this.downloaded = downloaded;
         this.exitCode = exitCode;
         this.updateInfo = updateInfo;
-    }
-
-    public MediaFile() {
-
     }
 
     public long getId() {
@@ -76,7 +69,7 @@ public class MediaFile {
         this.url = url;
     }
 
-    public boolean getDownloaded() {
+    public boolean isDownloaded() {
         return downloaded;
     }
 
@@ -92,14 +85,6 @@ public class MediaFile {
         this.exitCode = exitCode;
     }
 
-    public UpdateInfo getUpdateInfo() {
-        return updateInfo;
-    }
-
-    public void setUpdateInfo(UpdateInfo updateInfo) {
-        this.updateInfo = updateInfo;
-    }
-
     public String getProgressDownload() {
         return progressDownload;
     }
@@ -108,26 +93,20 @@ public class MediaFile {
         this.progressDownload = progressDownload;
     }
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    @Override
-    public String toString() {
-        return "MediaFile [id=" + id + ", url=" + url + ", downloaded=" + downloaded + ", exitCode=" + exitCode
-                + ", progressDownload=" + progressDownload + ", fileName=" + fileName + "]";
-    }
-
     public String getStatusDownload() {
         return statusDownload;
     }
 
     public void setStatusDownload(String statusDownload) {
         this.statusDownload = statusDownload;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public int getTotalSongs() {
@@ -144,6 +123,22 @@ public class MediaFile {
 
     public void setDownloadedSong(int downloadedSong) {
         this.downloadedSong = downloadedSong;
+    }
+
+    public UpdateInfo getUpdateInfo() {
+        return updateInfo;
+    }
+
+    public void setUpdateInfo(UpdateInfo updateInfo) {
+        this.updateInfo = updateInfo;
+    }
+
+    public List<TableInfo> getTableInfoList() {
+        return tableInfoList;
+    }
+
+    public void setTableInfoList(List<TableInfo> tableInfoList) {
+        this.tableInfoList = tableInfoList;
     }
 
 }

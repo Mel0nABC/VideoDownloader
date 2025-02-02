@@ -5,10 +5,18 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class CheckFolderFiles {
 
     public final String YT_DLP_BIN = System.getProperty("user.dir") + "/yt-dlp";
     public final String PATH_TO_DOWNLOAD = "./DownloadedFiles".replaceAll("./", "");
+
+    public CheckFolderFiles() {
+        CheckOrCreateDownloadDir();
+        checkOrDownloadYtdlp();
+    }
 
     public void CheckOrCreateDownloadDir() {
         File downDir = new File(PATH_TO_DOWNLOAD);

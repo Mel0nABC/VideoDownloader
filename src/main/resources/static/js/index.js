@@ -10,7 +10,6 @@ let stompClient = null;
 
 window.onload = async function () {
 
-    getLocalIp();
     const conectado = await connectWS();
 
     if (conectado)
@@ -75,23 +74,10 @@ window.onload = async function () {
     }, waitTime);
 }
 
-async function getLocalIp() {
-
-    const response = await fetch("/getLocalIp", { method: "POST" })
-
-    if (!response.ok) {
-        console.log("Ha habido algún error")
-        return "ws://localhost:8080/wc_server"
-    }
-    const ip = await response.text();
-    return "ws://" + ip + ":8080/wc_server"
-}
-
 async function connectWS() {
-    const ip = await getLocalIp();
     return new Promise(async (resolve, reject) => {
         stompClient = new StompJs.Client({
-            brokerURL: "ws://localhost:8080/wc_server",
+            brokerURL: "ws://" + window.location.hostname + ":8080/wc_server",
             onConnect: (frame) => {
                 console.log('Connected: ' + frame);
                 stompClient.subscribe('/update/getInfo', (respuesta) => {
@@ -176,7 +162,7 @@ function removeAfterAmpersand(url) {
     return url.split('&')[0];
 }
 
-async function createTableFormats(url, id) {
+function createTableFormats(url, id) {
     const formData = new FormData();
     formData.append("url", url);
     formData.append("id", id)
@@ -186,9 +172,21 @@ async function createTableFormats(url, id) {
         body: formData
     }
 
-    fetch("/getUrl", options)
-        .then(res => res.json())
+    fetch("/getTableInfo", options)
+        .then(async res => {
+            if (!res.ok) {
+                const data = await res.json();
+                alert(data[0].statusMsg);
+
+            }
+            return res.json();
+        })
         .then(response => {
+
+            if (!response)
+                return;
+
+            const tableInfoList = response
 
             var tabla = `<div id="containerFormatos" class="table-container">
                     <div class="table-data-container">
@@ -210,8 +208,9 @@ async function createTableFormats(url, id) {
                             </thead>
                             <tbody>`
 
-            response.tableInfoList.forEach(formats => {
+            tableInfoList.forEach(formats => {
                 var tbrcalc = Number(formats.tbr).toFixed(0);
+                console.log("SIZE -> "+formats.filesize)
                 var mbytes = formats.filesize / 1024 / 1024;
                 var mbytesUnit = "MB"
                 if (mbytes > 1024) {
@@ -546,7 +545,7 @@ function delByUrl(url) {
     formData.append("url", url);
 
     let options = {
-        method: "POST",
+        method: "DELETE",
         body: formData
     }
 

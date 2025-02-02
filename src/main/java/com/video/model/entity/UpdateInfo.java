@@ -11,7 +11,6 @@ public class UpdateInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-
     private String url, playlist, playlist_channel, fulltitle, thumbnail;
     private int playlist_count;
 
@@ -52,14 +51,6 @@ public class UpdateInfo {
         this.playlist = playlist;
     }
 
-    public int getPlaylist_count() {
-        return playlist_count;
-    }
-
-    public void setPlaylist_count(int playlist_count) {
-        this.playlist_count = playlist_count;
-    }
-
     public String getPlaylist_channel() {
         return playlist_channel;
     }
@@ -84,11 +75,12 @@ public class UpdateInfo {
         this.thumbnail = thumbnail;
     }
 
-    @Override
-    public String toString() {
-        return "UpdateInfo [id=" + id + ", url=" + url + ", playlist=" + playlist + ", playlist_count=" + playlist_count
-                + ", playlist_channel=" + playlist_channel + ", fulltitle=" + fulltitle + ", thumbnail=" + thumbnail
-                + "]";
+    public int getPlaylist_count() {
+        return playlist_count;
+    }
+
+    public void setPlaylist_count(int playlist_count) {
+        this.playlist_count = playlist_count;
     }
 
 }

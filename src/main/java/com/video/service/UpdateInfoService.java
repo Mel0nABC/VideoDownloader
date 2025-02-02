@@ -2,6 +2,7 @@ package com.video.service;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class UpdateInfoService {
     private String playlist, playlist_channel, fulltitle, thumbnail;
     private int playlist_count;
     private String format_id, ext, resolution, acodec, format_note;
-    private double filesize, tbr, abr, vbr;
+    private long filesize, tbr, abr, vbr;
 
     public UpdateInfo getInfoDownload(String url, String jsonString) {
 
@@ -46,10 +47,10 @@ public class UpdateInfoService {
         return new UpdateInfo(url, playlist, playlist_count, playlist_channel, fulltitle, thumbnail);
     }
 
-    public ArrayList<TableInfo> getTableInfo(String url, String jsonString) {
+    public List<TableInfo> getTableInfo(String url, String jsonString) {
 
         JsonNode node = getObjectMapper(jsonString);
-        ArrayList<TableInfo> listaTableInfo = new ArrayList<>();
+        List<TableInfo> listaTableInfo = new ArrayList<>();
 
         if (node == null)
             return null;
@@ -69,25 +70,25 @@ public class UpdateInfoService {
                 resolution = linea.get("resolution").textValue();
 
             if (linea.get("filesize") != null)
-                filesize = linea.get("filesize").intValue();
+                filesize = linea.get("filesize").longValue();
 
             if (linea.get("tbr") != null)
-                tbr = linea.get("tbr").intValue();
+                tbr = linea.get("tbr").longValue();
 
             if (linea.get("acodec") != null)
                 acodec = linea.get("acodec").textValue();
 
             if (linea.get("abr") != null)
-                abr = linea.get("abr").intValue();
+                abr = linea.get("abr").longValue();
 
             if (linea.get("format_note") != null)
                 format_note = linea.get("format_note").textValue();
 
             if (linea.get("vbr") != null)
-                vbr = linea.get("vbr").intValue();
-
+                vbr = linea.get("vbr").longValue();
+            System.out.println("TAMAÑO --> "+filesize);
             TableInfo newTableInfo = new TableInfo(url, format_id, ext, resolution, filesize, tbr, acodec, abr,
-                    format_note, vbr);
+                    format_note, vbr, "ok");
             listaTableInfo.add(newTableInfo);
         }
 

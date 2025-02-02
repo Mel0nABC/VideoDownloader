@@ -1,6 +1,6 @@
 package com.video.controller;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -20,7 +20,7 @@ public class WSController {
 
     @MessageMapping("/getInfo")
     @SendTo("/update/getInfo")
-    public ArrayList<MediaThread> getList() {
+    public List<MediaThread> getList() {
         return mediaThreadService.getMediaThreadList();
     }
 
