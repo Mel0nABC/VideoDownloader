@@ -509,7 +509,6 @@ function updateBarProgress(mediaThreadList) {
 
         if (progressBar === null)
             return;
-
         if (downloaded === true) {
             progressBar.style.width = 100 + '%';
             progressLabel.innerHTML = "Descargado"

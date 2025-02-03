@@ -2,8 +2,6 @@ package com.video.model.entity;
 
 import java.util.List;
 
-import javax.print.attribute.standard.Media;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 

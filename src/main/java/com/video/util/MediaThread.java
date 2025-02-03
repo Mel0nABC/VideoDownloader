@@ -77,15 +77,6 @@ public class MediaThread extends Thread {
                     mediaRepository.save(mediaFile);
                 }
 
-                // Pendent
-                // BufferedReader readerError = new BufferedReader(new
-                // InputStreamReader(process.getErrorStream()));
-                // String errorLine;
-                // System.out.println("EN ERROR");
-                // while ((errorLine = readerError.readLine()) != null) {
-                // System.err.println(line);
-                // }
-
                 reader.close();
             } catch (Exception e) {
                 System.out.println("Se ha detenido el thread de la url -> " + mediaFile.getUrl());
@@ -115,7 +106,7 @@ public class MediaThread extends Thread {
                 mediaFile.setStatusDownload("Se ha cancelado la descarga: " + exitCode);
             }
 
-            if (exitCode != EXIT_CODE_CANCEL || exitCode != EXIT_CODE_OK) {
+            if (exitCode != EXIT_CODE_CANCEL && exitCode != EXIT_CODE_OK) {
                 mediaFile.setDownloaded(false);
                 mediaFile.setExitCode(EXIT_CODE_ERROR);
                 mediaFile.setStatusDownload("Ha ocurrido algún error: " + exitCode);

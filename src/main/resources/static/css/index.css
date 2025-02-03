@@ -2,6 +2,7 @@
     --color-fondo: rgb(35, 35, 39);
     --color-texto: #333;
     --espaciado: 16px;
+    --green: #1BFD9C;
 }
 
 * {
@@ -56,16 +57,28 @@ main {
     justify-content: center;
 }
 
+.title {
+    display: flex;
+    gap: 1em;
+    margin: 1em;
+    color: var(--green);
+ 
+
+    .green {
+        color: var(--green);
+    }
+}
+
 h1 {
     text-align: center;
-    font-weight: 400;
+    font-weight: 450;
     color: white;
     font-size: 2rem;
     font-family: inherit;
-    margin: 1em;
 }
 
 .infoSoftware {
+    display: inline;
     position: absolute;
     right: 0em;
     text-align: center;
@@ -80,7 +93,7 @@ h1 {
 
 /* From Uiverse.io by adamgiebl */
 button {
-    --green: #1BFD9C;
+
     font-size: 15px;
     padding: 0.7em 2.7em;
     letter-spacing: 0.06em;
@@ -466,7 +479,7 @@ article:focus {
 
 @media (max-width: 1580px) {
 
-    .table-data-container{
+    .table-data-container {
         width: 100%;
     }
 
