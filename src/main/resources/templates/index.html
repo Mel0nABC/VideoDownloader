@@ -1,0 +1,78 @@
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Video Downloader</title>
+
+    <link rel="stylesheet" href="/css/reset.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/lettering.js/0.6.1/jquery.lettering.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script src="/js/index.js"></script>
+    <script src="/js/loading.js"></script>
+
+    <header>
+    </header>
+    <main>
+        <div class="paralel-div-container">
+            <div class="title">
+                <h1>VIDEO</h1><h1 class="green">DOWNLOADER</h1>
+            </div>
+            <div class="infoSoftware">
+                <label>YT-DLP info</label>
+                <ol>
+                    <li><label>Versión actual:</label><text id="actualVersion"> stable@2025.01.15</text></li>
+                    <li><label>Última versión:</label><text id="lastVersion"> stable@2025.01.15</text></li>
+                    <li><label>Actualizado a:</label><text id="updatedVersion"> 2025.01.25</text></li>
+                </ol>
+
+            </div>
+        </div>
+        <div class="container">
+            <input id="url" name="url" class="input" placeholder="Indica el link del video a descargar" required=""
+                type="text">
+        </div>
+
+        <div class="container">
+            <button id="btnAddDownload">AÑADIR DESCARGA</button>
+        </div>
+
+        <section id="section">
+        </section>
+    </main>
+    <footer>
+        <!-- <div class="footer">
+            <div class="row">
+                <a href="#"><i class="fa fa-facebook"></i></a>
+                <a href="#"><i class="fa fa-instagram"></i></a>
+                <a href="#"><i class="fa fa-youtube"></i></a>
+                <a href="#"><i class="fa fa-twitter"></i></a>
+            </div>
+
+            <div class="row">
+                <ul>
+                    <li><a href="#">Contact us</a></li>
+                    <li><a href="#">Our Services</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Career</a></li>
+                </ul>
+            </div> -->
+
+        <div class="row">
+            WebUI for YT-DLP, MeL0nABC develovpen.
+            https://github.com/Mel0nABC
+            https://github.com/yt-dlp/yt-dlp
+            <!-- Designed By: Mahesh -->
+        </div>
+        </div>
+    </footer>
+</body>
+
+</html>

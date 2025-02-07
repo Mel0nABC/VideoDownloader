@@ -1,13 +1,8 @@
 package com.video;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.video.service.UpdateInfoService;
 import com.video.util.CheckFolderFiles;
 
 /**

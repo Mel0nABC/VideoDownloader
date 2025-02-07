@@ -34,6 +34,11 @@ public class MediaController {
         this.updateInfoService = updateInfoService;
     }
 
+    @GetMapping("/")
+    public String inicio() {
+        return "index";
+    }
+
     @GetMapping("/favicon.ico")
     public void handleFavicon(HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_NO_CONTENT);
@@ -77,8 +82,9 @@ public class MediaController {
 
     @DeleteMapping("/delByUrl")
     public ResponseEntity<Object> delByUrlWeb(@RequestParam("url") String url) {
-        if(!mediaThreadService.delByUrlWeb(url))
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error al intentar eliminar la descarga, vuelva a intentarlo");
+        if (!mediaThreadService.delByUrlWeb(url))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Error al intentar eliminar la descarga, vuelva a intentarlo");
 
         return ResponseEntity.ok("ok");
     }
@@ -92,5 +98,4 @@ public class MediaController {
     public ResponseEntity<YtdlpUpdateInfo> checkYtUpdate() {
         return ResponseEntity.ok(new ExecuteYtdlpService().getRelease());
     }
-
 }
