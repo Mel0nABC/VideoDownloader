@@ -54,6 +54,7 @@ How to:
 - Download de files, use git or link to zip file.
 - Unzip or enter in folder.
 - Execute command -> mvn spring-boot:run
+- Open in broser -> http://localhost:8080/
 
 Other posibilities:
 
