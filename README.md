@@ -34,14 +34,16 @@ Control your download with the progress bar:
 Multiple downloads:
 
 
-![image-5](https://github.com/user-attachments/assets/2424b977-02b3-4fad-add8-24a24741f288)
+![imagen](https://github.com/user-attachments/assets/7a825a1f-e361-42ab-afd5-2a2edc1d6915)
+
 
 
 
 Tablets, movils, etc:
 
 
-![image-6](https://github.com/user-attachments/assets/dbff15f7-93d9-4e61-8d51-e2b2542b10b4)
+![imagen](https://github.com/user-attachments/assets/2fdddc79-f802-4135-bab8-0132dc663126)
+
 
 
 Installatión:
