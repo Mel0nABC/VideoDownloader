@@ -6,20 +6,22 @@ Sincronization downloads with others devices.
 
 Insert video URL:
 
-
-![image-1](https://github.com/user-attachments/assets/15c14117-9593-42e7-9458-cafc5fde9f8b)
-
+![imagen](https://github.com/user-attachments/assets/1ec29a3e-a8ae-401c-8035-fa485368714f)
 
 
-Then press download boton:
 
 
-![image-2](https://github.com/user-attachments/assets/8a9befe8-baaa-48da-b52d-9c981753ce7a)
+
+Then press download boton, two options, direct download (and list) or select quality:
+
+
+![imagen](https://github.com/user-attachments/assets/45cb8e63-535c-455f-a03e-d73d5d0b3339)
 
 
 
 Select clicking in format type to download:
-![image-3](https://github.com/user-attachments/assets/6e1ab621-d9d6-4ea0-95e2-cc6cfd26f7dd)
+
+![imagen](https://github.com/user-attachments/assets/3e4f0bc9-7800-4163-a100-be5d8126982e)
 
 
 
