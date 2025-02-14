@@ -28,21 +28,9 @@ public class ExecuteYtdlp {
         totalParams.add("-o");
         totalParams.add("./DownloadedFiles/%(title)s.%(ext)s");
 
-        // if (soloAudio == true) {
-        // totalParams.add("-x");
-        // if (audioFormatMp3) {
-        // totalParams.add("--audio-format");
-        // totalParams.add("mp3");
-        // }
-        // }
-
-        // if (!aditionalParamList.contains("null"))
-        // totalParams.addAll(aditionalParamList);
 
         totalParams.add(mediaFile.getUrl());
 
-        for (String s : totalParams)
-            System.out.println("PARAMETRO -> " + s);
 
         executeProcess(totalParams);
 
@@ -70,7 +58,6 @@ public class ExecuteYtdlp {
                 if (line.contains("[youtube]") == false && line.contains("------------") == false
                         && line.contains("[info]") == false && line.contains("[generic]") == false
                         && line.contains("ID") == false) {
-                    System.out.println(line);
                     listRows.add(line);
                 }
 
@@ -103,8 +90,6 @@ public class ExecuteYtdlp {
 
             while ((line = reader.readLine()) != null) {
                 jsonResult = line;
-                System.out.println("line -> " + line);
-
             }
             while ((line = readerError.readLine()) != null) {
                 System.out.println("line -> " + line);
@@ -126,8 +111,6 @@ public class ExecuteYtdlp {
             jsonResult = "{\"respuesta\": \"error\"}";
 
         }
-
-        System.out.println(url);
 
         return jsonResult;
 

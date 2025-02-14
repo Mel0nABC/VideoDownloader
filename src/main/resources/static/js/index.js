@@ -211,7 +211,6 @@ function createTableFormats(url, id) {
 
             tableInfoList.forEach(formats => {
                 var tbrcalc = Number(formats.tbr).toFixed(0);
-                console.log("SIZE -> " + formats.filesize)
                 var mbytes = formats.filesize / 1024 / 1024;
                 var mbytesUnit = "MB"
                 if (mbytes > 1024) {

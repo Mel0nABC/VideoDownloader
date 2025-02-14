@@ -129,7 +129,6 @@ public class MediaThreadService {
 
     public void addAllDbToThreadList() {
         for (MediaFile mfLoad : mediaRepository.findAll()) {
-            System.out.println(mfLoad.getUrl());
             mfLoad.setUpdateInfo(updateRepository.findByUrl(mfLoad.getUrl()));
             mfLoad.setTableInfoList(tableInfoRepository.findAll());
             MediaThread mfThread = new MediaThread(threadGroup, mfLoad, "", false, mediaRepository);

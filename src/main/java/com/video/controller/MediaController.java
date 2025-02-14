@@ -55,6 +55,7 @@ public class MediaController {
             MediaFile newMFile = mediaFileService.addUrlBBDD(url, updateInfo, tableInfoList);
             mediaThread = mediaThreadService.addDownload(url, jsonData, newMFile, updateInfo,
                     tableInfoList);
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("La URL no es correcta, vuelva a intentarlo.");
@@ -73,7 +74,7 @@ public class MediaController {
 
     @PostMapping("/getTableInfo")
     public ResponseEntity<Object> getTableInfo(@RequestParam("url") String url) {
-        Optional<List<TableInfo>> tableInfo = mediaFileService.getTableInfo("url");
+        Optional<List<TableInfo>> tableInfo = mediaFileService.getTableInfo(url);
         if (tableInfo.get().isEmpty())
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("No se encontraron formatos,utilice descarga directa.");

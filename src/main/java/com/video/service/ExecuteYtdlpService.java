@@ -90,7 +90,6 @@ public class ExecuteYtdlpService {
 
             while ((line = reader.readLine()) != null) {
                 jsonResult = line;
-
             }
             while ((line = readerError.readLine()) != null) {
 
