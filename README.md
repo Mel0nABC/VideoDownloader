@@ -58,7 +58,7 @@ How to:
 - Download the files, use git or link to zip file.
 - Unzip or enter in folder.
 - Execute command -> mvn spring-boot:run
-- Open in brosher -> http://localhost:8080/
+- Open in browser -> http://localhost:8080/
 
 Other posibilities:
 
