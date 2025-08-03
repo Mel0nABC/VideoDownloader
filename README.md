@@ -46,9 +46,9 @@ Tablets, movils, etc:
 
 
 
-Installatión:
+Installation:
 
-DEPENDENCIES:
+Dependencies:
 
 - maven
 - openjre23
